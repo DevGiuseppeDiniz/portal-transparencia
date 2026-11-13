@@ -8,5 +8,48 @@
       "excecoes": {}
     }
   },
-  "pacotes": {}
+  "pacotes": {
+    "next": {
+      "motivo": "framework do apps/web (11-arquitetura, DEC-09). Mantido pela Vercel; github.com/vercel/next.js. Versão fixada 16.4.5: a mais nova com ≥ 7 dias e sem advisory no OSV em 2026-11-13.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "react": {
+      "motivo": "peer do next. Mantido pela Meta; github.com/facebook/react.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "react-dom": {
+      "motivo": "peer do next. Mantido pela Meta; github.com/facebook/react.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "typescript": {
+      "motivo": "linguagem do projeto (DEC-09). Mantido pela Microsoft. Fixado na 5.9.3 (última 5.x): a 7.x é o compilador nativo, sem garantia de compatibilidade com o Next ainda.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "@types/node": {
+      "motivo": "tipos do Node 24 (engines). DefinitelyTyped; só desenvolvimento.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "@types/react": {
+      "motivo": "tipos do React. DefinitelyTyped; só desenvolvimento.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "@types/react-dom": {
+      "motivo": "tipos do React DOM. DefinitelyTyped; só desenvolvimento.",
+      "aprovadoPor": "proposto por Claude Code; confirmar no PR do esqueleto",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    }
+  }
 }

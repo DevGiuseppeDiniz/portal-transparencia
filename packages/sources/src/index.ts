@@ -1,0 +1,37 @@
+// Catálogo das fontes (docs/07-fontes-de-dados.md). Um cliente por fonte entra aqui
+// (paginação, retry, rate limit), um arquivo por SRC.
+
+export type FonteId =
+  | 'SRC-01'
+  | 'SRC-01b'
+  | 'SRC-01c'
+  | 'SRC-02'
+  | 'SRC-03'
+  | 'SRC-04'
+  | 'SRC-06'
+  | 'SRC-07'
+  | 'SRC-08'
+  | 'SRC-09'
+  | 'SRC-10';
+
+export interface Fonte {
+  readonly id: FonteId;
+  readonly nome: string;
+  readonly urlBase: string;
+  /** Entra no MVP (DEC-11)? */
+  readonly mvp: boolean;
+}
+
+export const FONTES: readonly Fonte[] = [
+  { id: 'SRC-01', nome: 'Câmara dos Deputados — API v2', urlBase: 'https://dadosabertos.camara.leg.br/api/v2', mvp: true },
+  { id: 'SRC-01b', nome: 'Câmara — arquivos em massa', urlBase: 'https://dadosabertos.camara.leg.br/arquivos', mvp: true },
+  { id: 'SRC-01c', nome: 'Câmara — cota parlamentar (CEAP)', urlBase: 'https://www.camara.leg.br/cotas', mvp: true },
+  { id: 'SRC-02', nome: 'TSE — Dados Abertos', urlBase: 'https://dadosabertos.tse.jus.br', mvp: false },
+  { id: 'SRC-03', nome: 'CGU — Portal da Transparência', urlBase: 'https://api.portaldatransparencia.gov.br', mvp: false },
+  { id: 'SRC-04', nome: 'Receita Federal — CNPJ', urlBase: 'https://dadosabertos.rfb.gov.br', mvp: false },
+  { id: 'SRC-06', nome: 'CNJ — DataJud', urlBase: 'https://api-publica.datajud.cnj.jus.br', mvp: false },
+  { id: 'SRC-07', nome: 'STF — Corte Aberta', urlBase: 'https://portal.stf.jus.br/hotsites/corteaberta', mvp: false },
+  { id: 'SRC-08', nome: 'TCU — contas julgadas irregulares', urlBase: 'https://portal.tcu.gov.br', mvp: false },
+  { id: 'SRC-09', nome: 'Transferegov — emendas', urlBase: 'https://www.gov.br/transferegov', mvp: false },
+  { id: 'SRC-10', nome: 'Tesouro Transparente — emendas', urlBase: 'https://www.tesourotransparente.gov.br', mvp: false },
+];

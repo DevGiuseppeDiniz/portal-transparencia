@@ -70,8 +70,12 @@ versão corrigida enquanto a barreira 3 bloqueia a atual. Procedimento:
 |---|---|---|---|---|
 
 ## Configuração manual (fora do código)
-- [ ] Proteção da branch `main`: exigir o status `portao-producao`, PR obrigatório, sem
-      push direto.
+- [x] Proteção da branch `main` (2026-11-13): ruleset "main protegida pelas barreiras"
+      (id 27205354) com PR obrigatório, status `portao-producao` exigido (branch
+      atualizada com a main), force push e exclusão bloqueados, **sem bypass** (nem o
+      dono). Aprovações exigidas: 0, porque o projeto tem um mantenedor só; subir para 1
+      quando entrar outra pessoa.
+      Conferir: `gh api repos/{owner}/{repo}/rules/branches/main`.
 - [ ] Workflow de deploy (quando existir) com `needs: portao-producao`.
 - [ ] Alertas do Dependabot e secret scanning do GitHub ligados.
 - [ ] Notificação quando a execução diária falhar.

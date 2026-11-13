@@ -6,10 +6,15 @@
     "node": ">=24"
   },
   "scripts": {
+    "typecheck": "pnpm -r typecheck",
     "barreiras": "node scripts/ci/check-deps.mjs && node scripts/ci/check-lockfile.mjs && node scripts/ci/check-env-publicas.mjs && node scripts/ci/check-framework-vulns.mjs && node scripts/ci/check-superficie-servidor.mjs apps/web",
     "barreira:deps": "node scripts/ci/check-deps.mjs && node scripts/ci/check-lockfile.mjs",
     "barreira:env": "node scripts/ci/check-env-publicas.mjs",
     "barreira:framework": "node scripts/ci/check-framework-vulns.mjs && node scripts/ci/check-superficie-servidor.mjs apps/web",
     "barreira:bundle": "node scripts/ci/check-bundle-segredos.mjs apps/web"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
   }
 }
