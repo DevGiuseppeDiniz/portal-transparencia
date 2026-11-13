@@ -6,12 +6,16 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "migrar": "node --env-file-if-exists=../../.env src/migrar.ts"
   },
   "dependencies": {
-    "@portal/sources": "workspace:*"
+    "@portal/sources": "workspace:*",
+    "postgres": "3.4.9"
   },
   "devDependencies": {
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "@types/node": "24.19.2"
   }
 }

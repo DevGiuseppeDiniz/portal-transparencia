@@ -1,12 +1,30 @@
 // Ponto de entrada dos coletores (11-arquitetura). Roda como job agendado, sem porta HTTP
 // (SEG-03). Node 24 executa TypeScript direto (type stripping), sem etapa de build.
 //
-// Esqueleto: só lista as fontes conhecidas. O primeiro coletor (SRC-01, deputados) vem no
-// próximo PR, gravando na tabela `coleta` (DEC-10).
+// Uso: pnpm coletar   (lê DATABASE_URL do .env na raiz; ver docs/11-arquitetura.md)
 
-import { FONTES } from '@portal/sources';
-import type { Coleta } from '@portal/db';
+import { conectar } from '@portal/db';
+import { coletarDeputados } from './coletores/deputados.ts';
+import { armazenamentoEmDisco, raizRawPadrao } from './raw.ts';
+import { versaoColetor } from './versao.ts';
 
-const pendentes: Array<Pick<Coleta, 'fonteId'>> = FONTES.map((f) => ({ fonteId: f.id }));
-
-console.log(`ingest: ${pendentes.length} fonte(s) catalogada(s); nenhum coletor implementado ainda.`);
+const sql = conectar(undefined, 'portal-ingest');
+try {
+  const resultado = await coletarDeputados({
+    sql,
+    raw: armazenamentoEmDisco(raizRawPadrao()),
+    versao: versaoColetor(),
+    http: {
+      aoTentarDeNovo: ({ url, tentativa, motivo, esperaMs }) =>
+        console.warn(`tentativa ${tentativa} falhou (${motivo}); nova tentativa em ${esperaMs} ms: ${url}`),
+    },
+  });
+  console.log(
+    `SRC-01 deputados: ${resultado.status}, ${resultado.registros} registro(s), coleta ${resultado.coletaId}` +
+      (resultado.raw ? `, raw ${resultado.raw.caminho}` : '') +
+      (resultado.erro ? `\n  motivo: ${resultado.erro}` : ''),
+  );
+  if (resultado.status !== 'sucesso') process.exitCode = 1;
+} finally {
+  await sql.end();
+}

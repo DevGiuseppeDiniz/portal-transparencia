@@ -81,6 +81,38 @@ registro com a coleta que o gerou.
 - Mudança de valor entre coletas fica registrada (histórico), sem atualizar no lugar.
 - Toda resposta da API leva um bloco `proveniencia` montado a partir desses campos.
 
+### Implementação (SRC-01, 2026-11-13)
+- **Uma coleta por execução**, não por página: `url_requisitada` é a lista pedida e o
+  pacote bruto guarda cada página (URL exata, status, cabeçalhos relevantes e o corpo
+  original como texto).
+- **`raw` endereçado por conteúdo:** `<fonte>/<AAAA-MM-DD>/<sha256>.json.gz`. O nome é o
+  `hash_conteudo`; arquivo nunca é sobrescrito (`link()` falha se já existe) e a leitura
+  confere o hash. Localmente em `data/raw/` (`RAW_DIR` sobrescreve); S3 depois, pela mesma
+  interface (`apps/ingest/src/raw.ts`).
+- O bruto é salvo **mesmo quando a coleta falha**, para diagnóstico.
+- **Só coleta com `sucesso` atualiza o `core`.** O total é conferido contra o
+  `X-Total-Count` da própria Câmara; divergência vira `parcial` (grava staging, não mexe
+  no core). Deputado que sai da lista fica no core com `em_exercicio = false`.
+- `staging` é append-only (trigger), e é ele que guarda o histórico; o `core` é o estado
+  atual e aponta para a coleta que o produziu.
+- Validação estrita do que vem da fonte (SEG-06): formato inesperado é falha da coleta,
+  nunca "melhor esforço". Link de próxima página só é seguido se for da própria API.
+
+## Ambiente local
+Pré-requisitos: Node 24, pnpm e Docker (sem compose).
+
+```
+pnpm install
+pnpm db:up       # Postgres 18 em 127.0.0.1:54329; cria .env com senha aleatória
+pnpm db:migrar   # aplica packages/db/migrations em ordem (registro em schema_migrations)
+pnpm coletar     # coletor SRC-01: deputados em exercício
+pnpm test        # node:test, sem banco nem rede
+pnpm db:down     # para o container (dados ficam no volume)
+```
+
+- Migration aplicada não pode ser editada: o runner compara o SHA-256 e para.
+- Apagar o banco local: `node scripts/dev/db-local.mjs reset --sim`.
+
 ## Pontos em aberto
 - [x] Linguagem: TypeScript (DEC-09).
 - [ ] Hospedagem e orçamento (afeta a escolha de cron/worker).

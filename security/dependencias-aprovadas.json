@@ -50,6 +50,12 @@
       "aprovadoPor": "Giuseppe Souza",
       "aprovadoEm": "2026-11-13",
       "excecoes": {}
+    },
+    "postgres": {
+      "motivo": "driver PostgreSQL do packages/db (10-pendencias). Mantido por porsager; github.com/porsager/postgres. Zero dependências transitivas. Fixado na 3.4.9 (abr/2026): a 4.x é major de 29/10/2026, nova demais.",
+      "aprovadoPor": "Giuseppe Souza",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
     }
   }
 }

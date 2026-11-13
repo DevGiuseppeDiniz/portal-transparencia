@@ -124,6 +124,8 @@ jobs:
         run: node scripts/ci/check-bundle-segredos.mjs apps/web
       - name: Typecheck de todos os pacotes (depois do build, que gera os tipos do Next)
         run: pnpm typecheck
+      - name: Testes (node:test, sem banco nem rede)
+        run: pnpm test
 
   # ---------------------------------------------------------------------------
   # Portão único: o status exigido pela proteção de branch e pelo deploy.

@@ -11,7 +11,12 @@
     "barreira:deps": "node scripts/ci/check-deps.mjs && node scripts/ci/check-lockfile.mjs",
     "barreira:env": "node scripts/ci/check-env-publicas.mjs",
     "barreira:framework": "node scripts/ci/check-framework-vulns.mjs && node scripts/ci/check-superficie-servidor.mjs apps/web",
-    "barreira:bundle": "node scripts/ci/check-bundle-segredos.mjs apps/web"
+    "barreira:bundle": "node scripts/ci/check-bundle-segredos.mjs apps/web",
+    "test": "pnpm -r --if-present test",
+    "db:up": "node scripts/dev/db-local.mjs up",
+    "db:down": "node scripts/dev/db-local.mjs down",
+    "db:migrar": "pnpm --filter @portal/db migrar",
+    "coletar": "pnpm --filter @portal/ingest start"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
