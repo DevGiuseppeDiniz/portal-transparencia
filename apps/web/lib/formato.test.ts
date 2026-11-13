@@ -64,3 +64,20 @@ test('situacaoSimples: traduz e nunca quebra com situação nova', async () => {
   assert.equal(situacaoSimples('Situação Inventada'), 'Situação Inventada');
   assert.equal(situacaoSimples(null), 'Situação não informada pela Câmara');
 });
+
+test('doQueTrata: ignora "para" do nome da lei citada; usa o "para" + infinitivo', async () => {
+  const { doQueTrata } = await import('./projetos.ts');
+  const base = { resumo: null, palavrasChave: ['saneamento'] };
+  assert.equal(
+    doQueTrata({ ...base, ementa: 'Altera a Lei nº 11.445, de 2007, que estabelece diretrizes nacionais para o saneamento básico, para incluir a adaptação climática como princípio.' }).texto,
+    'Objetivo: incluir a adaptação climática como princípio.',
+  );
+  assert.equal(
+    doQueTrata({ ...base, ementa: 'Altera a Lei nº 11.445, de 2007, que estabelece diretrizes nacionais para o saneamento básico.' }).origem,
+    'Palavras-chave da Câmara',
+  );
+  assert.equal(
+    doQueTrata({ ...base, ementa: 'Altera a Lei nº 11.445, que estabelece diretrizes nacionais para o saneamento básico, a fim de instituir a resiliência climática como princípio.' }).texto,
+    'Objetivo: instituir a resiliência climática como princípio.',
+  );
+});

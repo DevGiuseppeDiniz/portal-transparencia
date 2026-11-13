@@ -449,8 +449,8 @@ function SecaoProjetos({ j, linkDados, idDeputado }: { j: ProjetosPublicados | n
         <div className="mt-10">
           <Subtitulo>Quais são os projetos?</Subtitulo>
           <p className="mb-3 text-sm text-muted-foreground">
-            O texto de cada projeto vem da própria Câmara (resumo, trecho da ementa ou palavras-chave), sem reescrita; a ementa oficial fica
-            em “Texto oficial”.
+            Clique num projeto para ver os detalhes. O texto vem da própria Câmara (resumo, trecho da ementa ou palavras-chave), sem
+            reescrita; a ementa oficial está nos detalhes.
           </p>
           <ListaProjetos
             idDeputado={idDeputado}

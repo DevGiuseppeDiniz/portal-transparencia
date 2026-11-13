@@ -22,7 +22,11 @@ export function doQueTrata(p: Pick<ProjetoPublicado, 'resumo' | 'ementa' | 'pala
   // Algumas ementas vêm entre aspas ("Dispõe sobre…").
   const ementa = p.ementa.trim().replace(/^["“]+|["”]+$/g, '').trim();
   if (ALTERA.test(ementa)) {
-    const m = /,?\s+para\s+(.{15,})$/i.exec(ementa);
+    // O objetivo é o "para" seguido de verbo no infinitivo ("para permitir…", "para incluir…").
+    // Um "para" seguido de artigo costuma estar no nome da lei citada ("diretrizes para o
+    // saneamento básico") e não serve.
+    // "a fim de" + infinitivo também marca o objetivo.
+    const m = /,?\s+(?:para|a fim de)\s+((?:[a-zà-ú]+(?:ar|er|ir|or)(?:-(?:se|lhe|lo|la|los|las))?)\b.{10,})$/iu.exec(ementa);
     // O trecho começa no infinitivo ("permitir…", "estabelecer…"): vira "Objetivo: permitir…".
     if (m) return { texto: `Objetivo: ${fecharFrase(m[1]!.trim().replace(/^./, (c) => c.toLocaleLowerCase('pt-BR')))}`, origem: 'Trecho da ementa oficial' };
   }
