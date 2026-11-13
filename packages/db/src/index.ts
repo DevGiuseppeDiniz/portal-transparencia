@@ -1,5 +1,5 @@
 // Tipos do banco. Espelham migrations/0001_proveniencia.sql (DEC-10).
-// O driver e o query builder ainda não foram escolhidos (10-pendencias). Este pacote é
+// Driver: `postgres` (conexao.ts), SQL escrito à mão, sem query builder. Este pacote é
 // importado só pelo apps/ingest e por código de servidor: componente cliente que o
 // importe é bloqueado pela barreira 3b.
 
@@ -43,3 +43,5 @@ export interface ProvenienciaMetrica extends Omit<Proveniencia, 'coletaId'> {
   readonly versaoMetodo: string;
   readonly coletaIds: readonly string[];
 }
+
+export { conectar, type Sql, type TransacaoSql } from './conexao.ts';

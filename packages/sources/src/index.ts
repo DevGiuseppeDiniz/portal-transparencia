@@ -1,5 +1,5 @@
 // Catálogo das fontes (docs/07-fontes-de-dados.md). Um cliente por fonte entra aqui
-// (paginação, retry, rate limit), um arquivo por SRC.
+// (paginação, retry, rate limit), um arquivo por fonte. HTTP comum em http.ts.
 
 export type FonteId =
   | 'SRC-01'
@@ -35,3 +35,17 @@ export const FONTES: readonly Fonte[] = [
   { id: 'SRC-09', nome: 'Transferegov — emendas', urlBase: 'https://www.gov.br/transferegov', mvp: false },
   { id: 'SRC-10', nome: 'Tesouro Transparente — emendas', urlBase: 'https://www.tesourotransparente.gov.br', mvp: false },
 ];
+
+export { obter, lerRetryAfter, ErroHttp, type RespostaBruta, type OpcoesHttp } from './http.ts';
+export {
+  CAMARA_API,
+  ITENS_POR_PAGINA,
+  UFS,
+  ErroFormato,
+  lerPaginaDeputados,
+  urlDeputadosEmExercicio,
+  urlPublicaDeputado,
+  type DeputadoCamara,
+  type PaginaCamara,
+  type Uf,
+} from './camara.ts';

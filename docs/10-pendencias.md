@@ -10,12 +10,17 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
   quando o `REF-xx` correspondente for lido na íntegra.
 
 ## Pendências técnicas do esqueleto (2026-11-13)
-- [ ] Driver/query builder do PostgreSQL (`packages/db`): escolher e aprovar a dependência.
-      A migration `0001_proveniencia.sql` já existe, mas ainda sem runner.
+- [x] Driver do PostgreSQL: `postgres@3.4.9`, sem query builder; runner de migrations
+      próprio (`packages/db/src/migrar.ts`). Feito em 2026-11-13.
+- [ ] Migrar `postgres` para a 4.x quando a major amadurecer (4.0.0 é de 29/10/2026).
+- [ ] Credenciais separadas por papel: hoje, localmente, migrations e ingestão usam o mesmo
+      usuário dono do banco. Em produção: usuário de migration ≠ usuário LOGIN com o papel
+      `portal_ingest` ≠ usuário LOGIN com `portal_web` (SEG-02, SEG-03).
+- [ ] Teste de integração do coletor contra um Postgres de verdade no CI (service container).
 - [ ] CSP sem `'unsafe-inline'` em `script-src` (hashes ou nonce). O nonce força
       renderização dinâmica, o que conflita com o static-first (DEC-12): avaliar hashes.
 - [ ] Migrar para TypeScript 7 (compilador nativo) quando o Next suportar oficialmente.
-- [ ] Testes: escolher o runner (`node:test` nativo evita dependência).
+- [x] Testes: `node:test` nativo (`pnpm test`), rodando no CI. Feito em 2026-11-13.
 
 ## Decisões em aberto
 - [ ] DEC-05: quem faz a curadoria dos temas de votação? (conselho plural? academia?
@@ -31,8 +36,8 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
    da Câmara (SRC-01/01b/01c), sem cadastro e sem casamento entre fontes.
 2. **Esqueleto do monorepo** (`apps/web`, `apps/ingest`, `packages/db|sources|metrics`)
    com o schema de proveniência (`11-arquitetura.md#proveniência`).
-3. **Primeiro coletor (SRC-01, deputados):** valida o fluxo raw → staging → core com
-   proveniência de ponta a ponta.
+3. ~~**Primeiro coletor (SRC-01, deputados):** valida o fluxo raw → staging → core com
+   proveniência de ponta a ponta.~~ Feito em 2026-11-13 (`pnpm coletar`).
 4. Coletores de presença e de CEAP, e cálculo de MET-01/MET-02.
 5. Tela do deputado (busca por UF/nome) + página de auditoria.
 6. Teste de compreensão com 5–10 pessoas fora da bolha técnica (checklist de

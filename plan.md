@@ -24,6 +24,7 @@ facilitada tem link para o dado bruto e para a fonte oficial, para que qualquer 
 | De onde vêm os dados (catálogo de fontes) | `docs/07-fontes-de-dados.md` | SRC-01.. |
 | Fontes de um cargo específico (endpoints, limites, status) | `docs/fontes/<cargo>.md` → `## SRC-xx` | SRC-xx |
 | Arquitetura (monorepo, ingestão, camadas, nossa API) | `docs/11-arquitetura.md` | — |
+| Rodar localmente (banco, migrations, coletor, testes) | `docs/11-arquitetura.md` → `## Ambiente local` | — |
 | Métricas de desempenho, telemetria, guardrails de CI | `docs/12-observabilidade.md` | OBS-01.. |
 | Segurança (modelo de ameaça, regras) | `docs/13-seguranca.md` | SEG-01.. |
 | Barreiras de CI: o que bloqueia, como adicionar dependência/segredo, patch urgente | `docs/14-barreiras-ci.md` | DEC-13 |
@@ -37,11 +38,12 @@ facilitada tem link para o dado bruto e para a fonte oficial, para que qualquer 
 | Caminho | Conteúdo |
 |---|---|
 | `apps/web` | Next.js: páginas + API de leitura (somente leitura, DEC-12) |
-| `apps/ingest` | coletores agendados; Node 24 roda o TS direto |
+| `apps/ingest` | coletores agendados + armazenamento `raw`; Node 24 roda o TS direto |
 | `packages/db` | tipos + `migrations/` (proveniência, DEC-10) |
 | `packages/sources` | catálogo e clientes das fontes (`SRC-xx`) |
 | `packages/metrics` | cálculo puro das métricas (`MET-xx`) |
 | `scripts/ci`, `security/` | barreiras de CI (`docs/14-barreiras-ci.md`) |
+| `scripts/dev` | Postgres local via Docker (`pnpm db:up`) |
 
 ## Convenções
 
