@@ -133,14 +133,17 @@ Sem IA e sem texto mantido à mão: só regras sobre o que a Câmara publica (SR
 - **Situação em linguagem simples:** mapa fixo das ~35 situações da Câmara; situação nova
   aparece como a Câmara escreve. Mais a régua de etapas do funil e "quem decide"
   (comissões, de forma conclusiva, ou Plenário).
-- **Lista** (não cartões): linha com número, data, "do que trata" em até 2 linhas, etiquetas
-  de tema, situação simples e mini-régua de etapas. Filtros: texto, tema, etapa, situação (em
-  andamento, anexado, virou lei, arquivado/retirado/devolvido). Ordenação: mais recentes, mais
-  antigos, mais avançados, número. Carregada quando a seção aparece na tela.
-- **Detalhes num painel lateral** (`<dialog>` nativo: foco preso, Esc, fundo): resumo e
-  origem, temas, situação e régua, quem decide e regime, ementa oficial, palavras-chave,
-  situação como a Câmara escreve e link para a Câmara (nova aba). Link próprio
-  (`#projeto-ID`) para compartilhar; tela cheia no celular.
+- **Lista** (não cartões): a linha mostra primeiro a **área** (todos os temas, rolando para o
+  lado quando não cabem), depois número + "do que trata" em **uma linha** (reticências) e, na
+  última coluna, só a etapa (mini-régua + nome). Barra no padrão da tabela de dados do
+  shadcn/ui: busca, filtros em botão com contagem por faceta (tema com busca interna, etapa,
+  situação), "Limpar" e ordenação (mais recentes, mais antigos, mais avançados, número).
+  Rolagem infinita de 20 em 20, com carregador quando a pessoa desce mais rápido que a lista.
+- **Página do projeto** (`/deputado/{id}/projeto/{idProjeto}`): área, "do que trata" e
+  origem, "Em que pé está?" com a régua, ementa oficial, palavras-chave e ficha (autor, data,
+  quem decide, regime, situação como a Câmara escreve, link para a Câmara em nova aba). São
+  ~20 mil projetos: a página é gerada na primeira visita e fica em cache até o próximo build
+  (ver `11-arquitetura`).
 
 ## MET-04 — Votações nominais
 - **Classe:** objetiva (o voto) / curada (o agrupamento por tema)

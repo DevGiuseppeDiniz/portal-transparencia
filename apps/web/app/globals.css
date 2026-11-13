@@ -124,6 +124,38 @@
     }
   }
 
+  /* Linha de etiquetas que rola para o lado: barra fina e esmaecido na borda só quando há
+     mais etiquetas escondidas (scroll-driven animation; sem suporte, fica sem o esmaecido). */
+  .rolagem-lateral {
+    scrollbar-width: thin;
+    scrollbar-color: var(--input) transparent;
+    overscroll-behavior-x: contain;
+  }
+  /* No toque, rolar com o dedo basta; a barra só atrapalharia a leitura. */
+  @media (hover: none), (pointer: coarse) {
+    .rolagem-lateral {
+      scrollbar-width: none;
+    }
+  }
+  @supports (animation-timeline: scroll()) {
+    .rolagem-lateral {
+      animation: rolagem-lateral-mascara linear both;
+      animation-timeline: scroll(self inline);
+    }
+  }
+  @keyframes rolagem-lateral-mascara {
+    0% {
+      mask-image: linear-gradient(90deg, #000 85%, transparent);
+    }
+    5%,
+    95% {
+      mask-image: linear-gradient(90deg, transparent, #000 1.5rem, #000 calc(100% - 2.5rem), transparent);
+    }
+    100% {
+      mask-image: linear-gradient(90deg, transparent, #000 15%);
+    }
+  }
+
   /* Faixa decorativa verde-amarelo-azul (só ornamento, aria-hidden no HTML). */
   .faixa-brasil {
     height: 4px;

@@ -449,13 +449,12 @@ function SecaoProjetos({ j, linkDados, idDeputado }: { j: ProjetosPublicados | n
         <div className="mt-10">
           <Subtitulo>Quais são os projetos?</Subtitulo>
           <p className="mb-3 text-sm text-muted-foreground">
-            Clique num projeto para ver os detalhes. O texto vem da própria Câmara (resumo, trecho da ementa ou palavras-chave), sem
-            reescrita; a ementa oficial está nos detalhes.
+            A área vem dos temas oficiais da Câmara. Clique num projeto para ver o que ele propõe, em que pé está e a ementa oficial.
           </p>
           <ListaProjetos
             idDeputado={idDeputado}
             total={j.lista.length}
-            iniciais={j.lista.slice(0, 6)}
+            iniciais={j.lista.slice(0, 20)}
             temas={j.temas.map(({ tema, projetos }) => ({ tema, projetos }))}
           />
         </div>

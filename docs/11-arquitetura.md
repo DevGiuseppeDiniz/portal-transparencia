@@ -123,6 +123,11 @@ registro com a coleta que o gerou.
 - A "API de leitura" do MVP são os próprios JSON servidos como arquivos estáticos
   (`/dados/indice.json`, `/dados/deputados/{id}.json`).
 - O CI constrói o site com dados **fictícios** de `apps/web/exemplo/`.
+- Exceção ao "tudo no build": a página de cada projeto de lei (~20 mil) é gerada na primeira
+  visita a partir do mesmo snapshot e fica em cache até o próximo build (`force-static` +
+  `dynamicParams`, sem revalidação). Gerar todas no build multiplicaria o tempo e o disco;
+  continua só leitura (DEC-12). Links da lista usam `prefetch={false}` para não gerar páginas
+  que ninguém abriu.
 
 ## Ambiente local
 Pré-requisitos: Node 24, pnpm e Docker (sem compose).
