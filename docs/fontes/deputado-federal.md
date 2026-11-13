@@ -64,8 +64,17 @@ fontes secundárias) · `a-verificar`.
   `votacoesProposicoes-{ano}`, `proposicoes-{ano}`, `proposicoesAutores-{ano}`,
   `proposicoesTemas-{ano}`, `orgaos`, `orgaosDeputados-L{legislatura}`, `frentes`,
   `frentesDeputados`, `legislaturas`, `legislaturasMesas`, `funcionarios`.
-- **Uso:** carga histórica e reconciliação com a API.
-- **Status:** verificado-doc
+- **Uso:** carga histórica e reconciliação com a API. MET-01 (`eventos`), MET-03
+  (`proposicoes`, `proposicoesAutores`, `proposicoesTramitacoes`).
+- **Proposições (verificado em 2026-11-13):** CSV UTF-8 com BOM, separador `;`, todos os
+  campos entre aspas, textos com quebra de linha dentro das aspas. `proposicoes-{ano}`
+  traz as apresentadas no ano com a situação **atual**; `proposicoesTramitacoes-{ano}`
+  traz as tramitações **ocorridas** no ano (de qualquer proposição) e `siglaTipo` vem
+  vazio. Tamanhos: ~25–50 MB por arquivo.
+- **Download instável:** o servidor às vezes corta a conexão no meio (`terminated`). O
+  cliente refaz a requisição; um arquivo cujo último registro está cortado é tratado
+  como incompleto e a coleta falha (nunca aceitar como aviso).
+- **Status:** verificado-uso
 
 ## SRC-01c
 ### Câmara — Cota para o Exercício da Atividade Parlamentar (CEAP)

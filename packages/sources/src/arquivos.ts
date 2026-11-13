@@ -101,6 +101,32 @@ function campos(linha: string, separador: string): string[] {
   return saida;
 }
 
+/** A linha é, sozinha, um registro com `colunas` campos, todos entre aspas. */
+function registroTodoEntreAspas(linha: string, separador: string, colunas: number): boolean {
+  if (!linha.startsWith('"') || !linha.endsWith('"')) return false;
+  let i = 0;
+  let n = 0;
+  while (i < linha.length) {
+    if (linha[i] !== '"') return false;
+    let j = i + 1;
+    for (;;) {
+      const fim = linha.indexOf('"', j);
+      if (fim < 0) return false;
+      if (linha[fim + 1] === '"') {
+        j = fim + 2;
+        continue;
+      }
+      j = fim + 1;
+      break;
+    }
+    n++;
+    if (j === linha.length) break;
+    if (linha[j] !== separador) return false;
+    i = j + 1;
+  }
+  return n === colunas;
+}
+
 /** Aspas abertas no fim da linha = o campo continua na próxima linha física. */
 function aspasAbertas(linha: string): boolean {
   let n = 0;
@@ -112,9 +138,19 @@ function aspasAbertas(linha: string): boolean {
  * CSV → objetos (cabeçalho na primeira linha), um por vez, sem montar o arquivo inteiro em
  * memória de novo. Linha com número de colunas diferente do cabeçalho é erro.
  */
-export function* linhasCsv(texto: string, separador = ';'): Generator<Record<string, string>> {
+export interface OpcoesCsv {
+  /**
+   * Linha com número de colunas diferente do cabeçalho: sem este callback é erro; com ele, a
+   * linha é pulada e informada (os arquivos em massa da Câmara trazem ~1 registro truncado
+   * por arquivo; quem chama decide o limite aceitável e registra na coleta).
+   */
+  readonly aoLinhaInvalida?: (numero: number, motivo: string) => void;
+}
+
+export function* linhasCsv(texto: string, separador = ';', opcoes: OpcoesCsv = {}): Generator<Record<string, string>> {
   let cabecalho: string[] | null = null;
   let pendente = '';
+  let inicioPendente = 0;
   let numero = 0;
   let inicio = texto.charCodeAt(0) === 0xfeff ? 1 : 0;
   while (inicio < texto.length) {
@@ -125,27 +161,50 @@ export function* linhasCsv(texto: string, separador = ';'): Generator<Record<str
     inicio = fim + 1;
     numero++;
 
+    // Registro truncado com aspas abertas: sem isto, o "campo" engoliria o resto do arquivo.
+    // Se a nova linha física sozinha já é um registro completo com TODOS os campos entre
+    // aspas (formato dos arquivos da Câmara), o pendente era lixo. Exigir aspas em todos os
+    // campos evita confundir com a continuação de um texto que tenha ";" no meio.
+    if (pendente && cabecalho && opcoes.aoLinhaInvalida && registroTodoEntreAspas(fisica, separador, cabecalho.length)) {
+      opcoes.aoLinhaInvalida(inicioPendente, 'registro truncado (aspas sem fechamento)');
+      pendente = '';
+    }
+
     const logica = pendente ? `${pendente}\n${fisica}` : fisica;
     if (aspasAbertas(logica)) {
+      if (!pendente) inicioPendente = numero;
       pendente = logica;
       continue;
     }
     pendente = '';
     if (logica === '') continue;
 
-    const valores = campos(logica, separador);
+    let valores: string[];
+    try {
+      valores = campos(logica, separador);
+    } catch (e) {
+      if (!cabecalho || !opcoes.aoLinhaInvalida) throw e;
+      opcoes.aoLinhaInvalida(numero, e instanceof Error ? e.message : String(e));
+      continue;
+    }
     if (!cabecalho) {
       cabecalho = valores;
       continue;
     }
     if (valores.length !== cabecalho.length) {
-      throw new ErroArquivo(`linha ${numero}: ${valores.length} colunas, cabeçalho tem ${cabecalho.length}`);
+      const motivo = `${valores.length} colunas, cabeçalho tem ${cabecalho.length}`;
+      if (!opcoes.aoLinhaInvalida) throw new ErroArquivo(`linha ${numero}: ${motivo}`);
+      opcoes.aoLinhaInvalida(numero, motivo);
+      continue;
     }
     const o: Record<string, string> = {};
     for (let k = 0; k < cabecalho.length; k++) o[cabecalho[k]!] = valores[k]!;
     yield o;
   }
-  if (pendente) throw new ErroArquivo('CSV com aspas sem fechamento');
+  if (pendente) {
+    if (!cabecalho || !opcoes.aoLinhaInvalida) throw new ErroArquivo('CSV com aspas sem fechamento');
+    opcoes.aoLinhaInvalida(inicioPendente, 'registro truncado no fim do arquivo (aspas sem fechamento)');
+  }
 }
 
 export function lerCsv(texto: string, separador = ';'): Record<string, string>[] {

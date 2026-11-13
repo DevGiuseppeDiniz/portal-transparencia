@@ -24,13 +24,14 @@ export interface ArmazenamentoRaw {
    * Arquivo oficial (ex.: ZIP da CEAP) guardado byte a byte, sem recomprimir: o hash é o do
    * próprio arquivo, e qualquer pessoa pode baixá-lo da fonte e conferir.
    */
-  salvarArquivo(fonteId: string, bytes: Buffer, extensao: 'zip', em: Date): Promise<ObjetoRaw>;
+  salvarArquivo(fonteId: string, bytes: Buffer, extensao: 'zip' | 'csv', em: Date): Promise<ObjetoRaw>;
   /** Devolve o conteúdo e confere que o hash bate com o nome (adulteração = erro). */
   ler(caminho: string): Promise<string>;
   lerArquivo(caminho: string): Promise<Buffer>;
 }
 
-const CAMINHO_VALIDO = /^(SRC-[0-9]{2}[a-z]?)\/(\d{4}-\d{2}-\d{2})\/([0-9a-f]{64})\.(json\.gz|zip)$/;
+// json.gz e csv.gz: comprimidos aqui, hash do conteúdo original; zip: bytes exatos do arquivo.
+const CAMINHO_VALIDO = /^(SRC-[0-9]{2}[a-z]?)\/(\d{4}-\d{2}-\d{2})\/([0-9a-f]{64})\.(json\.gz|csv\.gz|zip)$/;
 
 export function sha256(conteudo: string | Buffer): string {
   return createHash('sha256').update(conteudo).digest('hex');
@@ -61,7 +62,7 @@ export function armazenamentoEmDisco(raiz: string): ArmazenamentoRaw {
     const partes = CAMINHO_VALIDO.exec(caminho);
     if (!partes) throw new Error(`caminho raw inválido: ${caminho}`);
     const arquivo = await readFile(join(raiz, caminho));
-    const conteudo = partes[4] === 'json.gz' ? gunzipSync(arquivo) : arquivo;
+    const conteudo = partes[4]!.endsWith('.gz') ? gunzipSync(arquivo) : arquivo;
     if (sha256(conteudo) !== partes[3]) throw new Error(`raw adulterado: o hash de ${caminho} não confere`);
     return conteudo;
   }
@@ -73,8 +74,12 @@ export function armazenamentoEmDisco(raiz: string): ArmazenamentoRaw {
       return { caminho, hash, bytes: Buffer.byteLength(conteudo) };
     },
     async salvarArquivo(fonteId, bytes, extensao, em) {
+      // O hash é sempre o do arquivo como veio da fonte; CSV é guardado comprimido.
       const hash = sha256(bytes);
-      const caminho = await gravar(fonteId, hash, extensao, bytes, em);
+      const caminho =
+        extensao === 'csv'
+          ? await gravar(fonteId, hash, 'csv.gz', gzipSync(bytes), em)
+          : await gravar(fonteId, hash, extensao, bytes, em);
       return { caminho, hash, bytes: bytes.length };
     },
     async ler(caminho) {

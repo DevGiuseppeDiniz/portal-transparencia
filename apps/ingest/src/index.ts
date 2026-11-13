@@ -2,12 +2,15 @@
 // (SEG-03). Node 24 executa TypeScript direto (type stripping), sem etapa de build.
 //
 // Uso: pnpm coletar [etapa ...]   (lê DATABASE_URL do .env na raiz)
-//   etapas: deputados, eventos, matriculas, presenca, met01, historico, ceap, met02.
+//   etapas: deputados, eventos, matriculas, presenca, met01, historico, ceap, met02,
+//   proposicoes, met03.
 //   Sem etapa = todas, nessa ordem.
 
 import { conectar } from '@portal/db';
 import { calcularMet01 } from './calculos/met01.ts';
 import { calcularMet02 } from './calculos/met02.ts';
+import { calcularMet03 } from './calculos/met03.ts';
+import { anosDaLegislatura, coletarAutores, coletarProposicoes, coletarTramitacoes } from './coletores/proposicoes.ts';
 import { periodoCeap } from '@portal/metrics';
 import { coletarCeapAno, coletarHistoricos } from './coletores/ceap.ts';
 import type { Dependencias, ResultadoColeta } from './coleta.ts';
@@ -16,7 +19,7 @@ import { coletarEventos, coletarMatriculas, coletarPresencas, diasParaColetar } 
 import { armazenamentoEmDisco, raizRawPadrao } from './raw.ts';
 import { versaoColetor } from './versao.ts';
 
-const ETAPAS = ['deputados', 'eventos', 'matriculas', 'presenca', 'met01', 'historico', 'ceap', 'met02'] as const;
+const ETAPAS = ['deputados', 'eventos', 'matriculas', 'presenca', 'met01', 'historico', 'ceap', 'met02', 'proposicoes', 'met03'] as const;
 type Etapa = (typeof ETAPAS)[number];
 
 const pedidas = process.argv.slice(2);
@@ -79,6 +82,22 @@ try {
         c
           ? `MET-02: cálculo ${c.calculoId}, ${c.deputados} deputados, ${c.periodo.inicio} a ${c.periodo.fim}, referência em ${c.ufsComReferencia} UF(s)`
           : 'MET-02: nenhum deputado em exercício',
+      );
+    }
+    if (etapa === 'proposicoes') {
+      // Proposições primeiro: autores e tramitações são recortados por elas.
+      const anos = anosDaLegislatura();
+      for (const ano of anos) relatar(`SRC-01b proposições ${ano}`, await coletarProposicoes(deps, ano));
+      for (const ano of anos) relatar(`SRC-01b autores ${ano}`, await coletarAutores(deps, ano));
+      for (const ano of anos) relatar(`SRC-01b tramitações ${ano}`, await coletarTramitacoes(deps, ano));
+    }
+    if (etapa === 'met03') {
+      const c = await calcularMet03(sql, deps.versao);
+      console.log(
+        c
+          ? `MET-03: cálculo ${c.calculoId}, ${c.deputados} deputados, ${c.proposicoes} projetos` +
+              (c.medianaLei !== null ? `; mediana "virou lei ÷ apresentados" ${(c.medianaLei * 100).toFixed(1)}%` : '')
+          : 'MET-03: nenhum deputado em exercício',
       );
     }
   }

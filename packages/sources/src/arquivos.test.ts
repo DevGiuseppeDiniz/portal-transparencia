@@ -35,3 +35,21 @@ test('lerCsv: recusa linha com número de colunas diferente e aspas abertas', ()
   assert.throws(() => lerCsv('a;b\n1;2;3\n'), /colunas/);
   assert.throws(() => lerCsv('a;b\n1;"2\n'), /aspas/);
 });
+
+test('linhasCsv: com aoLinhaInvalida, pula e informa a linha truncada', async () => {
+  const { linhasCsv } = await import('./arquivos.ts');
+  const invalidas: number[] = [];
+  const linhas = [...linhasCsv('a;b\n1;2\n3\n4;5\n', ';', { aoLinhaInvalida: (n) => invalidas.push(n) })];
+  assert.deepEqual(linhas, [{ a: '1', b: '2' }, { a: '4', b: '5' }]);
+  assert.deepEqual(invalidas, [3]);
+});
+
+test('linhasCsv: registro truncado com aspas abertas não engole o resto do arquivo', async () => {
+  const { linhasCsv } = await import('./arquivos.ts');
+  const invalidas: number[] = [];
+  // "x; y" no meio do texto de várias linhas não pode ser confundido com um registro novo.
+  const csv = '"a";"b"\n"1";"2"\n"3";"trunc\n"4";"5"\n"6";"multi\nx; y\nlinha"\n"7";"8"\n';
+  const linhas = [...linhasCsv(csv, ';', { aoLinhaInvalida: (n) => invalidas.push(n) })];
+  assert.deepEqual(linhas, [{ a: '1', b: '2' }, { a: '4', b: '5' }, { a: '6', b: 'multi\nx; y\nlinha' }, { a: '7', b: '8' }]);
+  assert.deepEqual(invalidas, [3]);
+});
