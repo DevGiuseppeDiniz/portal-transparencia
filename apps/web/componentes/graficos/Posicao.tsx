@@ -30,6 +30,7 @@ export function Posicao({
   nomeGrupo,
   nomeMetrica,
   grupo,
+  ancora,
   largura = 640,
   altura = 170,
 }: {
@@ -48,6 +49,8 @@ export function Posicao({
   nomeMetrica: string;
   /** De onde vêm os nomes: a presença da Câmara ou a cota de uma UF. */
   grupo: { readonly metrica: 'presenca' } | { readonly metrica: 'cota'; readonly uf: string };
+  /** Id do bloco deste gráfico: o clique em outro deputado leva ao mesmo gráfico na página dele. */
+  ancora: string;
   largura?: number;
   altura?: number;
 }) {
@@ -104,7 +107,7 @@ export function Posicao({
   const abaixo = v === undefined ? 0 : ordenados.filter((o) => o < v).length;
   const abrir = (i: number | null) => {
     const alvo = i !== null ? pessoas?.[i] : undefined;
-    if (alvo) router.push(`/deputado/${alvo.id}`);
+    if (alvo) router.push(`/deputado/${alvo.id}#${ancora}`);
   };
 
   return (

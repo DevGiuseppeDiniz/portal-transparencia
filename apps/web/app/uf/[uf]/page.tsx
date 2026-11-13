@@ -1,3 +1,4 @@
+import { Voltar } from '../../../componentes/Voltar';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -27,6 +28,7 @@ export default async function DeputadosDaUf({ params }: Params) {
 
   return (
     <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <Voltar destino="/#estados" />
       <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
         <Link href="/" className="text-muted-foreground">
           Início

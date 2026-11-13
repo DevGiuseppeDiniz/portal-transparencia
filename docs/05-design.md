@@ -43,6 +43,11 @@ Duas camadas, ambas com fundamento:
   partido.
 - Deputado: ponto cheio azul `#0072B2` (5,19:1). Referência: traço cinza `#595959`;
   distribuição em cinza `#85857F` (≥ 3:1, WCAG 1.4.11). Forma diferente além da cor.
+- **Exceção (2026-11-13, decisão do usuário):** "ausência sem justificativa" no gráfico mensal
+  de presença usa vermelho sóbrio `#C2410C` (contraste 5:1). Só essa categoria; presença
+  continua azul e ausência justificada, cinza. Registrado porque contraria a regra geral
+  (vermelho = "ruim"); reavaliar no teste com usuários (o que a pessoa entende ao ver o
+  vermelho).
 - **Ref:** REF-13, REF-19
 
 ## DSG-05 — Títulos e rótulos descritivos
@@ -128,4 +133,11 @@ decifrado. Abaixo, a série mês a mês.
   própria largura e nunca é cortada. Verificado em 360 px sem rolagem horizontal.
 - **Cores:** gráficos neutros (deputado `#0072B2`, cinzas); as cores da bandeira ficam só na
   interface (DEC-14), nunca nos dados.
+- **Navegação entre deputados pelo gráfico:** clicar (ou Enter) num deputado do gráfico de
+  posição abre a página dele já no **mesmo gráfico** (`#posicao-presenca`/`#posicao-cota`),
+  com destaque temporário (sem animação se "reduzir movimento"). Botão **Voltar** no topo das
+  páginas internas: volta no histórico se a pessoa navegou no portal; senão vai ao destino.
+- **Frase de posição considera empates:** "Nenhum deputado tem presença maior: outros 15
+  também têm 100%", nunca "maior que a de 490" para quem está empatado no topo (teste em
+  `apps/web/lib/formato.test.ts`).
 

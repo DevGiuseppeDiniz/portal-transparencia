@@ -100,6 +100,30 @@
 }
 
 @layer components {
+  /* Destaque do gráfico ao chegar por âncora (clique em outro deputado no gráfico). */
+  .destaque-ancora {
+    border-radius: var(--radius);
+    animation: destaque-ancora 2.6s ease-out;
+  }
+  @keyframes destaque-ancora {
+    0%,
+    35% {
+      box-shadow: 0 0 0 4px var(--brasil-amarelo), 0 0 0 9px color-mix(in srgb, var(--brasil-amarelo) 35%, transparent);
+      background: color-mix(in srgb, var(--brasil-amarelo) 12%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+      background: transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .destaque-ancora {
+      animation: none;
+      outline: 4px solid var(--brasil-amarelo);
+      outline-offset: 4px;
+    }
+  }
+
   /* Faixa decorativa verde-amarelo-azul (só ornamento, aria-hidden no HTML). */
   .faixa-brasil {
     height: 4px;

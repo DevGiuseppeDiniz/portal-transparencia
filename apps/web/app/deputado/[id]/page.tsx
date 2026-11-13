@@ -16,10 +16,12 @@ import { Posicao } from '../../../componentes/graficos/Posicao';
 import { SerieMensal } from '../../../componentes/graficos/SerieMensal';
 import { CORES } from '../../../componentes/graficos/cores';
 import { Calendario, Carteira, Documento } from '../../../componentes/Icones';
+import { DestaqueAncora } from '../../../componentes/DestaqueAncora';
 import { Proveniencia } from '../../../componentes/Proveniencia';
+import { Voltar } from '../../../componentes/Voltar';
 import { Badge, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, botao, cn } from '../../../componentes/ui';
 import { lerDeputado, listarDeputados, nomeUf } from '../../../lib/dados';
-import { inteiro, mesAno, percentual, plural, reais } from '../../../lib/formato';
+import { frasePosicao, inteiro, mesAno, percentual, plural, reais } from '../../../lib/formato';
 import { cotaPorMes, presencaPorMes } from '../../../lib/graficos';
 import type { EstagioFunil } from '@portal/metrics';
 
@@ -44,7 +46,9 @@ export default async function PaginaDeputado({ params }: Params) {
   const linkDados = `/deputado/${deputado.id}/dados`;
 
   return (
-    <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <main id="conteudo" className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <DestaqueAncora />
+      <Voltar destino={`/uf/${deputado.uf.toLowerCase()}`} />
       <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
         <Link href="/" className="text-muted-foreground">
           Início
@@ -111,17 +115,20 @@ function Numero({ valor, complemento }: { valor: string; complemento: string }) 
   );
 }
 
-function Indicador({ rotulo, valor }: { rotulo: string; valor: string }) {
+function Indicador({ rotulo, valor, marcador }: { rotulo: string; valor: string; marcador?: string }) {
   return (
     <div className="rounded-lg bg-muted p-3">
-      <dt className="text-xs text-muted-foreground">{rotulo}</dt>
+      <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        {marcador && <span className="size-2.5 shrink-0 rounded-sm" style={{ background: marcador }} aria-hidden="true" />}
+        {rotulo}
+      </dt>
       <dd className="text-lg font-semibold tabular-nums">{valor}</dd>
     </div>
   );
 }
 
 function Subtitulo({ children }: { children: ReactNode }) {
-  return <h3 className="mb-1 text-sm font-semibold">{children}</h3>;
+  return <h3 className="mb-1 text-lg font-semibold tracking-tight sm:text-xl">{children}</h3>;
 }
 
 function Aviso({ children }: { children: ReactNode }) {
@@ -165,8 +172,8 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
           <div>
             <Numero valor={percentual(p.taxa)} complemento={`dos dias de sessão (${inteiro(p.presencas)} de ${inteiro(p.dias)})`} />
             <dl className="mt-4 grid grid-cols-2 gap-3">
-              <Indicador rotulo="Ausências com justificativa" valor={plural(p.ausenciasJustificadas, 'dia')} />
-              <Indicador rotulo="Ausências sem justificativa" valor={plural(p.ausenciasNaoJustificadas, 'dia')} />
+              <Indicador rotulo="Ausências com justificativa" valor={plural(p.ausenciasJustificadas, 'dia')} marcador={CORES.ausenciaJustificada} />
+              <Indicador rotulo="Ausências sem justificativa" valor={plural(p.ausenciasNaoJustificadas, 'dia')} marcador={CORES.ausenciaSemJustificativa} />
             </dl>
             {p.justificativas.length > 0 && (
               <p className="mt-3 text-xs text-muted-foreground">
@@ -180,12 +187,14 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
             )}
           </div>
           {p.referencia && (
-            <div>
+            <div id="posicao-presenca" className="scroll-mt-28 p-1">
               <Subtitulo>Onde está entre os {inteiro(p.referencia.n)} deputados da Câmara</Subtitulo>
               <p className="mb-1 text-base">
                 {p.posicao && p.entraNaReferencia ? (
                   <>
-                    Presença maior que a de <strong>{inteiro(p.posicao.menores)}</strong> dos {inteiro(p.posicao.total)} deputados.{' '}
+                    <strong className="font-semibold">
+                      {frasePosicao(p.posicao, { maiorQue: 'Presença maior que a de', nenhumAcima: 'Nenhum deputado tem presença maior', valor: percentual(p.taxa) })}
+                    </strong>{' '}
                   </>
                 ) : null}
                 <span className="text-muted-foreground">
@@ -205,6 +214,7 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
                 nomeGrupo="deputados da Câmara"
                 nomeMetrica="de presença"
                 grupo={{ metrica: 'presenca' }}
+                ancora="posicao-presenca"
                 largura={680}
                 altura={180}
               />
@@ -217,8 +227,8 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
             titulo={`Dias de sessão por mês, ${periodo}`}
             series={[
               { chave: 'presente', nome: 'Presente', cor: CORES.deputado },
-              { chave: 'justificada', nome: 'Ausência justificada', cor: '#a1a7b3' },
-              { chave: 'ausente', nome: 'Ausência sem justificativa', cor: '#52525b' },
+              { chave: 'justificada', nome: 'Ausência justificada', cor: CORES.ausenciaJustificada },
+              { chave: 'ausente', nome: 'Ausência sem justificativa', cor: CORES.ausenciaSemJustificativa },
             ]}
             pontos={presencaPorMes(p)}
             formatoEixo="inteiro"
@@ -275,14 +285,20 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
             )}
           </div>
           {c.referenciaUf && (
-            <div>
+            <div id="posicao-cota" className="scroll-mt-28 p-1">
               <Subtitulo>
                 Onde está entre os {inteiro(c.referenciaUf.n)} deputados de {nomeUf(uf)}
               </Subtitulo>
               <p className="mb-1 text-base">
                 {c.posicaoUf && c.entraNaReferencia ? (
                   <>
-                    Usou mais do valor-base que <strong>{inteiro(c.posicaoUf.menores)}</strong> dos {inteiro(c.posicaoUf.total)} deputados do estado.{' '}
+                    <strong className="font-semibold">
+                      {frasePosicao(c.posicaoUf, {
+                        maiorQue: 'Usou uma parte maior do valor-base que a de',
+                        nenhumAcima: `Nenhum deputado de ${nomeUf(uf)} usou uma parte maior`,
+                        valor: percentual(c.percentual),
+                      })}
+                    </strong>{' '}
                   </>
                 ) : null}
                 <span className="text-muted-foreground">
@@ -302,6 +318,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
                 nomeGrupo={`deputados de ${nomeUf(uf)}`}
                 nomeMetrica="do valor-base"
                 grupo={{ metrica: 'cota', uf }}
+                ancora="posicao-cota"
                 largura={680}
                 altura={180}
               />

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { BuscaTopo } from '../componentes/BuscaTopo';
 import { Marca } from '../componentes/Icones';
+import { RastreioNavegacao } from '../componentes/RastreioNavegacao';
 import { botao } from '../componentes/ui';
 import { lerIndice } from '../lib/dados';
 import { dataDeIso } from '../lib/formato';
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <body className="min-h-screen bg-background">
+        <RastreioNavegacao />
         <a
           href="#conteudo"
           className="sr-only rounded-md bg-background px-4 py-2 focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50"

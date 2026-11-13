@@ -1,6 +1,7 @@
 // Dados usados em cada conta (06-auditoria, camadas 3 e 4; DEC-07): a tabela exata, o
 // cálculo que gerou o número, a fonte oficial e o arquivo publicado para baixar.
 
+import { Voltar } from '../../../../componentes/Voltar';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -69,6 +70,7 @@ export default async function DadosDoDeputado({ params }: Params) {
 
   return (
     <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-semibold">
+      <Voltar destino={`/deputado/${deputado.id}`} />
       <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
         <Link href="/">Início</Link> › <Link href={`/deputado/${deputado.id}`}>{deputado.nome}</Link> › Dados usados
       </nav>

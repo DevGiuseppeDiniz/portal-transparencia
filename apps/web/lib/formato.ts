@@ -57,3 +57,22 @@ export function formatar(formato: Formato, v: number): string {
       return v >= 1000 ? `R$ ${inteiro(Math.round(v / 1000))} mil` : `R$ ${inteiro(Math.round(v))}`;
   }
 }
+
+/**
+ * Frase de posição que considera EMPATES. `iguais` inclui o próprio deputado (a lista de
+ * valores do grupo contém ele). Ex.: com 100% e outros 21 em 100%, não dizer "maior que 490".
+ */
+export function frasePosicao(
+  pos: { menores: number; iguais: number; total: number },
+  textos: { maiorQue: string; nenhumAcima: string; valor: string },
+): string {
+  const outrosIguais = pos.iguais - 1;
+  const maiores = pos.total - pos.menores - pos.iguais;
+  if (maiores === 0) {
+    return outrosIguais > 0
+      ? `${textos.nenhumAcima}: outros ${inteiro(outrosIguais)} também têm ${textos.valor}.`
+      : `${textos.nenhumAcima} entre os outros ${inteiro(pos.total - 1)}.`;
+  }
+  const empate = outrosIguais > 0 ? ` e igual à de outros ${inteiro(outrosIguais)}` : '';
+  return `${textos.maiorQue} ${inteiro(pos.menores)} dos ${inteiro(pos.total)} deputados${empate}.`;
+}
