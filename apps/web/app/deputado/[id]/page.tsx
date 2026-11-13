@@ -15,7 +15,7 @@ import { BarrasHorizontais } from '../../../componentes/graficos/BarrasHorizonta
 import { Posicao } from '../../../componentes/graficos/Posicao';
 import { SerieMensal } from '../../../componentes/graficos/SerieMensal';
 import { CORES } from '../../../componentes/graficos/cores';
-import { Calendario, Carteira, Documento, Externo } from '../../../componentes/Icones';
+import { Externo } from '../../../componentes/Icones';
 import { DestaqueAncora } from '../../../componentes/DestaqueAncora';
 import { Proveniencia } from '../../../componentes/Proveniencia';
 import { ListaProjetos } from '../../../componentes/projetos/ListaProjetos';
@@ -99,10 +99,9 @@ export default async function PaginaDeputado({ params }: Params) {
   );
 }
 
-function Cabecalho({ id, icone, titulo, periodo }: { id: string; icone: ReactNode; titulo: string; periodo: string }) {
+function Cabecalho({ id, titulo, periodo }: { id: string; titulo: string; periodo: string }) {
   return (
-    <CardHeader className="flex-row items-start gap-3">
-      <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">{icone}</span>
+    <CardHeader>
       <div>
         <CardTitle id={id} className="text-xl sm:text-2xl">{titulo}</CardTitle>
         <CardDescription>{periodo}</CardDescription>
@@ -172,10 +171,10 @@ function Explicacao({ resumo, children }: { resumo: string; children: ReactNode 
   );
 }
 
-function SemDado({ titulo, id, icone, className }: { titulo: string; id: string; icone: ReactNode; className?: string }) {
+function SemDado({ titulo, id, className }: { titulo: string; id: string; className?: string }) {
   return (
     <Card aria-labelledby={id} className={className}>
-      <Cabecalho id={id} icone={icone} titulo={titulo} periodo="Sem dado publicado" />
+      <Cabecalho id={id} titulo={titulo} periodo="Sem dado publicado" />
       <CardContent>
         <p className="text-sm text-muted-foreground">Sem dado publicado para esta métrica.</p>
       </CardContent>
@@ -185,11 +184,11 @@ function SemDado({ titulo, id, icone, className }: { titulo: string; id: string;
 
 function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDados: string }) {
   const titulo = 'Presença em sessões deliberativas do Plenário';
-  if (!p) return <SemDado titulo={titulo} id="t-presenca" icone={<Calendario />} />;
+  if (!p) return <SemDado titulo={titulo} id="t-presenca" />;
   const periodo = `${mesAno(p.proveniencia.periodo.inicio)} a ${mesAno(p.proveniencia.periodo.fim)}`;
   return (
     <Card aria-labelledby="t-presenca">
-      <Cabecalho id="t-presenca" icone={<Calendario />} titulo={titulo} periodo={periodo} />
+      <Cabecalho id="t-presenca" titulo={titulo} periodo={periodo} />
       <CardContent>
         <FaixaIndicadores
           principal={<Numero valor={percentual(p.taxa)} complemento={`dos dias de sessão (${inteiro(p.presencas)} de ${inteiro(p.dias)})`} />}
@@ -283,13 +282,13 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
 
 function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; linkDados: string }) {
   const titulo = 'Uso da cota para despesas do mandato';
-  if (!c) return <SemDado titulo={titulo} id="t-cota" icone={<Carteira />} />;
+  if (!c) return <SemDado titulo={titulo} id="t-cota" />;
   const periodo = `${mesAno(c.proveniencia.periodo.inicio)} a ${mesAno(c.proveniencia.periodo.fim)}`;
   const maxEscala = Math.max(1.25, Math.ceil(Math.max(...c.valoresReferenciaUf, c.percentual ?? 0) * 4) / 4);
   const totalCategorias = c.categorias.reduce((t, x) => t + x.centavos, 0);
   return (
     <Card aria-labelledby="t-cota">
-      <Cabecalho id="t-cota" icone={<Carteira />} titulo={titulo} periodo={periodo} />
+      <Cabecalho id="t-cota" titulo={titulo} periodo={periodo} />
       <CardContent>
         <FaixaIndicadores
           principal={<Numero valor={reais(c.gastoCentavos)} complemento={`em ${plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício`} />}
@@ -396,11 +395,11 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
 
 function SecaoProjetos({ j, linkDados, idDeputado }: { j: ProjetosPublicados | null; linkDados: string; idDeputado: number }) {
   const titulo = 'Projetos de lei apresentados como autor principal';
-  if (!j) return <SemDado titulo={titulo} id="t-projetos" icone={<Documento />} />;
+  if (!j) return <SemDado titulo={titulo} id="t-projetos" />;
   const periodo = `Desde ${mesAno(j.proveniencia.periodo.inicio)}`;
   return (
     <Card aria-labelledby="t-projetos">
-      <Cabecalho id="t-projetos" icone={<Documento />} titulo={titulo} periodo={periodo} />
+      <Cabecalho id="t-projetos" titulo={titulo} periodo={periodo} />
       <CardContent>
         <FaixaIndicadores
           principal={<Numero valor={inteiro(j.porEstagio.apresentada)} complemento="projetos apresentados" />}
