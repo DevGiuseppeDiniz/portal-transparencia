@@ -81,3 +81,11 @@ export const Marca = ({ tamanho = 28 }: { tamanho?: number }) => (
     <path d="M10.2 14.6c3.6-1.2 7.9-.9 11.6 1" stroke="#fff" strokeWidth="1.3" fill="none" strokeLinecap="round" />
   </svg>
 );
+
+/** Link externo (abre em nova aba). */
+export const Externo = (p: { tamanho?: number }) => (
+  <Icone {...p}>
+    <path d="M14 4h6v6M20 4l-9 9" />
+    <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+  </Icone>
+);

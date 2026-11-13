@@ -15,7 +15,7 @@ import { BarrasHorizontais } from '../../../componentes/graficos/BarrasHorizonta
 import { Posicao } from '../../../componentes/graficos/Posicao';
 import { SerieMensal } from '../../../componentes/graficos/SerieMensal';
 import { CORES } from '../../../componentes/graficos/cores';
-import { Calendario, Carteira, Documento } from '../../../componentes/Icones';
+import { Calendario, Carteira, Documento, Externo } from '../../../componentes/Icones';
 import { DestaqueAncora } from '../../../componentes/DestaqueAncora';
 import { Proveniencia } from '../../../componentes/Proveniencia';
 import { Voltar } from '../../../componentes/Voltar';
@@ -48,18 +48,20 @@ export default async function PaginaDeputado({ params }: Params) {
   return (
     <main id="conteudo" className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       <DestaqueAncora />
-      <Voltar destino={`/uf/${deputado.uf.toLowerCase()}`} />
-      <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
-        <Link href="/" className="text-muted-foreground">
-          Início
-        </Link>
-        <span className="mx-1.5">/</span>
-        <Link href={`/uf/${deputado.uf.toLowerCase()}`} className="text-muted-foreground">
-          {nomeUf(deputado.uf)}
-        </Link>
-        <span className="mx-1.5">/</span>
-        <span className="text-foreground">{deputado.nome}</span>
-      </nav>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <nav aria-label="Você está em" className="min-w-0 truncate text-sm text-muted-foreground">
+          <Link href="/" className="text-muted-foreground">
+            Início
+          </Link>
+          <span className="mx-1.5">/</span>
+          <Link href={`/uf/${deputado.uf.toLowerCase()}`} className="text-muted-foreground">
+            {nomeUf(deputado.uf)}
+          </Link>
+          <span className="mx-1.5">/</span>
+          <span className="text-foreground">{deputado.nome}</span>
+        </nav>
+        <Voltar destino={`/uf/${deputado.uf.toLowerCase()}`} />
+      </div>
 
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center">
         {deputado.urlFoto && (
@@ -80,8 +82,10 @@ export default async function PaginaDeputado({ params }: Params) {
             <Badge variante="outline">Em exercício</Badge>
           </div>
         </div>
-        <a href={deputado.urlCamara} rel="noopener noreferrer" className={botao('outline')}>
+        <a href={deputado.urlCamara} target="_blank" rel="noopener noreferrer" className={botao('default')}>
           Página oficial na Câmara
+          <Externo tamanho={16} />
+          <span className="sr-only">(abre em nova aba)</span>
         </a>
       </div>
 

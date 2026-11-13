@@ -28,8 +28,8 @@ export default async function DeputadosDaUf({ params }: Params) {
 
   return (
     <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Voltar destino="/#estados" />
-      <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
+      <div className="mb-6 flex items-center justify-between gap-4">
+      <nav aria-label="Você está em" className="min-w-0 truncate text-sm text-muted-foreground">
         <Link href="/" className="text-muted-foreground">
           Início
         </Link>
@@ -40,6 +40,8 @@ export default async function DeputadosDaUf({ params }: Params) {
         <span className="mx-1.5">/</span>
         <span className="text-foreground">{nomeUf(sigla)}</span>
       </nav>
+        <Voltar destino="/#estados" />
+      </div>
       <p className="text-sm font-medium text-primary">Bancada federal</p>
       <h1 className="font-bold tracking-tight">Deputados federais {doEstado(sigla)}</h1>
       <div className="mt-3 mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">

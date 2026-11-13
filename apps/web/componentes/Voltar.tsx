@@ -13,7 +13,7 @@ export function Voltar({ destino, rotulo = 'Voltar' }: { destino: string; rotulo
   return (
     <Link
       href={destino}
-      className={`${botao('ghost', 'sm')} -ml-3 mb-2`}
+      className={`${botao('ghost', 'sm')} -mr-3 shrink-0`}
       onClick={(e) => {
         let navegouAqui = false;
         try {
