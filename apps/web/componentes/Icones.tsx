@@ -71,10 +71,13 @@ export const Seta = (p: { tamanho?: number }) => (
   </Icone>
 );
 
-/** Marca: colunas de um plenário estilizado, sem nenhum símbolo oficial. */
+/** Marca: losango amarelo sobre verde com círculo azul (referência à bandeira, sem reproduzi-la
+ *  nem usar símbolo oficial). */
 export const Marca = ({ tamanho = 28 }: { tamanho?: number }) => (
   <svg width={tamanho} height={tamanho} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-    <rect width="32" height="32" rx="8" fill="#4338ca" />
-    <path d="M8 23h16M9 21V13m4.67 8v-8m4.66 8v-8M23 21V13M7 12l9-5 9 5Z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <rect width="32" height="32" rx="8" fill="#009c3b" />
+    <path d="M16 5 28 16 16 27 4 16Z" fill="#ffdf00" />
+    <circle cx="16" cy="16" r="6.5" fill="#002776" />
+    <path d="M10.2 14.6c3.6-1.2 7.9-.9 11.6 1" stroke="#fff" strokeWidth="1.3" fill="none" strokeLinecap="round" />
   </svg>
 );

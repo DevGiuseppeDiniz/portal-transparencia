@@ -83,6 +83,8 @@ export interface CotaPublicada {
   readonly fornecedores: ReadonlyArray<{ readonly fornecedor: string; readonly cnpj: string | null; readonly centavos: number; readonly documentos: number }>;
   readonly concentracaoTop3: number | null;
   readonly totalFornecedores: number;
+  /** Gasto e valor-base de cada mês do período (gráfico mensal). */
+  readonly porMes: ReadonlyArray<{ readonly mes: string; readonly emExercicio: boolean; readonly gastoCentavos: number; readonly valorBaseCentavos: number }>;
   /** Valor-base de cada mês do período, com a norma que o fixou. */
   readonly valoresBase: ReadonlyArray<{ readonly mes: string; readonly centavos: number; readonly norma: string; readonly fonte: string }>;
   readonly proveniencia: ProvenienciaPublicada;
@@ -149,4 +151,23 @@ export function posicaoRelativa(valor: number | null, valores: readonly number[]
     else if (v === valor) iguais++;
   }
   return { menores, iguais, total: valores.length };
+}
+
+/** Um deputado na referência de uma métrica: para mostrar quem é cada ponto do gráfico de posição. */
+export interface PontoReferencia {
+  readonly id: number;
+  readonly nome: string;
+  readonly partido: string | null;
+  readonly uf: string;
+  readonly valor: number;
+}
+
+/** Arquivo compartilhado (`referencias.json`), baixado pelo navegador só quando o gráfico é explorado. */
+export interface ReferenciasPublicadas {
+  readonly versao: typeof VERSAO_PUBLICACAO;
+  readonly geradoEm: string;
+  /** Presença dos deputados que entram na referência da Câmara, em ordem de valor. */
+  readonly presenca: readonly PontoReferencia[];
+  /** Uso da cota por UF (a comparação é dentro do estado), em ordem de valor. */
+  readonly cotaPorUf: Readonly<Record<string, readonly PontoReferencia[]>>;
 }

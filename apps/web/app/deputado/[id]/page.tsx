@@ -10,13 +10,18 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type { CotaPublicada, PresencaPublicada, ProjetosPublicados } from '@portal/metrics/publicacao';
-import { Comparacao } from '../../../componentes/Comparacao';
-import { Funil } from '../../../componentes/Funil';
+import { NOMES_ESTAGIO } from '../../../componentes/Funil';
+import { BarrasHorizontais } from '../../../componentes/graficos/BarrasHorizontais';
+import { Posicao } from '../../../componentes/graficos/Posicao';
+import { SerieMensal } from '../../../componentes/graficos/SerieMensal';
+import { CORES } from '../../../componentes/graficos/cores';
 import { Calendario, Carteira, Documento } from '../../../componentes/Icones';
 import { Proveniencia } from '../../../componentes/Proveniencia';
 import { Badge, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, botao, cn } from '../../../componentes/ui';
 import { lerDeputado, listarDeputados, nomeUf } from '../../../lib/dados';
 import { inteiro, mesAno, percentual, plural, reais } from '../../../lib/formato';
+import { cotaPorMes, presencaPorMes } from '../../../lib/graficos';
+import type { EstagioFunil } from '@portal/metrics';
 
 export const dynamicParams = false;
 
@@ -76,7 +81,7 @@ export default async function PaginaDeputado({ params }: Params) {
         </a>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="grid gap-6">
         <SecaoPresenca p={presenca} linkDados={`${linkDados}#presenca`} />
         <SecaoCota c={cota} uf={deputado.uf} linkDados={`${linkDados}#cota`} />
         <SecaoProjetos j={projetos} linkDados={`${linkDados}#projetos`} />
@@ -100,10 +105,23 @@ function Cabecalho({ id, icone, titulo, periodo }: { id: string; icone: ReactNod
 function Numero({ valor, complemento }: { valor: string; complemento: string }) {
   return (
     <p className="mb-3">
-      <span className="block text-4xl font-bold tracking-tight">{valor}</span>
+      <span className="block text-4xl font-bold tracking-tight sm:text-5xl">{valor}</span>
       <span className="text-sm text-muted-foreground">{complemento}</span>
     </p>
   );
+}
+
+function Indicador({ rotulo, valor }: { rotulo: string; valor: string }) {
+  return (
+    <div className="rounded-lg bg-muted p-3">
+      <dt className="text-xs text-muted-foreground">{rotulo}</dt>
+      <dd className="text-lg font-semibold tabular-nums">{valor}</dd>
+    </div>
+  );
+}
+
+function Subtitulo({ children }: { children: ReactNode }) {
+  return <h3 className="mb-1 text-sm font-semibold">{children}</h3>;
 }
 
 function Aviso({ children }: { children: ReactNode }) {
@@ -143,46 +161,73 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
     <Card aria-labelledby="t-presenca">
       <Cabecalho id="t-presenca" icone={<Calendario />} titulo={titulo} periodo={periodo} />
       <CardContent>
-        <Numero valor={percentual(p.taxa)} complemento={`dos dias de sessão (${inteiro(p.presencas)} de ${inteiro(p.dias)})`} />
-        {p.referencia && (
-          <p className="text-sm">
-            Na Câmara, a mediana foi {percentual(p.referencia.mediana)}. Metade dos deputados ficou entre {percentual(p.referencia.p25)} e{' '}
-            {percentual(p.referencia.p75)}.
-            {p.posicao && p.entraNaReferencia && <> Presença maior que a de {inteiro(p.posicao.menores)} dos {inteiro(p.posicao.total)} deputados.</>}
-          </p>
-        )}
-        {!p.entraNaReferencia && (
-          <Aviso>
-            Período curto: {plural(p.dias, 'dia')} de sessão em exercício, menos que os {p.minDiasReferencia} usados na comparação com a Câmara.
-          </Aviso>
-        )}
-        <Comparacao
-          titulo={`${titulo}, ${periodo}`}
-          valor={p.taxa}
-          referencia={p.referencia}
-          valores={p.valoresReferencia}
-          maximo={1}
-          formatar={(v) => percentual(v)}
-          rotuloDeputado="Deputado"
-          rotuloReferencia="Câmara"
-        />
-        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-          <div className="rounded-lg bg-muted p-3">
-            <dt className="text-muted-foreground">Ausências com justificativa</dt>
-            <dd className="text-lg font-semibold">{plural(p.ausenciasJustificadas, 'dia')}</dd>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:items-start">
+          <div>
+            <Numero valor={percentual(p.taxa)} complemento={`dos dias de sessão (${inteiro(p.presencas)} de ${inteiro(p.dias)})`} />
+            <dl className="mt-4 grid grid-cols-2 gap-3">
+              <Indicador rotulo="Ausências com justificativa" valor={plural(p.ausenciasJustificadas, 'dia')} />
+              <Indicador rotulo="Ausências sem justificativa" valor={plural(p.ausenciasNaoJustificadas, 'dia')} />
+            </dl>
+            {p.justificativas.length > 0 && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Motivos: {p.justificativas.map((j) => `${j.motivo.toLowerCase()} (${j.dias})`).join(', ')}.
+              </p>
+            )}
+            {!p.entraNaReferencia && (
+              <Aviso>
+                Período curto: {plural(p.dias, 'dia')} de sessão em exercício, menos que os {p.minDiasReferencia} usados na comparação com a Câmara.
+              </Aviso>
+            )}
           </div>
-          <div className="rounded-lg bg-muted p-3">
-            <dt className="text-muted-foreground">Ausências sem justificativa</dt>
-            <dd className="text-lg font-semibold">{plural(p.ausenciasNaoJustificadas, 'dia')}</dd>
-          </div>
-        </dl>
-        {p.justificativas.length > 0 && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            Motivos: {p.justificativas.map((j) => `${j.motivo.toLowerCase()} (${j.dias})`).join(', ')}.
-          </p>
-        )}
+          {p.referencia && (
+            <div>
+              <Subtitulo>Onde está entre os {inteiro(p.referencia.n)} deputados da Câmara</Subtitulo>
+              <p className="mb-1 text-base">
+                {p.posicao && p.entraNaReferencia ? (
+                  <>
+                    Presença maior que a de <strong>{inteiro(p.posicao.menores)}</strong> dos {inteiro(p.posicao.total)} deputados.{' '}
+                  </>
+                ) : null}
+                <span className="text-muted-foreground">
+                  A mediana da Câmara é {percentual(p.referencia.mediana)}; metade dos deputados fica entre {percentual(p.referencia.p25)} e{' '}
+                  {percentual(p.referencia.p75)}.
+                </span>
+              </p>
+              <Posicao
+                titulo={`Presença deste deputado entre os ${inteiro(p.referencia.n)} deputados da Câmara, ${periodo}`}
+                valores={p.valoresReferencia}
+                valor={p.taxa}
+                mediana={p.referencia.mediana}
+                p25={p.referencia.p25}
+                p75={p.referencia.p75}
+                maximo={1}
+                formato="percentual"
+                nomeGrupo="deputados da Câmara"
+                nomeMetrica="de presença"
+                grupo={{ metrica: 'presenca' }}
+                largura={680}
+                altura={180}
+              />
+            </div>
+          )}
+        </div>
+        <div className="mt-10">
+          <Subtitulo>Dias de sessão por mês</Subtitulo>
+          <SerieMensal
+            titulo={`Dias de sessão por mês, ${periodo}`}
+            series={[
+              { chave: 'presente', nome: 'Presente', cor: CORES.deputado },
+              { chave: 'justificada', nome: 'Ausência justificada', cor: '#a1a7b3' },
+              { chave: 'ausente', nome: 'Ausência sem justificativa', cor: '#52525b' },
+            ]}
+            pontos={presencaPorMes(p)}
+            formatoEixo="inteiro"
+            largura={1050}
+            altura={240}
+          />
+        </div>
         {p.presencasSemRegistroNaSessao > 0 && (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-4 text-sm text-muted-foreground">
             Dias marcados “Presença (~)”: {inteiro(p.presencasSemRegistroNaSessao)}. A Câmara registra presença no dia, mas ausência na ata da
             sessão; a ata prevalece e esses dias não contam como presença.
           </p>
@@ -190,8 +235,8 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
         <Explicacao resumo="Como esta conta é feita">
           <p>
             Dias com sessão deliberativa no Plenário da Câmara, só os dias em que o deputado estava em exercício. Ausência justificada (licença,
-            missão autorizada) conta como ausência na porcentagem e aparece separada acima. Sessões conjuntas do Congresso não entram, por isso o
-            total pode ser um pouco menor que o do site da Câmara. <Link href="/metodo#met-01">Método completo</Link>.
+            missão autorizada) conta como ausência na porcentagem e aparece separada. Sessões conjuntas do Congresso não entram, por isso o total
+            pode ser um pouco menor que o do site da Câmara. <Link href="/metodo#met-01">Método completo</Link>.
           </p>
         </Explicacao>
       </CardContent>
@@ -206,47 +251,89 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
   const titulo = 'Uso da cota para despesas do mandato';
   if (!c) return <SemDado titulo={titulo} id="t-cota" icone={<Carteira />} />;
   const periodo = `${mesAno(c.proveniencia.periodo.inicio)} a ${mesAno(c.proveniencia.periodo.fim)}`;
-  const escala = Math.max(1.25, ...c.valoresReferenciaUf, c.percentual ?? 0);
+  const maxEscala = Math.max(1.25, Math.ceil(Math.max(...c.valoresReferenciaUf, c.percentual ?? 0) * 4) / 4);
+  const totalCategorias = c.categorias.reduce((t, x) => t + x.centavos, 0);
   return (
     <Card aria-labelledby="t-cota">
       <Cabecalho id="t-cota" icone={<Carteira />} titulo={titulo} periodo={periodo} />
       <CardContent>
-        <Numero valor={reais(c.gastoCentavos)} complemento={`em ${plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício`} />
-        <p className="text-sm">
-          Equivale a {percentual(c.percentual)} do valor-base da cota de {nomeUf(uf)} no mesmo período ({reais(c.valorBaseCentavos)}).
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:items-start">
+          <div>
+            <Numero valor={reais(c.gastoCentavos)} complemento={`em ${plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício`} />
+            <p className="text-sm">
+              Equivale a <strong>{percentual(c.percentual)}</strong> do valor-base da cota de {nomeUf(uf)} no período ({reais(c.valorBaseCentavos)}).
+            </p>
+            <dl className="mt-4 grid grid-cols-2 gap-3">
+              <Indicador rotulo="Fornecedores diferentes" valor={inteiro(c.totalFornecedores)} />
+              <Indicador rotulo="Nos 3 maiores fornecedores" valor={percentual(c.concentracaoTop3)} />
+            </dl>
+            {!c.entraNaReferencia && (
+              <Aviso>
+                Período curto: {plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício, menos que os {c.minMesesReferencia} usados na comparação com
+                o estado.
+              </Aviso>
+            )}
+          </div>
           {c.referenciaUf && (
-            <>
-              {' '}
-              Entre os {inteiro(c.referenciaUf.n)} deputados de {nomeUf(uf)}, a média foi {percentual(c.referenciaUf.media)} e a mediana,{' '}
-              {percentual(c.referenciaUf.mediana)}.
-            </>
+            <div>
+              <Subtitulo>
+                Onde está entre os {inteiro(c.referenciaUf.n)} deputados de {nomeUf(uf)}
+              </Subtitulo>
+              <p className="mb-1 text-base">
+                {c.posicaoUf && c.entraNaReferencia ? (
+                  <>
+                    Usou mais do valor-base que <strong>{inteiro(c.posicaoUf.menores)}</strong> dos {inteiro(c.posicaoUf.total)} deputados do estado.{' '}
+                  </>
+                ) : null}
+                <span className="text-muted-foreground">
+                  A média do estado é {percentual(c.referenciaUf.media)} e a mediana, {percentual(c.referenciaUf.mediana)}. O valor da cota muda de um
+                  estado para outro, por isso a comparação é dentro do estado.
+                </span>
+              </p>
+              <Posicao
+                titulo={`Uso do valor-base da cota por este deputado entre os ${inteiro(c.referenciaUf.n)} deputados de ${nomeUf(uf)}, ${periodo}`}
+                valores={c.valoresReferenciaUf}
+                valor={c.percentual}
+                mediana={c.referenciaUf.mediana}
+                p25={c.referenciaUf.p25}
+                p75={c.referenciaUf.p75}
+                maximo={maxEscala}
+                formato="percentual"
+                nomeGrupo={`deputados de ${nomeUf(uf)}`}
+                nomeMetrica="do valor-base"
+                grupo={{ metrica: 'cota', uf }}
+                largura={680}
+                altura={180}
+              />
+            </div>
           )}
-        </p>
-        {!c.entraNaReferencia && (
-          <Aviso>
-            Período curto: {plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício, menos que os {c.minMesesReferencia} usados na comparação com o
-            estado.
-          </Aviso>
-        )}
-        <Comparacao
-          titulo={`${titulo}, ${periodo}, em relação ao valor-base`}
-          valor={c.percentual}
-          referencia={c.referenciaUf}
-          valores={c.valoresReferenciaUf}
-          maximo={escala}
-          formatar={(v) => percentual(v)}
-          rotuloDeputado="Deputado"
-          rotuloReferencia={uf}
-        />
-        <h3 className="mt-5 mb-2 text-sm font-semibold">Maiores categorias de gasto</h3>
-        <ul className="divide-y rounded-lg border text-sm">
-          {c.categorias.slice(0, 3).map((x) => (
-            <li key={x.categoria} className="flex items-baseline justify-between gap-3 px-3 py-2">
-              <span className="first-letter:uppercase">{x.categoria.replace(/\.$/, '').toLowerCase()}</span>
-              <span className="shrink-0 font-medium tabular-nums">{reais(x.centavos)}</span>
-            </li>
-          ))}
-        </ul>
+        </div>
+        <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div>
+            <Subtitulo>Gasto por mês e valor-base da cota</Subtitulo>
+            <SerieMensal
+              titulo={`Gasto da cota por mês, ${periodo}`}
+              series={[{ chave: 'gasto', nome: 'Gasto no mês', cor: CORES.deputado }]}
+              pontos={cotaPorMes(c)}
+              nomeLinha="Valor-base do mês"
+              formatoEixo="reaisMil"
+              instrucao="Passe o mouse, toque ou use as setas para ver cada mês. O saldo não usado acumula no ano, então um mês pode passar do valor-base."
+            />
+          </div>
+          <div>
+            <Subtitulo>Gasto por categoria</Subtitulo>
+            <BarrasHorizontais
+              titulo="Gasto da cota por categoria"
+              nomeValor="Gasto no período"
+              formato="centavos"
+              itens={c.categorias.slice(0, 6).map((x) => ({
+                rotulo: x.categoria.replace(/\.$/, '').toLowerCase(),
+                valor: x.centavos,
+                dica: [reais(x.centavos), `${percentual(totalCategorias ? x.centavos / totalCategorias : null)} do gasto do período`],
+              }))}
+            />
+          </div>
+        </div>
         <Explicacao resumo="Por que o percentual pode passar de 100%">
           <p>
             O valor-base é o valor mensal da cota para o estado (Ato da Mesa 43/2009). A regra permite acumular o saldo não usado ao longo do ano, há
@@ -265,10 +352,10 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
 
 function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDados: string }) {
   const titulo = 'Projetos de lei apresentados como autor principal';
-  if (!j) return <SemDado titulo={titulo} id="t-projetos" icone={<Documento />} className="lg:col-span-2" />;
+  if (!j) return <SemDado titulo={titulo} id="t-projetos" icone={<Documento />} />;
   const periodo = `Desde ${mesAno(j.proveniencia.periodo.inicio)}`;
   return (
-    <Card aria-labelledby="t-projetos" className="lg:col-span-2">
+    <Card aria-labelledby="t-projetos">
       <Cabecalho id="t-projetos" icone={<Documento />} titulo={titulo} periodo={periodo} />
       <CardContent>
         <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -292,7 +379,25 @@ function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDad
               Projetos apensados tramitam junto com outro projeto, e o conteúdo pode seguir no projeto principal.
             </p>
           </div>
-          <Funil projetos={j} />
+          <div>
+            <Subtitulo>Até onde os projetos chegaram</Subtitulo>
+            <BarrasHorizontais
+              titulo="Projetos por estágio alcançado: deputado e mediana da Câmara"
+              nomeValor="Projetos do deputado"
+              nomeReferencia="Mediana da Câmara"
+              formato="decimal"
+              itens={(['apresentada', 'comissao', 'alem_comissao', 'aprovada_camara', 'lei'] as EstagioFunil[]).map((e) => ({
+                rotulo: NOMES_ESTAGIO[e],
+                valor: j.porEstagio[e],
+                referencia: j.referencia.porEstagio[e]?.mediana ?? null,
+                dica: [
+                  `Deputado: ${plural(j.porEstagio[e], 'projeto')}`,
+                  `Mediana da Câmara: ${(j.referencia.porEstagio[e]?.mediana ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}`,
+                  'Cada estágio inclui os projetos que foram além dele',
+                ],
+              }))}
+            />
+          </div>
         </div>
         <Explicacao resumo="O que esta contagem não mostra">
           <p>

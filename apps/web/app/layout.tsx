@@ -25,6 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Pular para o conteúdo
         </a>
         <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+          <div className="faixa-brasil" aria-hidden="true" />
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6 md:h-16 md:flex-nowrap md:py-0">
             <Link href="/" className="flex items-center gap-2 font-semibold text-foreground hover:no-underline">
               <Marca />
@@ -42,7 +43,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         {children}
-        <footer className="border-t bg-zinc-950 text-zinc-300">
+        <footer className="border-t bg-[#001a4f] text-blue-100">
+          <div className="faixa-brasil" aria-hidden="true" />
           <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 text-sm sm:px-6 md:grid-cols-[2fr_1fr]">
             <div className="space-y-3">
               <p className="flex items-center gap-2 font-semibold text-white">
@@ -53,7 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 Projeto independente, sem ligação com a Câmara dos Deputados ou com qualquer partido. Os dados vêm das fontes oficiais da Câmara; cada
                 número tem o link para conferir.
               </p>
-              <p className="text-zinc-400">{indice ? `Dados publicados em ${dataDeIso(indice.geradoEm)}.` : 'Ainda não há dados publicados.'}</p>
+              <p className="text-blue-200">{indice ? `Dados publicados em ${dataDeIso(indice.geradoEm)}.` : 'Ainda não há dados publicados.'}</p>
             </div>
             <nav aria-label="Rodapé" className="flex flex-col gap-2 md:items-end">
               <Link href="/metodo" className="text-white">

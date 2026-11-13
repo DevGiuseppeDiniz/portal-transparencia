@@ -7,28 +7,35 @@
 @import 'tailwindcss';
 
 :root {
+  /* Tema: cores do Brasil (DEC-14). Azul da bandeira como cor principal da INTERFACE; verde e
+     amarelo só como detalhes (faixa, destaques). Nunca nos dados: nos gráficos, verde/amarelo
+     virariam "bom/ruim" (DSG-04), e o verde-amarelo dominante tem leitura política (PRI-01). */
+  --brasil-azul: #002776;
+  --brasil-verde: #009c3b;
+  --brasil-amarelo: #ffdf00;
+
   --background: #ffffff;
-  --foreground: #09090b;
+  --foreground: #0b1220;
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #0b1220;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #4338ca;
+  --popover-foreground: #0b1220;
+  --primary: #002776;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #52525b;
-  --accent: #eef2ff;
-  --accent-foreground: #3730a3;
-  --border: #e4e4e7;
-  --input: #d4d4d8;
-  --ring: #6366f1;
+  --secondary: #f1f4f9;
+  --secondary-foreground: #0b1f4d;
+  --muted: #f3f5f8;
+  --muted-foreground: #4f5a6b;
+  --accent: #e7eefb;
+  --accent-foreground: #002776;
+  --border: #e2e7ef;
+  --input: #cdd5e1;
+  --ring: #007a30;
   --radius: 0.75rem;
 
   --grafico-deputado: #0072b2;
   --grafico-referencia: #52525b;
-  --grafico-distribuicao: #8a8a94;
+  --grafico-distribuicao: #8a8f99;
 }
 
 @theme inline {
@@ -56,6 +63,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-brasil-azul: var(--brasil-azul);
+  --color-brasil-verde: var(--brasil-verde);
+  --color-brasil-amarelo: var(--brasil-amarelo);
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -69,6 +79,10 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+  /* Itens de grid podem encolher abaixo do conteúdo (senão um gráfico largo estoura a tela). */
+  .grid > * {
+    min-width: 0;
   }
   a {
     @apply text-primary underline-offset-4 hover:underline;
@@ -86,6 +100,12 @@
 }
 
 @layer components {
+  /* Faixa decorativa verde-amarelo-azul (só ornamento, aria-hidden no HTML). */
+  .faixa-brasil {
+    height: 4px;
+    background: linear-gradient(90deg, var(--brasil-verde) 0 40%, var(--brasil-amarelo) 40% 70%, var(--brasil-azul) 70% 100%);
+  }
+
   /* Tabelas de dados (padrão Table do shadcn/ui). */
   .tabela {
     @apply w-full caption-bottom text-sm;

@@ -21,6 +21,8 @@ import {
   type PresencaPublicada,
   type ProjetosPublicados,
   type ProvenienciaPublicada,
+  type PontoReferencia,
+  type ReferenciasPublicadas,
   type ResumoDeputado,
 } from '@portal/metrics/publicacao';
 import { FONTES, LEGISLATURA_ATUAL, urlPresencasDia, urlPublicaDeputado } from '@portal/sources';
@@ -128,6 +130,7 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
   const cat02 = new Map<number, CotaPublicada['categorias'][number][]>();
   const forn02 = new Map<number, CotaPublicada['fornecedores'][number][]>();
   const teto02 = new Map<string, CotaPublicada['valoresBase'][number][]>();
+  const mes02 = new Map<number, CotaPublicada['porMes'][number][]>();
   if (p02) {
     for (const l of await sql<L02[]>`select * from metrics.met02_cota where calculo_id = ${p02.calculoId}`) m02.set(l.id_camara, l);
     for (const r of await sql<{ sigla_uf: string; n: number; media: number; mediana: number; p25: number; p75: number; minimo: number; maximo: number; min_meses: number }[]>`
@@ -142,6 +145,12 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
     for (const f of await sql<{ id_camara: number; fornecedor: string; cnpj: string | null; centavos: string; documentos: number }[]>`
         select id_camara, fornecedor, cnpj, centavos, documentos from metrics.met02_fornecedor where calculo_id = ${p02.calculoId} order by posicao`) {
       forn02.set(f.id_camara, [...(forn02.get(f.id_camara) ?? []), { fornecedor: f.fornecedor, cnpj: f.cnpj, centavos: Number(f.centavos), documentos: f.documentos }]);
+    }
+    for (const m of await sql<{ id_camara: number; mes: string; em_exercicio: boolean; gasto_centavos: string; valor_base_centavos: string }[]>`
+        select id_camara, mes, em_exercicio, gasto_centavos, valor_base_centavos from metrics.met02_mes where calculo_id = ${p02.calculoId} order by mes`) {
+      mes02.set(m.id_camara, [...(mes02.get(m.id_camara) ?? []), {
+        mes: m.mes, emExercicio: m.em_exercicio, gastoCentavos: Number(m.gasto_centavos), valorBaseCentavos: Number(m.valor_base_centavos),
+      }]);
     }
     for (const t of await sql<{ sigla_uf: string; mes: string; teto_centavos: string; norma: string; fonte: string }[]>`
         select sigla_uf, mes, teto_centavos, norma, fonte from metrics.met02_teto where calculo_id = ${p02.calculoId} order by mes`) {
@@ -221,6 +230,11 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
         if (soma !== Number(l02.gasto_centavos)) {
           throw new Error(`MET-02 inconsistente para ${id}: categorias somam ${soma}, gasto é ${l02.gasto_centavos}.`);
         }
+        const porMes = mes02.get(id) ?? [];
+        const somaMeses = porMes.filter((x) => x.emExercicio).reduce((t, x) => t + x.gastoCentavos, 0);
+        if (porMes.length && somaMeses !== Number(l02.gasto_centavos)) {
+          throw new Error(`MET-02 inconsistente para ${id}: meses em exercício somam ${somaMeses}, gasto é ${l02.gasto_centavos}.`);
+        }
         const valoresUf = [...m02.values()].filter((x) => x.sigla_uf === l02.sigla_uf && x.entra_na_referencia && x.percentual_teto !== null).map((x) => x.percentual_teto!);
         cota = {
           mesesEmExercicio: l02.meses_exercicio,
@@ -236,6 +250,7 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
           fornecedores: forn02.get(id) ?? [],
           concentracaoTop3: l02.concentracao_top3,
           totalFornecedores: l02.total_fornecedores,
+          porMes,
           valoresBase: teto02.get(l02.sigla_uf) ?? [],
           proveniencia: p02,
         };
@@ -277,6 +292,28 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
       };
       await gravar(join('deputados', `${id}.json`), publicado);
     }
+
+    // Quem é cada ponto dos gráficos de posição (mesmos critérios das referências calculadas).
+    const porId = new Map(deputados.map((d) => [d.id_camara, d]));
+    const ponto = (id: number, valor: number): PontoReferencia | null => {
+      const d = porId.get(id);
+      return d ? { id, nome: d.nome, partido: d.sigla_partido, uf: d.sigla_uf, valor: arredondar(valor) } : null;
+    };
+    const ordenar = (a: PontoReferencia, b: PontoReferencia) => a.valor - b.valor || a.nome.localeCompare(b.nome, 'pt-BR');
+    const presencaRef = [...m01]
+      .filter(([, l]) => l.entra_na_referencia && l.taxa_presenca !== null)
+      .map(([id, l]) => ponto(id, l.taxa_presenca!))
+      .filter((x): x is PontoReferencia => x !== null)
+      .sort(ordenar);
+    const cotaPorUf: Record<string, PontoReferencia[]> = {};
+    for (const [id, l] of m02) {
+      if (!l.entra_na_referencia || l.percentual_teto === null) continue;
+      const pt = ponto(id, l.percentual_teto);
+      if (pt) (cotaPorUf[l.sigla_uf] ??= []).push(pt);
+    }
+    for (const lista of Object.values(cotaPorUf)) lista.sort(ordenar);
+    const referencias: ReferenciasPublicadas = { versao: VERSAO_PUBLICACAO, geradoEm, presenca: presencaRef, cotaPorUf };
+    await gravar('referencias.json', referencias);
 
     const indice: IndicePublicado = { versao: VERSAO_PUBLICACAO, geradoEm, deputados: deputados.map(resumo), arquivos };
     await writeFile(join(temporario, 'indice.json'), `${JSON.stringify(indice)}\n`);

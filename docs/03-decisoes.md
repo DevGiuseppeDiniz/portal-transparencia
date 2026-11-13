@@ -5,6 +5,11 @@ Status: `aceita`, `proposta`, `revogada (substituída por DEC-xx)`.
 
 ## DEC-01 — Sem nota única nem ranking geral
 - **Motivo:** a escolha e o peso dos itens embutem valor político.
+- **Ajuste (2026-11-13, pedido do usuário):** no gráfico de posição, ao explorar (mouse,
+  toque, teclado), a dica mostra **quem** é cada ponto (nome, partido, UF) e o clique abre a
+  página do deputado. O dado é público e cada deputado tem página própria; continua proibido
+  qualquer lista, tabela ou destaque **ordenado por métrica** ("os 10 que mais faltam").
+  Os nomes não aparecem sem interação (o gráfico não rotula outros deputados).
 - **Princípio:** PRI-01 · **Ref:** REF-06, REF-07 · **Status:** aceita
 
 ## DEC-02 — Entrada pelo CEP/UF ou pelo nome
@@ -81,5 +86,10 @@ Status: `aceita`, `proposta`, `revogada (substituída por DEC-xx)`.
 - **Dependências novas:** `tailwindcss` e `@tailwindcss/postcss` 4.3.4 (dev), aprovadas em
   `security/dependencias-aprovadas.json`; `pnpm audit` sem vulnerabilidades. Binários nativos
   do `@tailwindcss/oxide` vêm como pacotes opcionais por plataforma, sem script de instalação.
+- **Tema (2026-11-13, pedido do usuário):** cores do Brasil. Azul da bandeira `#002776` como
+  cor principal da interface; verde `#009C3B` e amarelo `#FFDF00` só em detalhes (faixa no
+  topo e no rodapé, marca). Motivo da dosagem: verde-amarelo dominante tem leitura política
+  desde 2018 (PRI-01) e poderia parecer site oficial; e verde/amarelo nos dados virariam
+  "bom/ruim" (DSG-04). Gráficos continuam neutros.
 - **Princípio:** PRI-06, PRI-07 · **Status:** aceita
 

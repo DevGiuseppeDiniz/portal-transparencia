@@ -15,7 +15,7 @@ export default function Inicio() {
 
   return (
     <main id="conteudo">
-      <section aria-labelledby="titulo-inicio" className="border-b bg-gradient-to-b from-accent/60 to-background">
+      <section aria-labelledby="titulo-inicio" className="relative overflow-hidden border-b bg-gradient-to-br from-[#eef3ff] via-white to-[#eefaf2]">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-20">
           <Badge variante="outline" className="mb-4 bg-background">
             Câmara dos Deputados · dados públicos

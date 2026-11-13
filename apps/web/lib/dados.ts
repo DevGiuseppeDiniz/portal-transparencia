@@ -41,7 +41,7 @@ export function lerDeputado(id: string): DeputadoPublicado | null {
 }
 
 /** Conteúdo exato do arquivo publicado (para servir como dado bruto, DEC-07). */
-export function lerArquivoPublicado(relativo: 'indice.json' | `deputados/${string}.json`): string | null {
+export function lerArquivoPublicado(relativo: 'indice.json' | 'referencias.json' | `deputados/${string}.json`): string | null {
   if (relativo !== 'indice.json' && !lerIndice()?.arquivos[relativo]) return null;
   const arquivo = join(raiz(), relativo);
   return existsSync(arquivo) ? readFileSync(arquivo, 'utf8') : null;
