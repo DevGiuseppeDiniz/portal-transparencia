@@ -18,47 +18,72 @@ export interface ObjetoRaw {
 }
 
 export interface ArmazenamentoRaw {
+  /** Pacote JSON da coleta (respostas de API), guardado comprimido. */
   salvar(fonteId: string, conteudo: string, em: Date): Promise<ObjetoRaw>;
+  /**
+   * Arquivo oficial (ex.: ZIP da CEAP) guardado byte a byte, sem recomprimir: o hash é o do
+   * próprio arquivo, e qualquer pessoa pode baixá-lo da fonte e conferir.
+   */
+  salvarArquivo(fonteId: string, bytes: Buffer, extensao: 'zip', em: Date): Promise<ObjetoRaw>;
   /** Devolve o conteúdo e confere que o hash bate com o nome (adulteração = erro). */
   ler(caminho: string): Promise<string>;
+  lerArquivo(caminho: string): Promise<Buffer>;
 }
 
-const CAMINHO_VALIDO = /^(SRC-[0-9]{2}[a-z]?)\/(\d{4}-\d{2}-\d{2})\/([0-9a-f]{64})\.json\.gz$/;
+const CAMINHO_VALIDO = /^(SRC-[0-9]{2}[a-z]?)\/(\d{4}-\d{2}-\d{2})\/([0-9a-f]{64})\.(json\.gz|zip)$/;
 
 export function sha256(conteudo: string | Buffer): string {
   return createHash('sha256').update(conteudo).digest('hex');
 }
 
 export function armazenamentoEmDisco(raiz: string): ArmazenamentoRaw {
+  /** Grava sem nunca sobrescrever e sem deixar arquivo pela metade no caminho final. */
+  async function gravar(fonteId: string, hash: string, extensao: string, dados: Buffer, em: Date): Promise<string> {
+    const caminho = `${fonteId}/${em.toISOString().slice(0, 10)}/${hash}.${extensao}`;
+    if (!CAMINHO_VALIDO.test(caminho)) throw new Error(`fonte inválida para o raw: ${fonteId}`);
+    const destino = join(raiz, caminho);
+    await mkdir(dirname(destino), { recursive: true });
+    // Temporário + link(): link falha se o definitivo já existir.
+    const temporario = `${destino}.${process.pid}.${Date.now()}.tmp`;
+    await writeFile(temporario, dados, { mode: 0o444 });
+    try {
+      await link(temporario, destino);
+    } catch (e) {
+      // Mesmo hash = mesmo conteúdo: já está guardado.
+      if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
+    } finally {
+      await rm(temporario, { force: true });
+    }
+    return caminho;
+  }
+
+  async function lerConferido(caminho: string): Promise<Buffer> {
+    const partes = CAMINHO_VALIDO.exec(caminho);
+    if (!partes) throw new Error(`caminho raw inválido: ${caminho}`);
+    const arquivo = await readFile(join(raiz, caminho));
+    const conteudo = partes[4] === 'json.gz' ? gunzipSync(arquivo) : arquivo;
+    if (sha256(conteudo) !== partes[3]) throw new Error(`raw adulterado: o hash de ${caminho} não confere`);
+    return conteudo;
+  }
+
   return {
     async salvar(fonteId, conteudo, em) {
       const hash = sha256(conteudo);
-      const caminho = `${fonteId}/${em.toISOString().slice(0, 10)}/${hash}.json.gz`;
-      if (!CAMINHO_VALIDO.test(caminho)) throw new Error(`fonte inválida para o raw: ${fonteId}`);
-      const destino = join(raiz, caminho);
-      await mkdir(dirname(destino), { recursive: true });
-
-      // Grava num temporário e cria o definitivo com link(), que falha se já existir:
-      // nunca sobrescreve e nunca deixa arquivo pela metade no caminho final.
-      const temporario = `${destino}.${process.pid}.${Date.now()}.tmp`;
-      await writeFile(temporario, gzipSync(conteudo), { mode: 0o444 });
-      try {
-        await link(temporario, destino);
-      } catch (e) {
-        // Mesmo hash = mesmo conteúdo: já está guardado.
-        if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
-      } finally {
-        await rm(temporario, { force: true });
-      }
+      const caminho = await gravar(fonteId, hash, 'json.gz', gzipSync(conteudo), em);
       return { caminho, hash, bytes: Buffer.byteLength(conteudo) };
     },
-
+    async salvarArquivo(fonteId, bytes, extensao, em) {
+      const hash = sha256(bytes);
+      const caminho = await gravar(fonteId, hash, extensao, bytes, em);
+      return { caminho, hash, bytes: bytes.length };
+    },
     async ler(caminho) {
-      const partes = CAMINHO_VALIDO.exec(caminho);
-      if (!partes) throw new Error(`caminho raw inválido: ${caminho}`);
-      const conteudo = gunzipSync(await readFile(join(raiz, caminho))).toString('utf8');
-      if (sha256(conteudo) !== partes[3]) throw new Error(`raw adulterado: o hash de ${caminho} não confere`);
-      return conteudo;
+      if (!CAMINHO_VALIDO.test(caminho)) throw new Error(`caminho raw inválido: ${caminho}`);
+      if (!caminho.endsWith('.json.gz')) throw new Error(`não é um pacote JSON: ${caminho}`);
+      return (await lerConferido(caminho)).toString('utf8');
+    },
+    async lerArquivo(caminho) {
+      return lerConferido(caminho);
     },
   };
 }

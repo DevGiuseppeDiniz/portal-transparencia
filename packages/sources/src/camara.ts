@@ -134,3 +134,88 @@ export function lerPaginaDeputados(corpo: string): PaginaCamara<DeputadoCamara> 
     proxima: lerProxima(raiz['links']),
   };
 }
+
+// --- SRC-01b: arquivos em massa ---------------------------------------------------------
+
+export const CAMARA_ARQUIVOS = 'https://dadosabertos.camara.leg.br/arquivos';
+
+export interface EventoCamara {
+  readonly id: number;
+  /** Como a Câmara publica: horário de Brasília, sem fuso (AAAA-MM-DDTHH:MM[:SS]). */
+  readonly dataHoraInicio: string;
+  readonly descricaoTipo: string;
+  readonly situacao: string | null;
+  readonly local: string | null;
+}
+
+export function urlEventosAno(ano: number): string {
+  if (!Number.isSafeInteger(ano) || ano < 2000 || ano > 2100) throw new ErroFormato(`ano inválido: ${ano}`);
+  return `${CAMARA_ARQUIVOS}/eventos/json/eventos-${ano}.json`;
+}
+
+export function lerArquivoEventos(corpo: string): EventoCamara[] {
+  let json: unknown;
+  try {
+    json = JSON.parse(corpo);
+  } catch {
+    throw new ErroFormato('arquivo de eventos não é JSON');
+  }
+  const dados = objeto(json, 'arquivo')['dados'];
+  if (!Array.isArray(dados)) throw new ErroFormato('arquivo.dados: esperado lista');
+  return dados.map((valor, i) => {
+    const onde = `dados[${i}]`;
+    const o = objeto(valor, onde);
+    const inicio = texto(o['dataHoraInicio'], `${onde}.dataHoraInicio`, 19);
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(inicio)) {
+      throw new ErroFormato(`${onde}.dataHoraInicio: formato inesperado "${inicio}"`);
+    }
+    const local = o['localCamara'] === null || o['localCamara'] === undefined ? null : objeto(o['localCamara'], `${onde}.localCamara`);
+    return {
+      id: inteiroPositivo(o['id'], `${onde}.id`),
+      dataHoraInicio: inicio,
+      descricaoTipo: texto(o['descricaoTipo'], `${onde}.descricaoTipo`, 200),
+      situacao: textoOpcional(o['situacao'], `${onde}.situacao`, 100),
+      local: local ? textoOpcional(local['nome'], `${onde}.localCamara.nome`, 300) : null,
+    };
+  });
+}
+
+/** Legislatura atual (API v2 /legislaturas, conferido em 2026-11-13). */
+export const LEGISLATURA_ATUAL = { id: 57, inicio: '2023-02-01', fim: '2027-01-31' } as const;
+
+// --- Histórico do mandato (entradas e saídas de exercício) -----------------------------
+
+export interface EventoHistorico {
+  /** Horário de Brasília, sem fuso (AAAA-MM-DDTHH:MM). */
+  readonly dataHora: string;
+  /** "Exercício", "Licença", "Suplência", "FIM_MANDATO"…; null em registro só de nome/partido. */
+  readonly situacao: string | null;
+  readonly descricaoStatus: string | null;
+  readonly idLegislatura: number;
+}
+
+export function urlHistoricoDeputado(id: number): string {
+  return `${CAMARA_API}/deputados/${inteiroPositivo(id, 'id')}/historico`;
+}
+
+export function lerHistorico(corpo: string): EventoHistorico[] {
+  let json: unknown;
+  try {
+    json = JSON.parse(corpo);
+  } catch {
+    throw new ErroFormato('histórico não é JSON');
+  }
+  const dados = objeto(json, 'resposta')['dados'];
+  if (!Array.isArray(dados)) throw new ErroFormato('resposta.dados: esperado lista');
+  return dados.map((valor, i) => {
+    const o = objeto(valor, `dados[${i}]`);
+    const dataHora = texto(o['dataHora'], `dados[${i}].dataHora`, 19);
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dataHora)) throw new ErroFormato(`dados[${i}].dataHora: formato inesperado`);
+    return {
+      dataHora: dataHora.slice(0, 16),
+      situacao: textoOpcional(o['situacao'], `dados[${i}].situacao`, 50),
+      descricaoStatus: textoOpcional(o['descricaoStatus'], `dados[${i}].descricaoStatus`, 300),
+      idLegislatura: inteiroPositivo(o['idLegislatura'], `dados[${i}].idLegislatura`),
+    };
+  });
+}

@@ -178,6 +178,9 @@ importers:
       '@portal/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@portal/metrics':
+        specifier: workspace:*
+        version: link:../../packages/metrics
       '@portal/sources':
         specifier: workspace:*
         version: link:../../packages/sources

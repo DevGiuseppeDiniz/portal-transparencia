@@ -9,7 +9,33 @@ Classe: **objetiva** (fato verificável) ou **curada** (depende de seleção hum
   exibidas à parte, não somadas.
 - **Referência:** mediana da Câmara e faixa interquartil (PRI-02).
 - **Armadilhas:** obstrução e licenças (saúde, cargo no Executivo). Mostrar o motivo.
-- **Fonte:** SRC-01 · **Refs:** REF-09, REF-10
+- **Fonte:** SRC-01d (frequência), SRC-01b (dias de sessão), SRC-01 · **Refs:** REF-09, REF-10
+- **Implementação (`met01-v1`, 2026-11-13):**
+  - **Unidade:** o *dia* com sessão deliberativa em Plenário, como a Câmara registra a
+    frequência oficial (`descricaoFrequenciaDia`). Dia com duas sessões conta uma vez.
+  - **Período:** legislatura atual (desde 01/02/2023) até o último dia coletado.
+  - **Denominador:** só os dias em que o deputado estava em exercício (o próprio
+    webservice só o lista nesses dias).
+  - **Ausência justificada** conta como ausência na taxa e é exibida à parte, com o
+    motivo (licença de saúde, missão autorizada…).
+  - **Referência:** mediana e P25–P75 (quantil tipo 7, o padrão do R/NumPy) dos deputados
+    em exercício com **pelo menos 30 dias** de sessão no período. Quem tem menos aparece
+    com o próprio número e um aviso de período curto, mas fica fora da referência.
+  - **Sessões conjuntas do Congresso não entram.** O webservice por dia não as lista, e
+    o Ato da Mesa 191/2017 conta as sessões deliberativas da própria Câmara. A página
+    "Presença em Plenário" do site da Câmara inclui as conjuntas no total de dias, então
+    os nossos totais podem ser um pouco menores. A tela avisa isso.
+  - **Conferência independente (2026-11-13)** contra a página oficial de um deputado
+    (2025): Câmara 121 dias (105 P, 7 AJ, 9 A); nosso 116 (101 P, 6 AJ, 9 A). A diferença
+    são exatamente 5 sessões conjuntas (4 presenças, 1 missão autorizada); os demais dias
+    batem um a um.
+  - Recoleta dos últimos 60 dias a cada execução: justificativa pode ser lançada depois.
+  - **"Presença (~)"** (visto em ~1% dos dias): o dia aparece como presença, mas a sessão
+    registra ausência. O símbolo não tem legenda oficial publicada. O Ato da Mesa 191/2017
+    (art. 2º, parágrafo único) diz que a consolidação administrativa da presença do dia não
+    se sobrepõe à ausência registrada na ata da sessão. Por isso: categoria própria,
+    exibida à parte com essa explicação e **fora** da taxa de presença. Pendente: confirmar
+    o significado com a Câmara (pedido via LAI).
 
 ## MET-02 — Uso da cota parlamentar (CEAP)
 - **Classe:** objetiva
@@ -20,7 +46,28 @@ Classe: **objetiva** (fato verificável) ou **curada** (depende de seleção hum
   irregularidade.
 - **Armadilhas:** gastar pouco não é sinônimo de bom mandato. Não usar escala de cor
   "bom/ruim".
-- **Fonte:** SRC-01, SRC-04 · **Refs:** REF-05, REF-09
+- **Fonte:** SRC-01c (despesas), SRC-01 (histórico do mandato), SRC-04 (fora do MVP) ·
+  **Refs:** REF-05, REF-09
+- **Implementação (`met02-v1`, 2026-11-13):**
+  - **Período:** os 12 meses fechados mais recentes cujo prazo de 90 dias para apresentar
+    a nota já acabou (antes disso o mês está incompleto; Câmara, "Guia para jornalistas").
+  - **Gasto:** soma do `vlrLiquido` (o que saiu da cota, já descontada a glosa) dos meses
+    em que o deputado esteve em exercício (histórico do mandato, SRC-01).
+  - **Valor-base, não "teto":** soma do valor mensal do Anexo do Ato da Mesa 43/2009 para
+    a UF em cada mês em exercício. Vale a tabela vigente no 1º dia do mês: Ato 270/2023
+    até fev/2026 e Ato 244/2026 (em vigor desde 20/02/2026) a partir de mar/2026. O valor-base
+    **não** inclui: adicionais por cargo (art. 1º §1º: R$ 902,02 a R$ 5.075,62/mês),
+    adicional por missão no Parlasul (§3º) nem o saldo acumulado no ano (art. 13). E o
+    que passar do saldo anual é **descontado do salário** do deputado (art. 13 §2º). Por
+    isso o percentual pode passar de 100% sem que isso seja, por si, irregular: a tela diz
+    isso e não usa a palavra "teto" (PRI-01). Em nov/2026, 24 de 513 passaram de 100%.
+  - **Referência:** média dos deputados da mesma UF (PRI-03), com mediana e P25–P75, só
+    de quem esteve pelo menos 6 meses em exercício no período.
+  - **Detalhe:** gasto por categoria; 10 maiores fornecedores (CNPJ e nome); parcela dos
+    3 maiores. Fornecedor pessoa física aparece só como "Pessoa física", sem nome nem CPF
+    (LGPD); o CPF do deputado e o nome de passageiros não saem do arquivo bruto.
+  - Conferência independente (2026-11-13): um deputado recalculado em Python direto do
+    CSV oficial deu exatamente o mesmo gasto, valor-base e percentual.
 
 ## MET-03 — Funil legislativo
 - **Classe:** objetiva

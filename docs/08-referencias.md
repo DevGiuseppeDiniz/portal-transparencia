@@ -44,6 +44,13 @@ Ao validar, acrescentar ao header da referência:
 - **Links:** https://content.iospress.com/articles/information-polity/ip372 ·
   https://www.idea.int/sites/default/files/2025-11/parliamentary-monitoring-organizations.pdf
 - **Status:** verificado-resumo
+- **Tentativa de leitura integral (2026-11-13, para a MET-03):** texto bloqueado (HTTP 403
+  na IOS Press). Continua `verificado-resumo`. A regra que ela apoia na MET-03 (não exibir
+  contagem bruta como desempenho, PRI-04) fica sustentada pela REF-05, lida na íntegra.
+  Achado consistente encontrado na busca: trabalho apresentado na ECPR sobre sites de
+  monitoramento argumenta que sites que só contam o uso de instrumentos formais
+  (projetos, perguntas) podem gerar incentivos perversos no comportamento dos
+  parlamentares (https://ecpr.eu/Events/Event/PaperDetails/54185, só resumo).
 
 ## REF-04 — NDI & Directorio Legislativo (2024), evidências de impacto de PMOs
 - **Achado:** revisão de evidências com casos na América Latina, África e Ásia.
@@ -57,15 +64,38 @@ Ao validar, acrescentar ao header da referência:
 
 ## REF-05 — Volden & Wiseman, Legislative Effectiveness Scores
 - **Citação:** Volden, C.; Wiseman, A. E. *Legislative Effectiveness in the United States
-  Congress: The Lawmakers*. Cambridge University Press, 2014. Versão estadual:
-  Bucchianeri, Volden & Wiseman, *American Political Science Review*, 119(1), 2025.
-- **Achado:** efetividade = avanço dos projetos por 5 estágios (apresentado → comissão →
-  além da comissão → aprovado → lei), com 15 indicadores, comparação com o desempenho
-  esperado e normalização para média 1,0. Ignora o alinhamento partidário.
+  Congress: The Lawmakers*. Cambridge University Press, 2014. Versão Senado: Volden &
+  Wiseman, "Legislative Effectiveness in the United States Senate", *The Journal of
+  Politics*, 80(2), 731–735, 2018 (doi:10.1086/697121). Versão estadual: Bucchianeri,
+  Volden & Wiseman, *American Political Science Review*, 119(1), 2025.
+- **Achado:** efetividade = avanço dos projetos por 5 estágios (apresentado → ação em
+  comissão → ação além da comissão → aprovado na casa → lei), com 15 indicadores (5
+  estágios × 3 níveis de relevância), comparação com o desempenho esperado e normalização
+  para média 1,0. Ignora o alinhamento partidário.
 - **Usado em:** PRI-03, PRI-04, DEC-04, MET-03
 - **Links:** https://thelawmakers.org/?p=113 ·
   https://thelawmakers.org/wp-content/uploads/2018/12/VoldenWisemanJOP2018.pdf
-- **Status:** verificado-resumo
+- **Status:** verificado-integral (artigo JOP 2018, lido em 2026-11-13; o livro de 2014,
+  que tem a equação dos pesos, não foi lido).
+- **Validação para a MET-03 (2026-11-13):**
+  - Confirmado: os 5 estágios ("bill sponsorship, action in committee, action beyond
+    committee, passing the House, and becoming law"); "action in committee" = audiências
+    e votação na comissão; "action beyond committee" = votação em plenário.
+  - Confirmado: os próprios autores adaptam os estágios ao rito da casa (no Senado, a
+    Rule XIV permite pular a comissão e eles não dão crédito de "ação em comissão"). Na
+    Câmara o equivalente é o **poder conclusivo** das comissões (aprovação sem plenário):
+    a MET-03 precisa tratar isso.
+  - O LES pondera por relevância e normaliza num índice. **Não usamos o índice** (seria
+    uma nota, PRI-01/DEC-01): só o funil descritivo por estágio.
+  - Limite declarado pelos autores: o LES "only captures positive lawmaking actions"
+    (não vê obstrução, emendas, fiscalização). A tela precisa dizer isso.
+  - Desempenho fortemente associado a cargo (maioria, presidência de comissão): base do
+    "valor esperado" de PRI-03, ainda pendente.
+- **Replicações e críticas encontradas:**
+  - REF-28 (Brasil): adaptação do LES à Câmara com um **segundo índice, de relatoria**.
+  - REF-29 (crítica): cerca de metade das leis nos EUA passa "de carona" dentro de outro
+    projeto; contar só pelo autor subestima a efetividade. No Brasil, o análogo é a
+    **apensação**: a MET-03 mostra projetos apensados à parte, não como "parados".
 
 ## REF-06 — Seleção de afirmações em Voting Advice Applications
 - **Citação:** "A perfect match? The impact of statement selection on voting advice
@@ -263,3 +293,27 @@ Indicadas pelo usuário em 2026-11-13. Uso pretendido: `13-seguranca.md`,
   verificar]`. Complementar: Lei de Acesso à Informação, Lei nº 12.527/2011.
 - **Usado em:** DSG-07, PRI-07
 - **Status:** de-memória
+
+## REF-28 — Rey (2021), efetividade legislativa na Câmara dos Deputados
+- **Citação:** Rey, B. Tese de doutorado, Syracuse University, 2021
+  (https://surface.syr.edu/etd/1531). Resumo do Center for Effective Lawmaking:
+  https://thelawmakers.org/legislative-research/is-legislative-effectiveness-a-global-concern-new-research-from-brazil
+- **Achado:** adapta o LES à Câmara (2011–2018) com dois índices: autoria (projetos que
+  passaram pela Mesa, ganharam relator, tiveram parecer e viraram lei) e **relatoria**
+  (fração das relatorias do deputado que viraram lei). Só ~0,5% dos projetos de deputados
+  são aprovados na mesma sessão legislativa.
+- **Usado em:** MET-03 (validação da REF-05; relatoria fica como pendência)
+- **Status:** verificado-resumo (resumo do CEL; tese não lida). Ler a tese antes de
+  implementar a relatoria.
+
+## REF-29 — Casas, Denny & Wilkerson (2020), "More Effective Than We Thought"
+- **Citação:** Casas, A.; Denny, M. J.; Wilkerson, J. "More Effective Than We Thought:
+  Accounting for Legislative Hitchhikers Reveals a More Inclusive and Productive
+  Lawmaking Process". *American Journal of Political Science*, 64(1), 5–18, 2020.
+  doi:10.1111/ajps.12472
+- **Achado:** projetos que viram lei como dispositivos de outros projetos ("hitchhikers")
+  são cerca de metade das leis; contando-os, o processo legislativo parece mais produtivo,
+  menos hierárquico e menos partidário do que o LES por autoria indica.
+- **Usado em:** MET-03 (crítica à REF-05: apensação mostrada à parte)
+- **Status:** verificado-resumo (resumo e post dos autores no Legislative Branch blog).
+
