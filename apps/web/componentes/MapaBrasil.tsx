@@ -7,7 +7,6 @@
 // de escolher: a lista de estados continua ao lado (estados pequenos são difíceis no toque).
 
 import Link from 'next/link';
-import { useState } from 'react';
 import { ALTURA_MAPA, GEOMETRIA_UF, LARGURA_MAPA } from './mapa-brasil-geometria';
 
 /**
@@ -31,26 +30,19 @@ const RAIO_TOQUE_DF = 26;
 
 interface Props {
   readonly estados: ReadonlyArray<{ readonly sigla: string; readonly nome: string; readonly deputados: number }>;
+  /** Estado realçado (controlado pelo seletor: hover, foco ou busca). */
+  readonly ativo: string | null;
+  readonly aoAtivar: (sigla: string | null) => void;
 }
 
-export function MapaBrasil({ estados }: Props) {
-  const [ativo, setAtivo] = useState<string | null>(null);
-  const atual = estados.find((e) => e.sigla === ativo);
+export function MapaBrasil({ estados, ativo, aoAtivar }: Props) {
+  const setAtivo = (f: string | null | ((a: string | null) => string | null)) => aoAtivar(typeof f === 'function' ? f(ativo) : f);
   // Estados com área de toque extra são desenhados por último, para ficarem por cima dos vizinhos.
   const pequeno = (sigla: string) => sigla === 'DF' || sigla in ROTULO_EXTERNO;
   const ordem = [...estados].sort((a, b) => Number(pequeno(a.sigla)) - Number(pequeno(b.sigla)));
 
   return (
     <figure className="mapa">
-      <p className="mapa-rotulo" aria-hidden="true">
-        {atual ? (
-          <>
-            <strong>{atual.nome}</strong> · {atual.deputados} deputado{atual.deputados === 1 ? '' : 's'}
-          </>
-        ) : (
-          'Passe o cursor ou toque num estado'
-        )}
-      </p>
       <svg viewBox={`-4 -4 ${LARGURA_MAPA + 130} ${ALTURA_MAPA + 8}`} className="mapa-svg" aria-label="Mapa do Brasil: escolha um estado">
         {ordem.map((e) => {
           const g = GEOMETRIA_UF[e.sigla];
@@ -83,9 +75,6 @@ export function MapaBrasil({ estados }: Props) {
           );
         })}
       </svg>
-      <figcaption className="pequeno suave">
-        Malha estadual: IBGE. O mapa só serve para escolher o estado; as cores não representam nenhum dado.
-      </figcaption>
     </figure>
   );
 }

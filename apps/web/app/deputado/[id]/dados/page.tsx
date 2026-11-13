@@ -68,10 +68,10 @@ export default async function DadosDoDeputado({ params }: Params) {
   const hash = lerIndice()?.arquivos[`deputados/${deputado.id}.json`];
 
   return (
-    <>
-      <p className="pequeno">
-        <Link href={`/deputado/${deputado.id}`}>{deputado.nome}</Link> › Dados usados
-      </p>
+    <main id="conteudo">
+      <nav className="migalhas" aria-label="Você está em">
+        <Link href="/">Início</Link> › <Link href={`/deputado/${deputado.id}`}>{deputado.nome}</Link> › Dados usados
+      </nav>
       <h1>Dados usados nas contas de {deputado.nome}</h1>
       <p>
         Cada tabela abaixo é exatamente o que entrou na conta mostrada na página do deputado, com a fonte oficial para conferir. Arquivo completo:{' '}
@@ -240,6 +240,6 @@ export default async function DadosDoDeputado({ params }: Params) {
       ) : (
         <p>Sem dado publicado.</p>
       )}
-    </>
+    </main>
   );
 }

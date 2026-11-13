@@ -87,17 +87,23 @@ práticas aplicadas em `apps/web`:
 
 ## Navegação, mapa e layout responsivo (2026-11-13)
 Pesquisa de referências registrada em `08-referencias.md` (REF-30 a REF-33). Aplicado:
-- **Busca no topo de todas as páginas** (estado ou nome), padrão *combobox* do WAI-ARIA APG
-  (REF-30): setas, Enter, Esc, `aria-activedescendant`, contagem anunciada; sugestões em
-  uma linha (testes do GOV.UK accessible-autocomplete: quebra parece dois itens). Índice
-  leve (`/dados/busca.json`) baixado só no foco.
-- **Mapa do Brasil como atalho, nunca como única via** (REF-31): a lista de estados fica ao
-  lado e cobre teclado (2.1.1) e alvo de toque (exceção "equivalente" do 2.5.8). Cor única
-  neutra, sem codificar dado (DSG-04); realce no hover **e** no foco; nome e nº de
-  deputados num painel fixo, não em tooltip. Estados pequenos (RN, PB, PE, AL, SE, ES, RJ)
-  com rótulo externo tocável; DF com área de toque ampliada. Malha: IBGE.
-- **Layout** (REF-32): contêiner de 64rem (≈ GOV.UK/USWDS), texto corrido com largura de
-  leitura (42rem), métricas em 2 colunas a partir de 64rem, listas em grade `auto-fill`.
-  Corpo em 1rem fixo; só títulos com `clamp()` somando rem (zoom de 200%, 1.4.4).
-- Pendente: modo escuro (dobra o trabalho de contraste), busca sem JavaScript (`/busca`),
-  e teste com usuários de celular para decidir entre mapa real e cartograma em grade.
+- **Home, nesta ordem:** 1º busca pelo nome, em destaque no topo da página (o que a maioria
+  procura; REF-08, REF-33); 2º "Ou escolha pelo estado": campo de busca de estado **acima do
+  mapa**, mapa e lista sincronizados (digitar realça no mapa e na lista; Enter abre).
+- **Busca do cabeçalho = navegação da aplicação** (paleta de comandos, atalho `/` ou
+  Ctrl+K): leva a páginas e seções (método de cada métrica, fontes, reportar erro) e, como
+  atalho, a deputados e estados. Padrão combobox do WAI-ARIA APG (REF-30), sugestões
+  agrupadas e em uma linha.
+- **Mapa do Brasil como atalho, nunca como única via** (REF-31): lista ao lado (teclado,
+  2.1.1; exceção "equivalente" do 2.5.8). Cor única neutra, sem codificar dado (DSG-04);
+  realce no hover **e** no foco; estados pequenos com rótulo externo tocável; DF com área de
+  toque ampliada. Malha: IBGE.
+- **Sistema visual:** tokens semânticos; espaço em escala de 8 px; raios 8/12/16; duas
+  elevações; cor de marca (índigo) só na interface, nunca nos dados; ícones SVG próprios
+  (traço 2 px); cartões com cabeçalho (ícone + título + período); perfil com foto redonda e
+  etiquetas. Contêiner de 64rem (REF-32), texto com 42rem, métricas em 2 colunas a partir de
+  64rem. Corpo em 1rem fixo; só títulos com `clamp()` somando rem (1.4.4). Cabeçalho fixo com
+  `scroll-padding-top` (2.4.11).
+- Exemplos de busca não citam parlamentares reais (escolher quem aparece não é neutro).
+- Pendente: modo escuro, busca sem JavaScript, e teste com usuários de celular (mapa real ×
+  cartograma em grade).

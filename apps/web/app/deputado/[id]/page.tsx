@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { CotaPublicada, PresencaPublicada, ProjetosPublicados } from '@portal/metrics/publicacao';
 import { Comparacao } from '../../../componentes/Comparacao';
+import { Calendario, Carteira, Documento } from '../../../componentes/Icones';
 import { Funil } from '../../../componentes/Funil';
 import { Proveniencia } from '../../../componentes/Proveniencia';
 import { lerDeputado, listarDeputados, nomeUf } from '../../../lib/dados';
@@ -36,22 +37,23 @@ export default async function PaginaDeputado({ params }: Params) {
   const linkDados = `/deputado/${deputado.id}/dados`;
 
   return (
-    <>
-      <p className="pequeno">
-        <Link href="/">Início</Link> › <Link href={`/uf/${deputado.uf.toLowerCase()}`}>{nomeUf(deputado.uf)}</Link>
-      </p>
-      <div className="cabecalho-deputado">
-        {deputado.urlFoto && <img src={deputado.urlFoto} alt={`Foto oficial de ${deputado.nome}`} width={88} height={116} />}
+    <main id="conteudo">
+      <nav className="migalhas" aria-label="Você está em">
+        <Link href="/">Início</Link> › <Link href={`/uf/${deputado.uf.toLowerCase()}`}>{nomeUf(deputado.uf)}</Link> › {deputado.nome}
+      </nav>
+      <div className="perfil">
+        {deputado.urlFoto && <img className="foto" src={deputado.urlFoto} alt={`Foto oficial de ${deputado.nome}`} width={96} height={96} />}
         <div>
+          <span className="sobretitulo">Deputado(a) federal</span>
           <h1>{deputado.nome}</h1>
-          <p>
-            Deputado(a) federal por {nomeUf(deputado.uf)} · {deputado.partido ?? 'sem partido'}
-          </p>
-          <p className="pequeno">
-            <a href={deputado.urlCamara} rel="noopener noreferrer">
-              Página oficial na Câmara
-            </a>
-          </p>
+          <ul className="pilulas" aria-label="Dados do mandato">
+            <li className="pilula">{deputado.partido ?? 'sem partido'}</li>
+            <li className="pilula">{nomeUf(deputado.uf)}</li>
+            <li className="pilula">Em exercício</li>
+          </ul>
+          <a className="pequeno" href={deputado.urlCamara} rel="noopener noreferrer">
+            Página oficial na Câmara
+          </a>
         </div>
       </div>
 
@@ -60,7 +62,7 @@ export default async function PaginaDeputado({ params }: Params) {
         <SecaoCota c={cota} uf={deputado.uf} linkDados={`${linkDados}#cota`} />
         <SecaoProjetos j={projetos} linkDados={`${linkDados}#projetos`} />
       </div>
-    </>
+    </main>
   );
 }
 
@@ -80,7 +82,13 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
   const tituloCompleto = `${titulo}, ${periodo}`;
   return (
     <section className="cartao" aria-labelledby="t-presenca">
-      <h2 id="t-presenca">{tituloCompleto}</h2>
+      <div className="cartao-cabecalho">
+        <span className="icone-cartao"><Calendario /></span>
+        <h2 id="t-presenca">
+          {titulo}
+          <span className="periodo">{periodo}</span>
+        </h2>
+      </div>
       <p className="numero">
         {percentual(p.taxa)} <small>dos dias de sessão ({inteiro(p.presencas)} de {inteiro(p.dias)})</small>
       </p>
@@ -140,7 +148,13 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
   const escala = Math.max(1.25, ...c.valoresReferenciaUf, c.percentual ?? 0);
   return (
     <section className="cartao" aria-labelledby="t-cota">
-      <h2 id="t-cota">{tituloCompleto}</h2>
+      <div className="cartao-cabecalho">
+        <span className="icone-cartao"><Carteira /></span>
+        <h2 id="t-cota">
+          {titulo}
+          <span className="periodo">{periodo}</span>
+        </h2>
+      </div>
       <p className="numero">
         {reais(c.gastoCentavos)} <small>em {plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício</small>
       </p>
@@ -195,12 +209,16 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
 function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDados: string }) {
   const titulo = 'Projetos de lei apresentados como autor principal';
   if (!j) return <SemDado titulo={titulo} id="t-projetos" />;
-  const periodo = `desde ${mesAno(j.proveniencia.periodo.inicio)}`;
+  const periodo = `Desde ${mesAno(j.proveniencia.periodo.inicio)}`;
   return (
     <section className="cartao largo" aria-labelledby="t-projetos">
-      <h2 id="t-projetos">
-        {titulo}, {periodo}
-      </h2>
+      <div className="cartao-cabecalho">
+        <span className="icone-cartao"><Documento /></span>
+        <h2 id="t-projetos">
+          {titulo}
+          <span className="periodo">{periodo}</span>
+        </h2>
+      </div>
       <p className="numero">
         {inteiro(j.porEstagio.apresentada)} <small>apresentados · {inteiro(j.porEstagio.lei)} viraram lei</small>
       </p>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Avatar } from '../../../componentes/BuscaDeputado';
 import { UFS, listarDeputados, nomeUf } from '../../../lib/dados';
 
 export const dynamicParams = false;
@@ -24,26 +25,26 @@ export default async function DeputadosDaUf({ params }: Params) {
   const deputados = listarDeputados().filter((d) => d.uf === sigla);
 
   return (
-    <>
-      <p className="pequeno">
-        <Link href="/">Início</Link>
-      </p>
-      <h1>Deputados federais em exercício — {nomeUf(sigla)}</h1>
-      <p className="suave">{deputados.length} deputado(s), em ordem alfabética.</p>
-      <ul className="lista-deputados em-grade">
+    <main id="conteudo">
+      <nav className="migalhas" aria-label="Você está em">
+        <Link href="/">Início</Link> › <Link href="/#estados">Estados</Link> › {nomeUf(sigla)}
+      </nav>
+      <span className="sobretitulo">Bancada federal</span>
+      <h1>Deputados federais de {nomeUf(sigla)}</h1>
+      <p className="lead">{deputados.length} deputados em exercício, em ordem alfabética.</p>
+      <ul className="lista-deputados">
         {deputados.map((d) => (
           <li key={d.id}>
             <Link href={`/deputado/${d.id}`}>
-              {d.urlFoto && <img src={d.urlFoto} alt="" width={44} height={58} loading="lazy" />}
+              <Avatar nome={d.nome} urlFoto={d.urlFoto} />
               <span>
                 <strong>{d.nome}</strong>
-                <br />
                 <span className="pequeno suave">{d.partido ?? 'sem partido'}</span>
               </span>
             </Link>
           </li>
         ))}
       </ul>
-    </>
+    </main>
   );
 }

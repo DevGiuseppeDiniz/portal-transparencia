@@ -9,7 +9,7 @@ const REPO = 'https://github.com/DevGiuseppeDiniz/portal-transparencia';
 
 export default function Metodo() {
   return (
-    <>
+    <main id="conteudo">
       <h1>Como calculamos</h1>
       <p>
         Este site não dá nota, não faz ranking e não diz se um deputado é bom ou ruim. Mostra três números de cada deputado, sempre ao lado da
@@ -120,6 +120,6 @@ export default function Metodo() {
         Abra um registro no <a href={`${REPO}/issues`}>repositório do projeto</a>, com o endereço da página e o que está diferente da fonte oficial.
         Correções ficam registradas publicamente, com data.
       </p>
-    </>
+    </main>
   );
 }

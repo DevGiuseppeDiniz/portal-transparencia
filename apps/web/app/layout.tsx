@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { BuscaTopo } from '../componentes/BuscaTopo';
+import { Marca } from '../componentes/Icones';
 import { lerIndice } from '../lib/dados';
 import { dataDeIso } from '../lib/formato';
 import './globals.css';
@@ -20,27 +21,32 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Pular para o conteúdo
         </a>
         <header className="topo">
-          <div className="barra-topo">
+          <div className="contido barra-topo">
             <Link className="marca" href="/">
+              <Marca />
               Portal Parlamentar
             </Link>
-            <nav aria-label="Principal">
-              <Link href="/">Encontrar deputado</Link>
+            <nav className="nav-principal" aria-label="Principal">
+              <Link href="/#estados">Estados</Link>
               <Link href="/metodo">Como calculamos</Link>
             </nav>
             <BuscaTopo />
           </div>
         </header>
-        <main id="conteudo">{children}</main>
+        {children}
         <footer className="rodape">
-          <div>
+          <div className="contido">
+            <p className="marca">
+              <Marca tamanho={24} />
+              Portal Parlamentar
+            </p>
             <p>
-              Site independente, sem ligação com a Câmara dos Deputados ou com qualquer partido. Os dados vêm das
-              fontes oficiais da Câmara; cada número tem o link para conferir.
+              Projeto independente, sem ligação com a Câmara dos Deputados ou com qualquer partido. Os dados vêm das fontes oficiais da Câmara;
+              cada número tem o link para conferir.
             </p>
             <p>
               {indice ? <>Dados publicados em {dataDeIso(indice.geradoEm)}. </> : <>Ainda não há dados publicados. </>}
-              <Link href="/metodo">Como calculamos e de onde vêm os dados</Link>.
+              <Link href="/metodo">Como calculamos</Link> · <Link href="/metodo#fontes">Fontes</Link> · <Link href="/metodo#erros">Encontrou um erro?</Link>
             </p>
           </div>
         </footer>

@@ -1,13 +1,14 @@
 'use client';
 
-// Busca do topo (todas as páginas): estado ou nome do deputado, com sugestões.
-// Padrão "combobox" do WAI-ARIA APG: setas navegam, Enter abre, Esc fecha; o resultado é
-// anunciado ao leitor de tela. A lista de nomes só é baixada quando o campo recebe foco.
-// Sem ranking: sugestões em ordem alfabética, estados primeiro.
+// Busca do cabeçalho: navegação da aplicação ("paleta de comandos"), em todas as páginas.
+// Leva a páginas e seções do portal e, como atalho, a um deputado ou estado.
+// Padrão combobox do WAI-ARIA APG (REF-30): setas, Enter, Esc, aria-activedescendant, contagem
+// anunciada. Atalho de teclado: "/" ou Ctrl/Cmd+K. Nomes baixados só quando o campo recebe foco.
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { UFS } from '../lib/ufs';
+import { Documento, Lupa, Pagina, Pessoa, Pino } from './Icones';
 
 interface Deputado {
   readonly id: number;
@@ -16,10 +17,29 @@ interface Deputado {
   readonly partido: string | null;
 }
 
-type Sugestao = { tipo: 'uf'; sigla: string; nome: string; href: string } | { tipo: 'deputado'; d: Deputado; href: string };
+interface Destino {
+  readonly grupo: 'Páginas' | 'Deputados' | 'Estados';
+  readonly rotulo: string;
+  readonly detalhe?: string;
+  readonly href: string;
+  readonly icone: ReactNode;
+}
+
+/** Páginas e seções do portal, com palavras que as pessoas usam para procurá-las. */
+const PAGINAS: ReadonlyArray<Destino & { chaves: string }> = [
+  { grupo: 'Páginas', rotulo: 'Início', href: '/', icone: <Pagina />, chaves: 'inicio home pagina principal' },
+  { grupo: 'Páginas', rotulo: 'Encontrar deputado pelo nome', href: '/#nome', icone: <Pessoa />, chaves: 'buscar procurar nome deputado deputada' },
+  { grupo: 'Páginas', rotulo: 'Escolher o estado no mapa', href: '/#estados', icone: <Pino />, chaves: 'estado uf mapa regiao' },
+  { grupo: 'Páginas', rotulo: 'Como calculamos', href: '/metodo', icone: <Documento />, chaves: 'metodo como calcula metodologia transparencia' },
+  { grupo: 'Páginas', rotulo: 'Presença: como é calculada', href: '/metodo#met-01', icone: <Documento />, chaves: 'presenca falta ausencia sessao frequencia' },
+  { grupo: 'Páginas', rotulo: 'Cota parlamentar: como é calculada', href: '/metodo#met-02', icone: <Documento />, chaves: 'cota gasto despesa ceap dinheiro verba' },
+  { grupo: 'Páginas', rotulo: 'Projetos de lei: como contamos', href: '/metodo#met-03', icone: <Documento />, chaves: 'projeto lei proposicao funil aprovado' },
+  { grupo: 'Páginas', rotulo: 'Fontes oficiais dos dados', href: '/metodo#fontes', icone: <Documento />, chaves: 'fonte origem dados abertos camara' },
+  { grupo: 'Páginas', rotulo: 'Encontrou um erro?', href: '/metodo#erros', icone: <Documento />, chaves: 'erro corrigir contestar problema' },
+];
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
-const LIMITE = 8;
+const LIMITE_POR_GRUPO = 5;
 
 export function BuscaTopo() {
   const router = useRouter();
@@ -29,6 +49,7 @@ export function BuscaTopo() {
   const [ativo, setAtivo] = useState(-1);
   const [deputados, setDeputados] = useState<readonly Deputado[] | null>(null);
   const caixa = useRef<HTMLDivElement>(null);
+  const campo = useRef<HTMLInputElement>(null);
 
   const carregar = () => {
     if (deputados) return;
@@ -38,47 +59,69 @@ export function BuscaTopo() {
       .catch(() => setDeputados([]));
   };
 
-  const sugestoes = useMemo<Sugestao[]>(() => {
+  const destinos = useMemo<Destino[]>(() => {
     const t = normalizar(termo);
-    if (!t) return [];
-    const ufs: Sugestao[] = UFS.filter((u) => normalizar(u.sigla) === t || normalizar(u.nome).includes(t)).map((u) => ({
-      tipo: 'uf', sigla: u.sigla, nome: u.nome, href: `/uf/${u.sigla.toLowerCase()}`,
-    }));
-    const deps: Sugestao[] =
-      t.length < 2 || !deputados ? [] : deputados.filter((d) => normalizar(d.nome).includes(t)).map((d) => ({ tipo: 'deputado', d, href: `/deputado/${d.id}` }));
-    return [...ufs, ...deps].slice(0, LIMITE);
+    if (!t) return PAGINAS.slice(0, 4);
+    const paginas = PAGINAS.filter((p) => normalizar(`${p.rotulo} ${p.chaves}`).includes(t));
+    const deps: Destino[] =
+      t.length < 2 || !deputados
+        ? []
+        : deputados
+            .filter((d) => normalizar(d.nome).includes(t))
+            .slice(0, LIMITE_POR_GRUPO)
+            .map((d) => ({ grupo: 'Deputados', rotulo: d.nome, detalhe: `${d.partido ?? 'sem partido'} · ${d.uf}`, href: `/deputado/${d.id}`, icone: <Pessoa /> }));
+    const ufs: Destino[] = UFS.filter((u) => normalizar(u.sigla) === t || normalizar(u.nome).includes(t))
+      .slice(0, LIMITE_POR_GRUPO)
+      .map((u) => ({ grupo: 'Estados', rotulo: u.nome, detalhe: u.sigla, href: `/uf/${u.sigla.toLowerCase()}`, icone: <Pino /> }));
+    return [...paginas.slice(0, LIMITE_POR_GRUPO), ...deps, ...ufs];
   }, [termo, deputados]);
 
   useEffect(() => {
     const fora = (e: MouseEvent) => {
       if (caixa.current && !caixa.current.contains(e.target as Node)) setAberto(false);
     };
+    const atalho = (e: KeyboardEvent) => {
+      const digitando = e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+      if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !digitando)) {
+        e.preventDefault();
+        campo.current?.focus();
+      }
+    };
     document.addEventListener('mousedown', fora);
-    return () => document.removeEventListener('mousedown', fora);
+    document.addEventListener('keydown', atalho);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      document.removeEventListener('keydown', atalho);
+    };
   }, []);
 
-  const ir = (s: Sugestao | undefined) => {
-    if (!s) return;
+  const ir = (d: Destino | undefined) => {
+    if (!d) return;
     setAberto(false);
     setTermo('');
-    router.push(s.href);
+    setAtivo(-1);
+    campo.current?.blur();
+    router.push(d.href);
   };
 
   const listaId = `${id}-lista`;
-  const mostrar = aberto && termo.trim().length > 0;
+  let grupoAnterior = '';
 
   return (
-    <div className="busca-topo" ref={caixa} role="search">
+    <div className="busca-topo campo-busca" ref={caixa} role="search">
       <label htmlFor={`${id}-campo`} className="so-leitor">
-        Buscar estado ou deputado
+        Buscar no portal
       </label>
+      <Lupa className="lupa" tamanho={18} />
       <input
+        ref={campo}
         id={`${id}-campo`}
-        type="search"
-        placeholder="Buscar estado ou deputado"
+        type="text"
+        placeholder="Buscar no portal"
         autoComplete="off"
+        spellCheck={false}
         role="combobox"
-        aria-expanded={mostrar}
+        aria-expanded={aberto}
         aria-controls={listaId}
         aria-autocomplete="list"
         aria-activedescendant={ativo >= 0 ? `${id}-op-${ativo}` : undefined}
@@ -96,52 +139,61 @@ export function BuscaTopo() {
           if (e.key === 'ArrowDown') {
             e.preventDefault();
             setAberto(true);
-            setAtivo((a) => Math.min(a + 1, sugestoes.length - 1));
+            setAtivo((a) => Math.min(a + 1, destinos.length - 1));
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             setAtivo((a) => Math.max(a - 1, -1));
           } else if (e.key === 'Enter') {
             e.preventDefault();
-            ir(sugestoes[ativo >= 0 ? ativo : 0]);
+            ir(destinos[ativo >= 0 ? ativo : 0]);
           } else if (e.key === 'Escape') {
             setAberto(false);
             setAtivo(-1);
           }
         }}
       />
-      <ul id={listaId} role="listbox" className="busca-sugestoes" hidden={!mostrar}>
-        {sugestoes.map((s, i) => (
-          <li
-            key={s.href}
-            id={`${id}-op-${i}`}
-            role="option"
-            aria-selected={i === ativo}
-            className={i === ativo ? 'ativo' : undefined}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              ir(s);
-            }}
-            onMouseEnter={() => setAtivo(i)}
-          >
-            {s.tipo === 'uf' ? (
-              <>
-                <span className="etiqueta">Estado</span> {s.nome}
-              </>
-            ) : (
-              <>
-                <span className="etiqueta">Deputado</span> {s.d.nome} <span className="suave">· {s.d.partido ?? 'sem partido'} · {s.d.uf}</span>
-              </>
-            )}
-          </li>
-        ))}
-        {mostrar && sugestoes.length === 0 && (
-          <li role="option" aria-disabled="true" aria-selected={false} className="vazio">
-            {deputados === null ? 'Carregando nomes…' : `Nada encontrado para “${termo.trim()}”.`}
+      {!aberto && !termo && (
+        <kbd className="atalho" aria-hidden="true">
+          /
+        </kbd>
+      )}
+      <ul id={listaId} role="listbox" aria-label="Destinos" className="sugestoes" hidden={!aberto}>
+        {destinos.map((d, i) => {
+          const cabecalho = d.grupo !== grupoAnterior ? d.grupo : null;
+          grupoAnterior = d.grupo;
+          return (
+            <li key={d.href} role="presentation">
+              {cabecalho && (
+                <div className="grupo" aria-hidden="true">
+                  {cabecalho}
+                </div>
+              )}
+              <div
+                id={`${id}-op-${i}`}
+                role="option"
+                aria-selected={i === ativo}
+                className={i === ativo ? 'ativo' : undefined}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  ir(d);
+                }}
+                onMouseEnter={() => setAtivo(i)}
+              >
+                {d.icone}
+                <span className="rotulo">{d.rotulo}</span>
+                {d.detalhe && <span className="detalhe">{d.detalhe}</span>}
+              </div>
+            </li>
+          );
+        })}
+        {destinos.length === 0 && (
+          <li className="vazio" role="presentation">
+            {deputados === null && termo.trim().length >= 2 ? 'Carregando…' : `Nada encontrado para “${termo.trim()}”.`}
           </li>
         )}
       </ul>
       <p className="so-leitor" role="status" aria-live="polite">
-        {mostrar ? `${sugestoes.length} sugestão(ões)` : ''}
+        {aberto && termo ? `${destinos.length} resultado(s)` : ''}
       </p>
     </div>
   );

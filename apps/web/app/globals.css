@@ -1,560 +1,232 @@
-/* Portal Parlamentar — estilos base.
-   DSG-04: cor neutra, nunca semáforo de valor. O deputado em azul (Okabe-Ito "blue"),
-   a referência em cinza. DSG-08: mobile primeiro, WCAG 2.2 AA (contraste ≥ 4,5:1 no texto,
-   ≥ 3:1 em elementos gráficos, foco visível, alvo de toque ≥ 24 px). */
+/* Portal Parlamentar — sistema visual.
+   Convenções: tokens semânticos; escala de espaço de 8 px (4 para ajustes finos); escala
+   tipográfica ~1,2; raios 8/12/16; duas elevações; contêiner de 64rem (GOV.UK/USWDS);
+   largura de leitura de 42rem. Cores dos gráficos seguem DSG-04 (neutras, sem semáforo):
+   deputado #0072B2 (Okabe-Ito), referência em cinza. A cor da marca (índigo) fica só na
+   interface (links, botões, foco, seleção), nunca nos dados. WCAG 2.2 AA: texto ≥ 4,5:1,
+   elementos gráficos ≥ 3:1, foco visível, alvos ≥ 44 px. */
 
 :root {
-  --texto: #1b1b1b;
-  --texto-suave: #4a4a4a;
+  --texto: #14171f;
+  --texto-suave: #4b5263;
+  --texto-fraco: #646b7a;
   --fundo: #ffffff;
-  --fundo-suave: #f4f4f2;
-  --borda: #c9c9c4;
+  --fundo-pagina: #f6f7f9;
+  --fundo-suave: #eef0f4;
+  --borda: #dde1e8;
+  --borda-forte: #b8bfcc;
+  --marca: #2f3e9e;
+  --marca-escura: #1f2a73;
+  --marca-clara: #e8ebfa;
+  --link: #2f3e9e;
+  --foco: #f5a524;
   --deputado: #0072b2;
   --referencia: #595959;
   --faixa: #85857f;
-  --link: #005ea2;
-  --foco: #f2a900;
+
+  --e1: 0.25rem;
+  --e2: 0.5rem;
+  --e3: 0.75rem;
+  --e4: 1rem;
+  --e5: 1.5rem;
+  --e6: 2rem;
+  --e7: 3rem;
+  --e8: 4rem;
+
+  --raio-p: 0.5rem;
+  --raio: 0.75rem;
+  --raio-g: 1rem;
+  --sombra-1: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.08);
+  --sombra-2: 0 12px 32px rgb(16 24 40 / 0.12), 0 2px 6px rgb(16 24 40 / 0.06);
+
   --largura: 64rem;
   --leitura: 42rem;
+
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 100%;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--texto);
-  background: var(--fundo);
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--fundo);
-}
-
-a {
-  color: var(--link);
-  text-underline-offset: 0.15em;
-}
-
-a:hover {
-  text-decoration-thickness: 2px;
-}
-
-:focus-visible {
-  outline: 3px solid var(--foco);
-  outline-offset: 2px;
-}
-
-.pular {
-  position: absolute;
-  left: -999px;
-}
-
-.pular:focus {
-  left: 1rem;
-  top: 1rem;
-  background: var(--fundo);
-  padding: 0.5rem 1rem;
-  z-index: 10;
-}
-
-.so-leitor {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.topo {
-  border-bottom: 1px solid var(--borda);
-  background: var(--fundo-suave);
-}
-
-.topo .barra-topo,
-main,
-.rodape div {
-  max-width: var(--largura);
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.topo .barra-topo {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  align-items: center;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.topo nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
-}
-
-.topo nav a {
-  display: inline-block;
-  padding: 0.6rem 0;
-  min-height: 2.75rem;
-}
-
-.topo .marca {
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: var(--texto);
-  text-decoration: none;
-  padding: 0.6rem 0;
-  margin-right: auto;
-}
-
-/* Busca do topo: linha inteira no celular, ao lado da navegação no desktop. */
-.busca-topo {
-  position: relative;
-  flex: 1 1 100%;
-}
-
-.busca-topo input {
-  width: 100%;
-}
-
-.busca-sugestoes {
-  position: absolute;
-  z-index: 20;
-  left: 0;
-  right: 0;
-  top: calc(100% + 0.25rem);
-  margin: 0;
-  padding: 0.25rem 0;
-  list-style: none;
-  background: var(--fundo);
-  border: 1px solid var(--borda);
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.busca-sugestoes li {
-  /* Uma linha por sugestão: quebrada em duas parece dois itens (testes do GOV.UK). */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0.65rem 0.9rem;
-  min-height: 2.75rem;
-  cursor: pointer;
-}
-
-.busca-sugestoes li.ativo {
-  background: var(--fundo-suave);
-  outline: 2px solid var(--link);
-  outline-offset: -2px;
-}
-
-.busca-sugestoes .vazio {
-  cursor: default;
-  color: var(--texto-suave);
-}
-
-.etiqueta {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--texto-suave);
-  border: 1px solid var(--borda);
-  border-radius: 0.25rem;
-  padding: 0 0.3rem;
-  margin-right: 0.35rem;
-}
-
-@media (min-width: 48rem) {
-  .busca-topo {
-    flex: 0 1 22rem;
-  }
-}
-
-/* Texto corrido com largura de leitura confortável. */
-main > p,
-main > ul:not(.lista-deputados),
-main > h1,
-.prosa {
-  max-width: var(--leitura);
-}
-
-main {
-  padding-top: 1.5rem;
-  padding-bottom: 3rem;
-}
-
-/* Só os títulos são fluidos, sempre com rem somado (zoom de 200% continua funcionando, WCAG 1.4.4). */
-h1 {
-  font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
-  line-height: 1.2;
-  margin: 0 0 0.75rem;
-}
-
-h2 {
-  font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.45rem);
-  line-height: 1.25;
-  margin: 2rem 0 0.5rem;
-}
-
-h3 {
-  font-size: 1.05rem;
-  margin: 1.25rem 0 0.25rem;
-}
-
-p {
-  margin: 0 0 0.75rem;
-}
-
-.suave {
-  color: var(--texto-suave);
-}
-
-.pequeno {
-  font-size: 0.875rem;
-}
-
-.cartao {
-  border: 1px solid var(--borda);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1.25rem 0;
-}
-
-.cartao h2 {
-  margin-top: 0;
-}
-
-.numero {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.1;
-  margin: 0.25rem 0;
-}
-
-.numero small {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--texto-suave);
-}
-
-.legenda {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  font-size: 0.875rem;
-  color: var(--texto-suave);
-  margin: 0.25rem 0 0.75rem;
-}
-
-.legenda span::before {
-  content: '';
-  display: inline-block;
-  width: 0.75rem;
-  height: 0.75rem;
-  margin-right: 0.35rem;
-  vertical-align: -0.05rem;
-  border-radius: 50%;
-}
-
-.legenda .l-deputado::before {
-  background: var(--deputado);
-}
-
-.legenda .l-mediana::before {
-  background: var(--referencia);
-  border-radius: 0;
-  width: 0.2rem;
-}
-
-.legenda .l-faixa::before {
-  background: var(--faixa);
-  border-radius: 0.15rem;
-  width: 1rem;
-}
-
-svg.grafico {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-details {
-  border-top: 1px solid var(--borda);
-  padding-top: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-summary {
-  cursor: pointer;
-  color: var(--link);
-  min-height: 2.75rem;
-  padding: 0.6rem 0;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9375rem;
-  margin: 0.5rem 0 1rem;
-}
-
-caption {
-  text-align: left;
-  font-weight: 600;
-  padding-bottom: 0.25rem;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.4rem 0.5rem;
-  border-bottom: 1px solid var(--borda);
-  vertical-align: top;
-}
-
-td.num,
-th.num {
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.tabela-rolavel {
-  overflow-x: auto;
-}
-
-.barra {
-  display: inline-block;
-  height: 0.75rem;
-  vertical-align: middle;
-  margin-right: 0.4rem;
-  min-width: 2px;
-}
-
-.barra.deputado {
-  background: var(--deputado);
-}
-
-.barra.referencia {
-  background: var(--referencia);
-}
-
-.lista-deputados {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.lista-deputados li {
-  border-bottom: 1px solid var(--borda);
-}
-
-.lista-deputados a {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.6rem 0.25rem;
-  min-height: 2.75rem;
-  text-decoration: none;
-  color: var(--texto);
-}
-
-.lista-deputados a:hover strong {
-  text-decoration: underline;
-}
-
-.lista-deputados img,
-.cabecalho-deputado img {
-  border-radius: 0.25rem;
-  object-fit: cover;
-  background: var(--fundo-suave);
-}
-
-.ufs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-  gap: 0.25rem 1rem;
-  padding: 0;
-  list-style: none;
-}
-
-.ufs a {
-  display: block;
-  padding: 0.6rem 0;
-  min-height: 2.75rem;
-}
-
-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-input[type='search'] {
-  width: 100%;
-  font: inherit;
-  padding: 0.6rem 0.75rem;
-  border: 2px solid var(--texto-suave);
-  border-radius: 0.25rem;
-  min-height: 2.75rem;
-}
-
-.cabecalho-deputado {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.aviso {
-  border-left: 4px solid var(--referencia);
-  background: var(--fundo-suave);
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
-}
-
-.rodape {
-  border-top: 1px solid var(--borda);
-  background: var(--fundo-suave);
-  padding: 1.5rem 0;
-  font-size: 0.875rem;
-  color: var(--texto-suave);
-}
-
-
-/* --- Home: mapa + lista lado a lado no desktop --------------------------------------- */
-.home-estados {
-  display: grid;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-@media (min-width: 56rem) {
-  .home-estados {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  }
-}
-
-.mapa {
-  margin: 0;
-}
-
-.mapa-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 34rem;
-}
-
-.mapa-svg .uf path {
-  fill: #efefeb;
-  stroke: #8a8a85;
-  stroke-width: 1.2;
-  transition: fill 0.12s ease;
-}
-
-.mapa-svg .uf:hover path,
-.mapa-svg .uf.ativo path,
-.mapa-svg .uf:focus-visible path {
-  fill: var(--link);
-}
-
-.mapa-svg .uf:focus-visible {
-  outline: none;
-}
-
-.mapa-svg .uf:focus-visible path {
-  stroke: var(--foco);
-  stroke-width: 5;
-}
-
-.mapa-svg .sigla {
-  font-size: 26px;
-  font-weight: 700;
-  fill: #2f2f2f;
-  text-anchor: middle;
-  dominant-baseline: middle;
-  pointer-events: none;
-}
-
-.mapa-svg .uf.ativo .sigla:not(.externa),
-.mapa-svg .uf:hover .sigla:not(.externa),
-.mapa-svg .uf:focus-visible .sigla:not(.externa) {
-  fill: #ffffff;
-}
-
-.mapa-svg .uf.ativo .sigla.externa,
-.mapa-svg .uf:hover .sigla.externa {
-  fill: var(--link);
-}
-
-.mapa-svg .guia {
-  stroke: #85857f;
-  stroke-width: 1.5;
-}
-
-/* Área de toque invisível (mas clicável) dos estados pequenos. */
-.mapa-svg .toque {
-  fill: transparent;
-}
-
-.mapa-svg .uf.ativo circle.toque,
-.mapa-svg .uf:hover circle.toque,
-.mapa-svg .uf:focus-visible circle.toque {
-  fill: var(--link);
-}
-
-.mapa-svg .uf.ativo rect.toque,
-.mapa-svg .uf:hover rect.toque,
-.mapa-svg .uf:focus-visible rect.toque {
-  fill: var(--fundo-suave);
-  stroke: var(--link);
-  stroke-width: 2;
-}
-
-.mapa-rotulo {
-  min-height: 1.75rem;
-  margin: 0 0 0.5rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mapa-svg .uf path {
-    transition: none;
-  }
-}
-
-/* --- Página do deputado: métricas em grade no desktop -------------------------------- */
-.grade-metricas {
-  display: grid;
-  gap: 0 1.25rem;
-  align-items: start;
-}
-
-@media (min-width: 64rem) {
-  .grade-metricas {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .grade-metricas > .largo {
-    grid-column: 1 / -1;
-  }
-}
-
-.lista-deputados.em-grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  column-gap: 1.5rem;
+  background: var(--fundo-pagina);
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* O cabeçalho fixo nunca cobre o elemento em foco (WCAG 2.4.11). */
+html { scroll-padding-top: 5rem; }
+
+body { margin: 0; background: var(--fundo-pagina); }
+
+a { color: var(--link); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--marca-escura); text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; border-radius: 4px; }
+
+img { max-width: 100%; }
+
+/* --- utilitários ------------------------------------------------------------------------ */
+.pular { position: absolute; left: -999px; }
+.pular:focus { left: var(--e4); top: var(--e4); background: var(--fundo); padding: var(--e2) var(--e4); z-index: 50; }
+.so-leitor { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.suave { color: var(--texto-suave); }
+.pequeno { font-size: 0.875rem; }
+.contido { max-width: var(--largura); margin: 0 auto; padding: 0 var(--e4); }
+
+/* --- tipografia: só títulos fluidos, sempre somando rem (zoom de 200%, WCAG 1.4.4) ------ */
+h1, h2, h3 { letter-spacing: -0.01em; line-height: 1.2; margin: 0 0 var(--e3); }
+h1 { font-size: clamp(1.875rem, 1.5rem + 1.5vw, 2.75rem); font-weight: 800; }
+h2 { font-size: clamp(1.3rem, 1.15rem + 0.5vw, 1.6rem); font-weight: 700; }
+h3 { font-size: 1.0625rem; font-weight: 700; margin-top: var(--e5); }
+p { margin: 0 0 var(--e3); }
+
+.sobretitulo { display: inline-block; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--marca); margin-bottom: var(--e2); }
+.lead { font-size: 1.125rem; color: var(--texto-suave); max-width: var(--leitura); }
+
+/* --- cabeçalho ------------------------------------------------------------------------- */
+.topo { position: sticky; top: 0; z-index: 30; background: rgb(255 255 255 / 0.94); backdrop-filter: saturate(180%) blur(8px); border-bottom: 1px solid var(--borda); }
+.barra-topo { display: flex; align-items: center; gap: var(--e4); min-height: 4rem; }
+.marca { display: inline-flex; align-items: center; gap: var(--e2); font-weight: 800; font-size: 1.0625rem; color: var(--texto); text-decoration: none; white-space: nowrap; }
+.marca:hover { color: var(--texto); }
+.marca svg { flex: none; }
+.nav-principal { display: none; gap: var(--e1); }
+.nav-principal a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 var(--e3); border-radius: var(--raio-p); color: var(--texto-suave); font-weight: 600; font-size: 0.9375rem; text-decoration: none; }
+.nav-principal a:hover { background: var(--fundo-suave); color: var(--texto); }
+@media (min-width: 48rem) { .nav-principal { display: flex; } }
+
+/* --- campo de busca: ícone à esquerda, borda, raio, anel de foco ----------------------- */
+.campo-busca { position: relative; }
+.campo-busca svg.lupa { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--texto-fraco); pointer-events: none; }
+.campo-busca input { width: 100%; font: inherit; color: var(--texto); background: var(--fundo); border: 1.5px solid var(--borda-forte); border-radius: var(--raio); min-height: 2.75rem; padding: 0.55rem 2.6rem 0.55rem 2.6rem; transition: border-color 0.12s, box-shadow 0.12s; }
+.campo-busca input::placeholder { color: var(--texto-fraco); }
+.campo-busca input:hover { border-color: var(--texto-fraco); }
+.campo-busca input:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 4px rgb(47 62 158 / 0.2); }
+.campo-busca.grande input { min-height: 3.5rem; font-size: 1.125rem; padding-left: 3rem; border-radius: var(--raio-g); box-shadow: var(--sombra-1); }
+.campo-busca.grande svg.lupa { left: 1rem; }
+.atalho { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 600; color: var(--texto-fraco); border: 1px solid var(--borda); border-radius: 0.375rem; padding: 0.05rem 0.4rem; pointer-events: none; background: var(--fundo-pagina); }
+.busca-topo { flex: 1 1 auto; max-width: 22rem; margin-left: auto; }
+
+/* Sugestões (combobox / paleta de navegação). */
+.sugestoes { position: absolute; z-index: 40; left: 0; right: 0; top: calc(100% + var(--e2)); margin: 0; padding: var(--e2); list-style: none; background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio); box-shadow: var(--sombra-2); max-height: min(70vh, 28rem); overflow-y: auto; }
+.sugestoes .grupo { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-fraco); padding: var(--e2) var(--e3) var(--e1); }
+.sugestoes [role='option'] { display: flex; align-items: center; gap: var(--e3); min-height: 2.75rem; padding: var(--e2) var(--e3); border-radius: var(--raio-p); cursor: pointer; white-space: nowrap; overflow: hidden; }
+.sugestoes [role='option'] .rotulo { overflow: hidden; text-overflow: ellipsis; }
+.sugestoes [role='option'] .detalhe { margin-left: auto; font-size: 0.8125rem; color: var(--texto-fraco); }
+.sugestoes [role='option'] svg { flex: none; color: var(--texto-fraco); }
+.sugestoes [role='option'].ativo { background: var(--marca-clara); color: var(--marca-escura); }
+.sugestoes [role='option'].ativo svg, .sugestoes [role='option'].ativo .detalhe { color: var(--marca); }
+.sugestoes .vazio { padding: var(--e3); color: var(--texto-suave); }
+
+/* --- estrutura ------------------------------------------------------------------------- */
+main { max-width: var(--largura); margin: 0 auto; padding: var(--e6) var(--e4) var(--e8); }
+.prosa, main > p, main > ul:not(.lista-deputados) { max-width: var(--leitura); }
+.secao { margin-top: var(--e7); }
+.secao:first-child { margin-top: 0; }
+.secao-cabecalho { margin-bottom: var(--e4); }
+.secao-cabecalho h2 { margin-bottom: var(--e1); }
+.secao-cabecalho p { color: var(--texto-suave); margin: 0; }
+.migalhas { font-size: 0.875rem; color: var(--texto-fraco); margin-bottom: var(--e4); }
+.migalhas a { color: var(--texto-suave); }
+
+/* --- cartões ---------------------------------------------------------------------------- */
+.cartao { background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio-g); box-shadow: var(--sombra-1); padding: var(--e5); margin: 0 0 var(--e5); }
+.cartao-cabecalho { display: flex; align-items: flex-start; gap: var(--e3); margin-bottom: var(--e3); }
+.cartao-cabecalho h2 { margin: 0; font-size: 1.1875rem; }
+.cartao-cabecalho .periodo { display: block; font-size: 0.875rem; font-weight: 500; color: var(--texto-fraco); margin-top: var(--e1); letter-spacing: 0; }
+.icone-cartao { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--raio); background: var(--marca-clara); color: var(--marca); }
+.numero { font-size: clamp(2rem, 1.7rem + 1vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: var(--e2) 0 var(--e1); }
+.numero small { font-size: 1rem; font-weight: 500; letter-spacing: 0; color: var(--texto-suave); }
+.aviso { border-left: 4px solid var(--borda-forte); background: var(--fundo-suave); border-radius: 0 var(--raio-p) var(--raio-p) 0; padding: var(--e3) var(--e4); margin: var(--e4) 0; }
+
+/* --- herói da home ---------------------------------------------------------------------- */
+.heroi { background: var(--fundo); border-bottom: 1px solid var(--borda); }
+.heroi .contido { padding-top: var(--e7); padding-bottom: var(--e7); }
+.heroi h1 { max-width: 22ch; }
+.heroi .busca-principal { max-width: 40rem; margin-top: var(--e5); }
+.pilulas { display: flex; flex-wrap: wrap; gap: var(--e2); margin: var(--e4) 0 0; padding: 0; list-style: none; }
+.pilula { display: inline-flex; align-items: center; gap: var(--e1); font-size: 0.8125rem; font-weight: 600; color: var(--texto-suave); background: var(--fundo-suave); border: 1px solid var(--borda); border-radius: 999px; padding: 0.2rem 0.7rem; }
+
+/* --- listas de deputados (cards clicáveis) --------------------------------------------- */
+.lista-deputados { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--e3); grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+.lista-deputados a { display: flex; gap: var(--e3); align-items: center; padding: var(--e3); min-height: 4rem; background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio); text-decoration: none; color: var(--texto); transition: border-color 0.12s, box-shadow 0.12s; }
+.lista-deputados a:hover { border-color: var(--marca); box-shadow: var(--sombra-1); color: var(--texto); }
+.lista-deputados strong { display: block; line-height: 1.3; }
+.avatar { flex: none; width: 3rem; height: 3rem; border-radius: 50%; object-fit: cover; object-position: center 20%; background: var(--fundo-suave); }
+.avatar-iniciais { display: grid; place-items: center; font-weight: 700; color: var(--marca); background: var(--marca-clara); }
+
+/* --- estados: busca + mapa + lista ---------------------------------------------------- */
+.estados { display: grid; gap: var(--e5); }
+@media (min-width: 56rem) { .estados { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }
+.mapa { margin: 0; }
+.mapa-rotulo { margin: var(--e3) 0 var(--e2); font-weight: 600; min-height: 1.6em; }
+.mapa-svg { display: block; width: 100%; height: auto; max-height: 32rem; }
+.mapa-svg .uf path { fill: #e9ecf3; stroke: #8a92a3; stroke-width: 1.2; transition: fill 0.12s ease; }
+.mapa-svg .uf:hover path, .mapa-svg .uf.ativo path, .mapa-svg .uf:focus-visible path { fill: var(--marca); }
+.mapa-svg .uf:focus-visible { outline: none; }
+.mapa-svg .uf:focus-visible path { stroke: var(--foco); stroke-width: 5; }
+.mapa-svg .sigla { font-size: 26px; font-weight: 700; fill: #2b3140; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+.mapa-svg .uf.ativo .sigla:not(.externa), .mapa-svg .uf:hover .sigla:not(.externa), .mapa-svg .uf:focus-visible .sigla:not(.externa) { fill: #ffffff; }
+.mapa-svg .uf.ativo .sigla.externa, .mapa-svg .uf:hover .sigla.externa { fill: var(--marca); }
+.mapa-svg .guia { stroke: #8a92a3; stroke-width: 1.5; }
+.mapa-svg .toque { fill: transparent; }
+.mapa-svg .uf.ativo circle.toque, .mapa-svg .uf:hover circle.toque, .mapa-svg .uf:focus-visible circle.toque { fill: var(--marca); }
+.mapa-svg .uf.ativo rect.toque, .mapa-svg .uf:hover rect.toque, .mapa-svg .uf:focus-visible rect.toque { fill: var(--marca-clara); stroke: var(--marca); stroke-width: 2; }
+.ufs { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--e1) var(--e3); padding: 0; margin: 0; list-style: none; }
+.ufs a { display: flex; justify-content: space-between; align-items: center; gap: var(--e2); min-height: 2.75rem; padding: 0 var(--e3); border-radius: var(--raio-p); text-decoration: none; color: var(--texto); font-weight: 500; }
+.ufs a:hover, .ufs a.ativo { background: var(--marca-clara); color: var(--marca-escura); }
+.ufs .contagem { font-size: 0.8125rem; color: var(--texto-fraco); font-variant-numeric: tabular-nums; }
+.legenda-mapa { font-size: 0.8125rem; color: var(--texto-fraco); margin-top: var(--e2); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+
+/* --- perfil do deputado ----------------------------------------------------------------- */
+.perfil { display: flex; gap: var(--e5); align-items: center; margin-bottom: var(--e6); }
+.perfil .foto { flex: none; width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover; object-position: center 15%; border: 3px solid var(--fundo); box-shadow: var(--sombra-1); background: var(--fundo-suave); }
+.perfil h1 { margin-bottom: var(--e2); }
+.perfil .pilulas { margin: 0 0 var(--e2); }
+.grade-metricas { display: grid; gap: 0 var(--e5); align-items: start; }
+@media (min-width: 64rem) { .grade-metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grade-metricas > .largo { grid-column: 1 / -1; } }
+
+/* --- gráficos ---------------------------------------------------------------------------- */
+svg.grafico { display: block; width: 100%; height: auto; overflow: visible; }
+.legenda { display: flex; flex-wrap: wrap; gap: var(--e1) var(--e4); font-size: 0.8125rem; color: var(--texto-suave); margin: var(--e1) 0 var(--e3); }
+.legenda span::before { content: ''; display: inline-block; width: 0.75rem; height: 0.75rem; margin-right: 0.35rem; vertical-align: -0.05rem; border-radius: 50%; }
+.legenda .l-deputado::before { background: var(--deputado); }
+.legenda .l-mediana::before { background: var(--referencia); border-radius: 0; width: 0.2rem; }
+.legenda .l-faixa::before { background: var(--faixa); border-radius: 0.15rem; width: 1rem; height: 0.5rem; }
+.barra { display: inline-block; height: 0.75rem; vertical-align: middle; margin-right: 0.4rem; min-width: 2px; border-radius: 2px; }
+.barra.deputado { background: var(--deputado); }
+.barra.referencia { background: var(--referencia); }
+
+/* --- details / tabelas ------------------------------------------------------------------ */
+details { border-top: 1px solid var(--borda); margin-top: var(--e4); }
+summary { cursor: pointer; color: var(--link); font-weight: 600; min-height: 2.75rem; padding: var(--e3) 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; margin: var(--e2) 0 var(--e4); }
+caption { text-align: left; font-weight: 700; padding-bottom: var(--e2); }
+th, td { text-align: left; padding: 0.55rem var(--e2); border-bottom: 1px solid var(--borda); vertical-align: top; }
+thead th { font-size: 0.8125rem; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.04em; border-bottom-width: 2px; }
+td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tabela-rolavel { overflow-x: auto; }
+dl.pequeno { display: grid; grid-template-columns: max-content 1fr; gap: var(--e1) var(--e4); }
+dl.pequeno dt { color: var(--texto-fraco); }
+dl.pequeno dd { margin: 0; }
+
+label { display: block; font-weight: 600; margin-bottom: var(--e2); }
+.status-busca { font-size: 0.875rem; color: var(--texto-suave); margin: var(--e2) 0 var(--e3); min-height: 1.4em; }
+
+/* --- rodapé ----------------------------------------------------------------------------- */
+.rodape { background: #10131c; color: #c9cdd6; padding: var(--e7) 0; font-size: 0.875rem; }
+.rodape a { color: #ffffff; }
+.rodape a:hover { color: #ffffff; }
+.rodape .marca { color: #ffffff; margin-bottom: var(--e3); }
+.rodape p { max-width: var(--leitura); }
+
+/* --- ajustes de celular ------------------------------------------------------------------ */
+.numero small { display: block; margin-top: var(--e1); }
+@media (max-width: 47.99rem) {
+  .barra-topo { flex-wrap: wrap; gap: var(--e2) var(--e4); padding-top: var(--e2); padding-bottom: var(--e3); }
+  .busca-topo { flex: 1 1 100%; max-width: none; margin-left: 0; }
+  .atalho { display: none; }
+  html { scroll-padding-top: 8rem; }
+  .ufs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ufs a { padding: 0 var(--e2); font-size: 0.9375rem; }
+  .cartao { padding: var(--e4); }
 }
