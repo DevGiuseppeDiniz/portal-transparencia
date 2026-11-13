@@ -53,3 +53,13 @@ test('linhasCsv: registro truncado com aspas abertas não engole o resto do arqu
   assert.deepEqual(linhas, [{ a: '1', b: '2' }, { a: '4', b: '5' }, { a: '6', b: 'multi\nx; y\nlinha' }, { a: '7', b: '8' }]);
   assert.deepEqual(invalidas, [3]);
 });
+
+test('separarPalavrasChave: separa, limpa, mantém nomes e siglas', async () => {
+  const { separarPalavrasChave } = await import('./proposicoes.ts');
+  assert.deepEqual(
+    separarPalavrasChave('Alteração, Estatuto do Desarmamento, Sistema Nacional de Armas (Sinarm), aumento, pena de reclusão, disparo, arma de fogo de uso restrito.'),
+    ['Estatuto do Desarmamento', 'Sistema Nacional de Armas (Sinarm)', 'aumento', 'pena de reclusão', 'disparo', 'arma de fogo de uso restrito'],
+  );
+  assert.deepEqual(separarPalavrasChave(''), []);
+  assert.deepEqual(separarPalavrasChave('Lei nº 8.069, de 1990, ECA, ECA.'), ['Lei nº 8.069', 'de 1990', 'ECA']);
+});

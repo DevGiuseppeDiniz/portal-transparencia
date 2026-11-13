@@ -102,6 +102,14 @@ export interface ProjetoPublicado {
   readonly encerrado: 'arquivada' | 'retirada' | 'devolvida' | null;
   readonly situacao: string | null;
   readonly url: string;
+  /** Temas oficiais da Câmara (Saúde, Educação…). */
+  readonly temas: readonly string[];
+  /** Palavras-chave da indexação da Câmara. */
+  readonly palavrasChave: readonly string[];
+  /** Ementa detalhada (resumo mais simples), quando a Câmara publica. */
+  readonly resumo: string | null;
+  readonly regime: string | null;
+  readonly apreciacao: string | null;
 }
 
 export interface ProjetosPublicados {
@@ -119,6 +127,11 @@ export interface ProjetosPublicados {
     readonly totalDeputados: number;
   };
   readonly lista: readonly ProjetoPublicado[];
+  /**
+   * Temas dos projetos do deputado (um projeto pode ter mais de um tema), com a referência da
+   * Câmara: a fatia daquele tema no total de projetos de todos os deputados (PRI-02).
+   */
+  readonly temas: ReadonlyArray<{ readonly tema: string; readonly projetos: number; readonly fatia: number; readonly fatiaCamara: number }>;
   readonly proveniencia: ProvenienciaPublicada;
 }
 

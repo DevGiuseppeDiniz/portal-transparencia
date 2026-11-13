@@ -167,18 +167,28 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
     for (const l of await sql<L03[]>`select * from metrics.met03_funil where calculo_id = ${p03.calculoId}`) m03.set(l.id_camara, l);
     for (const r of await sql<{ indicador: string; n: number; media: number; mediana: number; p25: number; p75: number; minimo: number; maximo: number }[]>`
         select * from metrics.met03_referencia where calculo_id = ${p03.calculoId}`) ref03.set(r.indicador, dist(r)!);
-    for (const p of await sql<{ id_camara: number; id_proposicao: number; sigla_tipo: string; numero: number; ano: number; ementa: string; data_apresentacao: string; estagio: EstagioFunil; apensada: boolean; encerrada: ProjetosPublicados['lista'][number]['encerrado']; situacao: string | null }[]>`
+    for (const p of await sql<{ id_camara: number; id_proposicao: number; sigla_tipo: string; numero: number; ano: number; ementa: string; data_apresentacao: string; estagio: EstagioFunil; apensada: boolean; encerrada: ProjetosPublicados['lista'][number]['encerrado']; situacao: string | null; temas: string[]; palavras_chave: string[]; ementa_detalhada: string | null; regime: string | null; apreciacao: string | null }[]>`
         select id_camara, id_proposicao, sigla_tipo, numero, ano, ementa, to_char(data_apresentacao, 'YYYY-MM-DD') as data_apresentacao,
-               estagio, apensada, encerrada, situacao
+               estagio, apensada, encerrada, situacao, temas, palavras_chave, ementa_detalhada, regime, apreciacao
           from metrics.met03_proposicao where calculo_id = ${p03.calculoId} order by data_apresentacao desc, id_proposicao`) {
       lista03.set(p.id_camara, [...(lista03.get(p.id_camara) ?? []), {
         id: p.id_proposicao, sigla: p.sigla_tipo, numero: p.numero, ano: p.ano, ementa: p.ementa, apresentadoEm: p.data_apresentacao,
         estagio: p.estagio, apensado: p.apensada, encerrado: p.encerrada, situacao: p.situacao,
         url: `https://www.camara.leg.br/propostas-legislativas/${p.id_proposicao}`,
+        temas: p.temas, palavrasChave: p.palavras_chave, resumo: p.ementa_detalhada, regime: p.regime, apreciacao: p.apreciacao,
       }]);
     }
   }
   const deputadosComLei = [...m03.values()].filter((l) => l.leis > 0).length;
+  // Referência dos temas: fatia de cada tema no total de projetos da Câmara (todos os deputados).
+  const temasCamara = new Map<string, number>();
+  let totalCamara = 0;
+  for (const lista of lista03.values()) {
+    for (const pr of lista) {
+      totalCamara++;
+      for (const t of pr.temas) temasCamara.set(t, (temasCamara.get(t) ?? 0) + 1);
+    }
+  }
 
   const temporario = `${raiz}.tmp-${process.pid}-${Date.now()}`;
   await mkdir(join(temporario, 'deputados'), { recursive: true });
@@ -278,6 +288,13 @@ export async function publicar(sql: Sql, raiz = raizPublicacaoPadrao()): Promise
             totalDeputados: m03.size,
           },
           lista,
+          temas: (() => {
+            const contagem = new Map<string, number>();
+            for (const pr of lista) for (const t of pr.temas) contagem.set(t, (contagem.get(t) ?? 0) + 1);
+            return [...contagem]
+              .map(([tema, n]) => ({ tema, projetos: n, fatia: arredondar(n / lista.length), fatiaCamara: arredondar((temasCamara.get(tema) ?? 0) / Math.max(1, totalCamara)) }))
+              .sort((a, b) => b.projetos - a.projetos || a.tema.localeCompare(b.tema, 'pt-BR'));
+          })(),
           proveniencia: p03,
         };
       } else semMetrica['MET-03']++;

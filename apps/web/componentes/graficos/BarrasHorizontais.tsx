@@ -40,6 +40,7 @@ export function BarrasHorizontais({
       aoTeclar={aoTeclar}
       aoSair={() => setAtivo(null)}
       posicaoDica={0.5}
+      dicaNoTopo={false}
       dica={
         item && (
           <>
@@ -86,12 +87,15 @@ export function BarrasHorizontais({
               <span className="truncate first-letter:uppercase">{i.rotulo}</span>
               <span className="shrink-0 font-semibold tabular-nums">{formatar(i.valor)}</span>
             </div>
-            <div className="relative h-2.5 rounded-full bg-muted">
+            <div className="relative h-2.5 rounded-full bg-background">
               <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: pct(i.valor), minWidth: i.valor > 0 ? 3 : 0, background: CORES.deputado }} />
               {i.referencia != null && (
                 <div className="absolute -inset-y-1 w-0.5 rounded-full" style={{ left: `calc(${pct(i.referencia)} - 1px)`, background: CORES.referencia }} />
               )}
             </div>
+            {ativo === k && (
+              <p className="mt-1.5 text-xs text-muted-foreground">{i.dica.join(' · ')}</p>
+            )}
           </li>
         ))}
       </ul>

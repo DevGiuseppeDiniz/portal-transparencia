@@ -119,6 +119,21 @@ Classe: **objetiva** (fato verificável) ou **curada** (depende de seleção hum
   - Limitação a declarar na tela (REF-05): o funil só vê o avanço dos próprios projetos;
     relatoria (REF-28), emendas, fiscalização e obstrução ficam de fora.
 
+### Lista de projetos para o cidadão (2026-11-13)
+Sem IA e sem texto mantido à mão: só regras sobre o que a Câmara publica (SRC-01b).
+- **Do que trata** (nesta ordem): ementa detalhada da Câmara (≈ 6% dos projetos) → trecho da
+  ementa depois de "para" quando ela começa por "Altera/Acrescenta/Dá nova redação…" (≈ 40%,
+  exibido como "Objetivo: …") → a ementa, quando já começa por verbo direto ("Institui",
+  "Proíbe"…; ≈ 45%) → palavras-chave da indexação da Câmara (≈ 8%). O cartão sempre diz a
+  origem do texto e mostra a ementa oficial a um clique (`apps/web/lib/projetos.ts`).
+- **Tema:** classificação oficial da Câmara (`proposicoesTemas-{ano}`, 31 temas; 99,8% dos
+  projetos). Gráfico "Sobre quais temas apresenta projetos?": parte de cada tema nos projetos
+  do deputado, com a parte do tema em todos os projetos da Câmara como referência (PRI-02).
+- **Situação em linguagem simples:** mapa fixo das ~35 situações da Câmara; situação nova
+  aparece como a Câmara escreve. Mais a régua de etapas do funil e "quem decide"
+  (comissões, de forma conclusiva, ou Plenário).
+- **Lista completa** com filtro por tema, etapa e texto; carregada sob demanda.
+
 ## MET-04 — Votações nominais
 - **Classe:** objetiva (o voto) / curada (o agrupamento por tema)
 - **Exibição:** lista das votações com o voto do deputado e o resultado. Agrupamento por

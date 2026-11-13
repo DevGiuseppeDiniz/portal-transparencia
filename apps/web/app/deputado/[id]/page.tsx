@@ -18,6 +18,7 @@ import { CORES } from '../../../componentes/graficos/cores';
 import { Calendario, Carteira, Documento, Externo } from '../../../componentes/Icones';
 import { DestaqueAncora } from '../../../componentes/DestaqueAncora';
 import { Proveniencia } from '../../../componentes/Proveniencia';
+import { ListaProjetos } from '../../../componentes/projetos/ListaProjetos';
 import { Voltar } from '../../../componentes/Voltar';
 import { Badge, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, botao, cn } from '../../../componentes/ui';
 import { doEstado, lerDeputado, listarDeputados, nomeUf } from '../../../lib/dados';
@@ -92,7 +93,7 @@ export default async function PaginaDeputado({ params }: Params) {
       <div className="grid gap-6">
         <SecaoPresenca p={presenca} linkDados={`${linkDados}#presenca`} />
         <SecaoCota c={cota} uf={deputado.uf} linkDados={`${linkDados}#cota`} />
-        <SecaoProjetos j={projetos} linkDados={`${linkDados}#projetos`} />
+        <SecaoProjetos j={projetos} linkDados={`${linkDados}#projetos`} idDeputado={deputado.id} />
       </div>
     </main>
   );
@@ -372,7 +373,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
   );
 }
 
-function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDados: string }) {
+function SecaoProjetos({ j, linkDados, idDeputado }: { j: ProjetosPublicados | null; linkDados: string; idDeputado: number }) {
   const titulo = 'Projetos de lei apresentados como autor principal';
   if (!j) return <SemDado titulo={titulo} id="t-projetos" icone={<Documento />} />;
   const periodo = `Desde ${mesAno(j.proveniencia.periodo.inicio)}`;
@@ -420,6 +421,43 @@ function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDad
               }))}
             />
           </div>
+        </div>
+        {j.temas.length > 0 && (
+          <div className="mt-10">
+            <Subtitulo>Sobre quais temas apresenta projetos?</Subtitulo>
+            <p className="mb-2 text-sm text-muted-foreground">
+              Parte dos projetos dele em cada tema (classificação oficial da Câmara; um projeto pode ter mais de um tema). O traço cinza é a
+              parte daquele tema em todos os projetos da Câmara.
+            </p>
+            <BarrasHorizontais
+              titulo="Temas dos projetos do deputado, comparados com a Câmara"
+              nomeValor="Projetos do deputado"
+              nomeReferencia="Todos os projetos da Câmara"
+              formato="percentual"
+              itens={j.temas.slice(0, 8).map((t) => ({
+                rotulo: t.tema,
+                valor: t.fatia,
+                referencia: t.fatiaCamara,
+                dica: [
+                  `${plural(t.projetos, 'projeto')} dele (${percentual(t.fatia)} do total dele)`,
+                  `Na Câmara: ${percentual(t.fatiaCamara)} dos projetos`,
+                ],
+              }))}
+            />
+          </div>
+        )}
+        <div className="mt-10">
+          <Subtitulo>Quais são os projetos?</Subtitulo>
+          <p className="mb-3 text-sm text-muted-foreground">
+            O texto de cada projeto vem da própria Câmara (resumo, trecho da ementa ou palavras-chave), sem reescrita; a ementa oficial fica
+            em “Texto oficial”.
+          </p>
+          <ListaProjetos
+            idDeputado={idDeputado}
+            total={j.lista.length}
+            iniciais={j.lista.slice(0, 6)}
+            temas={j.temas.map(({ tema, projetos }) => ({ tema, projetos }))}
+          />
         </div>
         <Explicacao resumo="O que esta contagem não mostra">
           <p>

@@ -40,3 +40,27 @@ test('doEstado: artigo certo de cada estado', async () => {
   assert.equal(doEstado('DF'), 'do Distrito Federal');
   for (const u of UFS) assert.match(doEstado(u.sigla), /^(do|da|de) /, u.sigla);
 });
+
+test('doQueTrata: resumo da Câmara > trecho depois de "para" > ementa direta > palavras-chave', async () => {
+  const { doQueTrata } = await import('./projetos.ts');
+  const base = { resumo: null, palavrasChave: ['Estatuto do Desarmamento', 'pena'] };
+  assert.deepEqual(doQueTrata({ ...base, resumo: 'Aumenta a pena do crime de disparo', ementa: 'Dá nova redação ao art. 15 da Lei nº 10.826' }), {
+    texto: 'Aumenta a pena do crime de disparo.', origem: 'Resumo da Câmara',
+  });
+  assert.deepEqual(
+    doQueTrata({ ...base, ementa: 'Altera o art. 473 da Consolidação das Leis do Trabalho (CLT), para permitir ao empregado ausentar-se do trabalho.' }),
+    { texto: 'Objetivo: permitir ao empregado ausentar-se do trabalho.', origem: 'Trecho da ementa oficial' },
+  );
+  assert.equal(doQueTrata({ ...base, ementa: 'Institui o Dia Nacional do Livro' }).origem, 'Ementa oficial');
+  assert.deepEqual(doQueTrata({ ...base, ementa: 'Dá nova redação ao art. 15 da Lei nº 10.826, de 2003' }), {
+    texto: 'Estatuto do Desarmamento · pena', origem: 'Palavras-chave da Câmara',
+  });
+});
+
+test('situacaoSimples: traduz e nunca quebra com situação nova', async () => {
+  const { situacaoSimples } = await import('./projetos.ts');
+  assert.equal(situacaoSimples('Aguardando Designação de Relator(a)'), 'Aguarda a escolha de um relator na comissão');
+  assert.equal(situacaoSimples('Transformado em Norma Jurídica'), 'Virou lei');
+  assert.equal(situacaoSimples('Situação Inventada'), 'Situação Inventada');
+  assert.equal(situacaoSimples(null), 'Situação não informada pela Câmara');
+});

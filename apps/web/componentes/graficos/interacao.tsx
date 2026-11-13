@@ -65,7 +65,10 @@ export function MolduraGrafico({
   aoSair,
   children,
   tabela,
+  dicaNoTopo = true,
 }: {
+  /** false: o próprio gráfico mostra a dica junto do item (ex.: barras horizontais). */
+  dicaNoTopo?: boolean;
   titulo: string;
   instrucao?: string | undefined;
   ativo: number | null;
@@ -106,9 +109,10 @@ export function MolduraGrafico({
         onBlur={(e) => {
           if (!caixa.current?.contains(e.relatedTarget as Node)) aoSair();
         }}
-        className="relative touch-pan-y overflow-x-clip rounded-lg pt-[5.25rem] select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        className={`relative touch-pan-y overflow-x-clip rounded-lg ${dicaNoTopo ? 'pt-[5.25rem]' : 'pt-1'} select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring`}
       >
         {/* Dica: fica no alto do gráfico, acompanhando o elemento na horizontal. */}
+        {dicaNoTopo && (
         <div
           ref={balao}
           aria-hidden="true"
@@ -117,6 +121,7 @@ export function MolduraGrafico({
         >
           {dica}
         </div>
+        )}
         {children}
       </div>
       <p id={`${id}-inst`} className="mt-2 text-xs text-muted-foreground">

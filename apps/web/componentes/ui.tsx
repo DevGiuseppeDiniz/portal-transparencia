@@ -69,3 +69,6 @@ export function CampoComIcone({ icone, children, className }: { icone: ReactNode
     </div>
   );
 }
+
+/** Select no mesmo padrão do Input (sem o espaço do ícone). */
+export const classeSelect = classeInput.replace('pl-10', 'pl-3');

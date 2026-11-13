@@ -11,7 +11,7 @@ import { calcularMet01 } from './calculos/met01.ts';
 import { calcularMet02 } from './calculos/met02.ts';
 import { calcularMet03 } from './calculos/met03.ts';
 import { publicar } from './publicar.ts';
-import { anosDaLegislatura, coletarAutores, coletarProposicoes, coletarTramitacoes } from './coletores/proposicoes.ts';
+import { anosDaLegislatura, coletarAutores, coletarProposicoes, coletarTemas, coletarTramitacoes } from './coletores/proposicoes.ts';
 import { periodoCeap } from '@portal/metrics';
 import { coletarCeapAno, coletarHistoricos } from './coletores/ceap.ts';
 import type { Dependencias, ResultadoColeta } from './coleta.ts';
@@ -91,6 +91,7 @@ try {
       for (const ano of anos) relatar(`SRC-01b proposições ${ano}`, await coletarProposicoes(deps, ano));
       for (const ano of anos) relatar(`SRC-01b autores ${ano}`, await coletarAutores(deps, ano));
       for (const ano of anos) relatar(`SRC-01b tramitações ${ano}`, await coletarTramitacoes(deps, ano));
+      for (const ano of anos) relatar(`SRC-01b temas ${ano}`, await coletarTemas(deps, ano));
     }
     if (etapa === 'met03') {
       const c = await calcularMet03(sql, deps.versao);
