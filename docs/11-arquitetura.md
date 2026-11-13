@@ -112,6 +112,18 @@ registro com a coleta que o gerou.
 - Leitores sem dependência (`packages/sources`): XML estrito (sem DOCTYPE/entidades),
   ZIP (deflate, com limite contra zip bomb) e CSV em fluxo.
 
+### Site público lê só o snapshot publicado (2026-11-13)
+- A etapa `publicar` da ingestão gera `data/publicado/` (um JSON por deputado + `indice.json`
+  com o SHA-256 de cada arquivo), com troca atômica do diretório. Antes de escrever, confere
+  que o dado bruto publicado soma o número calculado (dias = dias de sessão; categorias =
+  gasto; lista de projetos = apresentados) e falha se não somar.
+- O `apps/web` lê esses arquivos no build (`PORTAL_DADOS_DIR`) e gera tudo estático. **Não
+  tem acesso ao banco nem depende de `@portal/db`** (barreira 3b verifica). Isso reforça
+  DEC-12/SEG-01 e dispensa a credencial `DATABASE_URL_SOMENTE_LEITURA` no site.
+- A "API de leitura" do MVP são os próprios JSON servidos como arquivos estáticos
+  (`/dados/indice.json`, `/dados/deputados/{id}.json`).
+- O CI constrói o site com dados **fictícios** de `apps/web/exemplo/`.
+
 ## Ambiente local
 Pré-requisitos: Node 24, pnpm e Docker (sem compose).
 
@@ -121,7 +133,8 @@ pnpm db:up       # Postgres 18 em 127.0.0.1:54329; cria .env com senha aleatóri
 pnpm db:migrar   # aplica packages/db/migrations em ordem (registro em schema_migrations)
 pnpm coletar     # todas as etapas; ou só algumas: pnpm coletar deputados met01
                  #   deputados → eventos → matriculas → presenca → met01
-                 #   → historico → ceap → met02 → proposicoes → met03
+                 #   → historico → ceap → met02 → proposicoes → met03 → publicar
+pnpm --filter ./apps/web build && pnpm --filter ./apps/web start   # site em :3000
                  # (a 1ª carga da presença leva ~25 min: o webservice é lento)
 pnpm test        # node:test, sem banco nem rede
 pnpm db:down     # para o container (dados ficam no volume)

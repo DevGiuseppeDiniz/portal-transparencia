@@ -7,6 +7,7 @@
 //   - diretiva "use server" (Server Actions = endpoint de escrita via POST);
 //   - route handlers que exportam POST/PUT/PATCH/DELETE;
 //   - componente "use client" importando o pacote do banco (credencial no navegador);
+//   - o app depender de @portal/db (o site lê só o snapshot publicado);
 //   - next.config sem poweredByHeader: false.
 
 import { readFile } from 'node:fs/promises';
@@ -31,6 +32,14 @@ const DIRETIVA_CLIENT = /^\s*['"]use client['"]\s*;?\s*$/m;
 const METODO_ESCRITA =
   /export\s+(async\s+)?function\s+(POST|PUT|PATCH|DELETE)\b|export\s+(const|let|var)\s+(POST|PUT|PATCH|DELETE)\b|export\s*\{[^}]*\b(POST|PUT|PATCH|DELETE)\b[^}]*\}/;
 const IMPORT_BANCO = /from\s+['"](@portal\/db|[./]*packages\/db)[^'"]*['"]|require\(\s*['"]@portal\/db/;
+
+// O site público lê só o snapshot publicado (data/publicado); não tem acesso ao banco.
+const manifesto = JSON.parse(await readFile(join(base, 'package.json'), 'utf8'));
+for (const campo of ['dependencies', 'devDependencies', 'peerDependencies']) {
+  if (manifesto[campo]?.['@portal/db']) {
+    erro(`${app}/package.json: depende de @portal/db. O site lê só o snapshot publicado, nunca o banco (DEC-12, SEG-01).`);
+  }
+}
 
 let arquivos = 0;
 for await (const arquivo of percorrer(base)) {

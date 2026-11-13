@@ -37,7 +37,7 @@ facilitada tem link para o dado bruto e para a fonte oficial, para que qualquer 
 
 | Caminho | Conteúdo |
 |---|---|
-| `apps/web` | Next.js: páginas + API de leitura (somente leitura, DEC-12) |
+| `apps/web` | Next.js estático: lê só o snapshot `data/publicado` (sem banco, DEC-12); `exemplo/` = dados fictícios do CI |
 | `apps/ingest` | coletores agendados + armazenamento `raw`; Node 24 roda o TS direto |
 | `packages/db` | tipos + `migrations/` (proveniência, DEC-10) |
 | `packages/sources` | catálogo e clientes das fontes (`SRC-xx`) |

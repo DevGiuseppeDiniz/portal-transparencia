@@ -116,8 +116,10 @@ jobs:
         run: node scripts/ci/check-superficie-servidor.mjs apps/web
       - name: Gerar valores-canário para os segredos de servidor
         run: node scripts/ci/gerar-canarios.mjs >> "$GITHUB_ENV"
-      - name: Build do app com os canários
+      - name: Build do app com os canários (dados de exemplo fictícios em apps/web/exemplo)
         if: hashFiles('apps/web/package.json') != ''
+        env:
+          PORTAL_DADOS_DIR: ${{ github.workspace }}/apps/web/exemplo
         run: pnpm --filter ./apps/web build
       - name: Nenhum segredo no que vai para o navegador
         if: hashFiles('apps/web/package.json') != ''

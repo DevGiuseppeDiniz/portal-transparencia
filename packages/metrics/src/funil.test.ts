@@ -61,3 +61,10 @@ test('referenciaFunil: taxa de lei só de quem apresentou o mínimo', () => {
   assert.equal(r.porEstagio.apresentada?.n, 3);
   assert.equal(r.porEstagio.lei?.mediana, 1);
 });
+
+test('posicaoRelativa: menores, iguais e total; sem valor é faltante', async () => {
+  const { posicaoRelativa } = await import('./publicacao.ts');
+  assert.deepEqual(posicaoRelativa(0.9, [0.5, 0.9, 0.95, 0.8]), { menores: 2, iguais: 1, total: 4 });
+  assert.equal(posicaoRelativa(null, [1]), null);
+  assert.equal(posicaoRelativa(1, []), null);
+});

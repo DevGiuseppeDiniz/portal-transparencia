@@ -9,7 +9,8 @@ const cabecalhos = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data:",
+      // Fotos oficiais dos deputados vêm do site da Câmara (só esse domínio).
+      "img-src 'self' data: https://www.camara.leg.br",
       "font-src 'self'",
       "connect-src 'self'",
       "object-src 'none'",
@@ -34,7 +35,7 @@ const config: NextConfig = {
   // (fotos oficiais dos deputados) são servidas como estão (DEC-12, superfície mínima).
   images: { unoptimized: true },
   // Pacotes internos do monorepo são TypeScript puro.
-  transpilePackages: ['@portal/sources'],
+  transpilePackages: ['@portal/sources', '@portal/metrics'],
   async headers() {
     return [{ source: '/:path*', headers: cabecalhos }];
   },

@@ -3,13 +3,14 @@
 //
 // Uso: pnpm coletar [etapa ...]   (lê DATABASE_URL do .env na raiz)
 //   etapas: deputados, eventos, matriculas, presenca, met01, historico, ceap, met02,
-//   proposicoes, met03.
+//   proposicoes, met03, publicar.
 //   Sem etapa = todas, nessa ordem.
 
 import { conectar } from '@portal/db';
 import { calcularMet01 } from './calculos/met01.ts';
 import { calcularMet02 } from './calculos/met02.ts';
 import { calcularMet03 } from './calculos/met03.ts';
+import { publicar } from './publicar.ts';
 import { anosDaLegislatura, coletarAutores, coletarProposicoes, coletarTramitacoes } from './coletores/proposicoes.ts';
 import { periodoCeap } from '@portal/metrics';
 import { coletarCeapAno, coletarHistoricos } from './coletores/ceap.ts';
@@ -19,7 +20,7 @@ import { coletarEventos, coletarMatriculas, coletarPresencas, diasParaColetar } 
 import { armazenamentoEmDisco, raizRawPadrao } from './raw.ts';
 import { versaoColetor } from './versao.ts';
 
-const ETAPAS = ['deputados', 'eventos', 'matriculas', 'presenca', 'met01', 'historico', 'ceap', 'met02', 'proposicoes', 'met03'] as const;
+const ETAPAS = ['deputados', 'eventos', 'matriculas', 'presenca', 'met01', 'historico', 'ceap', 'met02', 'proposicoes', 'met03', 'publicar'] as const;
 type Etapa = (typeof ETAPAS)[number];
 
 const pedidas = process.argv.slice(2);
@@ -99,6 +100,11 @@ try {
               (c.medianaLei !== null ? `; mediana "virou lei ÷ apresentados" ${(c.medianaLei * 100).toFixed(1)}%` : '')
           : 'MET-03: nenhum deputado em exercício',
       );
+    }
+    if (etapa === 'publicar') {
+      const r = await publicar(sql);
+      const faltando = Object.entries(r.semMetrica).filter(([, n]) => n > 0).map(([m, n]) => `${m}: ${n}`);
+      console.log(`publicado em ${r.diretorio}: ${r.deputados} deputados${faltando.length ? ` (sem cálculo — ${faltando.join(', ')})` : ''}`);
     }
   }
   if (falhas) {
