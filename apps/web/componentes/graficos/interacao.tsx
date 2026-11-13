@@ -109,14 +109,15 @@ export function MolduraGrafico({
         onBlur={(e) => {
           if (!caixa.current?.contains(e.relatedTarget as Node)) aoSair();
         }}
-        className={`relative touch-pan-y overflow-x-clip rounded-lg ${dicaNoTopo ? 'pt-[5.25rem]' : 'pt-1'} select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring`}
+        className={`relative touch-pan-y overflow-x-clip rounded-lg pt-1 select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring`}
       >
-        {/* Dica: fica no alto do gráfico, acompanhando o elemento na horizontal. */}
+        {/* Dica: flutua logo acima do gráfico (por cima do texto, sem reservar espaço vazio),
+            acompanhando o elemento na horizontal. */}
         {dicaNoTopo && (
         <div
           ref={balao}
           aria-hidden="true"
-          className={`pointer-events-none absolute top-0 z-10 w-max max-w-[min(18rem,100%)] rounded-lg border bg-popover px-3 py-2 text-xs leading-snug text-popover-foreground shadow-lg transition-opacity ${ativo === null ? 'opacity-0' : 'opacity-100'}`}
+          className={`pointer-events-none absolute bottom-full z-20 mb-1 w-max max-w-[min(18rem,100%)] rounded-lg border bg-popover px-3 py-2 text-xs leading-snug text-popover-foreground shadow-lg transition-opacity ${ativo === null ? 'opacity-0' : 'opacity-100'}`}
           style={{ left: esquerdaPx }}
         >
           {dica}

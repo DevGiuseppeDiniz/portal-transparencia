@@ -76,7 +76,7 @@ export function formatar(formato: Formato, v: number): string {
  */
 export function frasePosicao(
   pos: { menores: number; iguais: number; total: number },
-  textos: { maiorQue: string; nenhumAcima: string; valor: string },
+  textos: { maiorQue: string; nenhumAcima: string; valor: string; nenhumAbaixo?: string },
 ): string {
   const outrosIguais = pos.iguais - 1;
   const maiores = pos.total - pos.menores - pos.iguais;
@@ -84,6 +84,12 @@ export function frasePosicao(
     return outrosIguais > 0
       ? `${textos.nenhumAcima}: outros ${inteiro(outrosIguais)} também têm ${textos.valor}.`
       : `${textos.nenhumAcima} entre os outros ${inteiro(pos.total - 1)}.`;
+  }
+  // "maior que a de 0" não se lê: quem está na ponta de baixo ganha a frase pelo outro lado.
+  if (pos.menores === 0 && textos.nenhumAbaixo) {
+    return outrosIguais > 0
+      ? `${textos.nenhumAbaixo}: outros ${inteiro(outrosIguais)} também têm ${textos.valor}.`
+      : `${textos.nenhumAbaixo} entre os outros ${inteiro(pos.total - 1)}.`;
   }
   const empate = outrosIguais > 0 ? ` e igual à de outros ${inteiro(outrosIguais)}` : '';
   return `${textos.maiorQue} ${inteiro(pos.menores)} dos ${inteiro(pos.total)} deputados${empate}.`;

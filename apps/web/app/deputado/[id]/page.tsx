@@ -113,16 +113,33 @@ function Cabecalho({ id, icone, titulo, periodo }: { id: string; icone: ReactNod
 
 function Numero({ valor, complemento }: { valor: string; complemento: string }) {
   return (
-    <p className="mb-3">
+    <p>
       <span className="block text-4xl font-bold tracking-tight sm:text-5xl">{valor}</span>
       <span className="text-sm text-muted-foreground">{complemento}</span>
     </p>
   );
 }
 
+/**
+ * Faixa de indicadores no topo de cada seção (mesmo formato nas três): número principal à
+ * esquerda e os indicadores de apoio ao lado, numa linha; os gráficos vêm embaixo, em largura
+ * inteira. No celular, o número fica em cima e os indicadores em duas colunas.
+ */
+function FaixaIndicadores({ principal, children, notas }: { principal: ReactNode; children: ReactNode; notas?: ReactNode }) {
+  return (
+    <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8">
+        <div className="shrink-0">{principal}</div>
+        <dl className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">{children}</dl>
+      </div>
+      {notas && <div className="mt-3 max-w-3xl space-y-1 text-sm">{notas}</div>}
+    </div>
+  );
+}
+
 function Indicador({ rotulo, valor, marcador }: { rotulo: string; valor: string; marcador?: string }) {
   return (
-    <div className="rounded-lg bg-muted p-3">
+    <div className="rounded-lg bg-muted px-4 py-3 sm:w-52">
       <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
         {marcador && <span className="size-2.5 shrink-0 rounded-sm" style={{ background: marcador }} aria-hidden="true" />}
         {rotulo}
@@ -174,32 +191,34 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
     <Card aria-labelledby="t-presenca">
       <Cabecalho id="t-presenca" icone={<Calendario />} titulo={titulo} periodo={periodo} />
       <CardContent>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:items-start">
-          <div>
-            <Numero valor={percentual(p.taxa)} complemento={`dos dias de sessão (${inteiro(p.presencas)} de ${inteiro(p.dias)})`} />
-            <dl className="mt-4 grid grid-cols-2 gap-3">
-              <Indicador rotulo="Ausências com justificativa" valor={plural(p.ausenciasJustificadas, 'dia')} marcador={CORES.ausenciaJustificada} />
-              <Indicador rotulo="Ausências sem justificativa" valor={plural(p.ausenciasNaoJustificadas, 'dia')} marcador={CORES.ausenciaSemJustificativa} />
-            </dl>
-            {p.justificativas.length > 0 && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                Motivos: {p.justificativas.map((j) => `${j.motivo.toLowerCase()} (${j.dias})`).join(', ')}.
-              </p>
-            )}
-            {!p.entraNaReferencia && (
-              <Aviso>
-                Período curto: {plural(p.dias, 'dia')} de sessão em exercício, menos que os {p.minDiasReferencia} usados na comparação com a Câmara.
-              </Aviso>
-            )}
-          </div>
+        <FaixaIndicadores
+          principal={<Numero valor={percentual(p.taxa)} complemento={`dos dias de sessão (${inteiro(p.presencas)} de ${inteiro(p.dias)})`} />}
+          notas={
+            <>
+              {p.justificativas.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Motivos das ausências justificadas: {p.justificativas.map((j) => `${j.motivo.toLowerCase()} (${j.dias})`).join(', ')}.
+                </p>
+              )}
+              {!p.entraNaReferencia && (
+                <Aviso>
+                  Período curto: {plural(p.dias, 'dia')} de sessão em exercício, menos que os {p.minDiasReferencia} usados na comparação com a Câmara.
+                </Aviso>
+              )}
+            </>
+          }
+        >
+          <Indicador rotulo="Ausências com justificativa" valor={plural(p.ausenciasJustificadas, 'dia')} marcador={CORES.ausenciaJustificada} />
+          <Indicador rotulo="Ausências sem justificativa" valor={plural(p.ausenciasNaoJustificadas, 'dia')} marcador={CORES.ausenciaSemJustificativa} />
+        </FaixaIndicadores>
           {p.referencia && (
-            <div id="posicao-presenca" className="scroll-mt-28 p-1">
+            <div id="posicao-presenca" className="-mx-1 mt-10 scroll-mt-28 p-1">
               <Subtitulo>Onde está entre os {inteiro(p.referencia.n)} deputados da Câmara?</Subtitulo>
               <p className="mb-1 text-base">
                 {p.posicao && p.entraNaReferencia ? (
                   <>
                     <strong className="font-semibold">
-                      {frasePosicao(p.posicao, { maiorQue: 'Presença maior que a de', nenhumAcima: 'Nenhum deputado tem presença maior', valor: percentual(p.taxa) })}
+                      {frasePosicao(p.posicao, { maiorQue: 'Presença maior que a de', nenhumAcima: 'Nenhum deputado tem presença maior', nenhumAbaixo: 'Nenhum deputado tem presença menor', valor: percentual(p.taxa) })}
                     </strong>{' '}
                   </>
                 ) : null}
@@ -221,12 +240,11 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
                 nomeMetrica="de presença"
                 grupo={{ metrica: 'presenca' }}
                 ancora="posicao-presenca"
-                largura={680}
+                largura={1050}
                 altura={180}
               />
             </div>
           )}
-        </div>
         <div className="mt-10">
           <Subtitulo>Como foi a presença mês a mês?</Subtitulo>
           <SerieMensal
@@ -273,25 +291,28 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
     <Card aria-labelledby="t-cota">
       <Cabecalho id="t-cota" icone={<Carteira />} titulo={titulo} periodo={periodo} />
       <CardContent>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:items-start">
-          <div>
-            <Numero valor={reais(c.gastoCentavos)} complemento={`em ${plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício`} />
-            <p className="text-sm">
-              Equivale a <strong>{percentual(c.percentual)}</strong> do valor-base da cota {doEstado(uf)} no período ({reais(c.valorBaseCentavos)}).
-            </p>
-            <dl className="mt-4 grid grid-cols-2 gap-3">
-              <Indicador rotulo="Fornecedores diferentes" valor={inteiro(c.totalFornecedores)} />
-              <Indicador rotulo="Nos 3 maiores fornecedores" valor={percentual(c.concentracaoTop3)} />
-            </dl>
-            {!c.entraNaReferencia && (
-              <Aviso>
-                Período curto: {plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício, menos que os {c.minMesesReferencia} usados na comparação com
-                o estado.
-              </Aviso>
-            )}
-          </div>
+        <FaixaIndicadores
+          principal={<Numero valor={reais(c.gastoCentavos)} complemento={`em ${plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício`} />}
+          notas={
+            <>
+              <p>
+                Valor-base da cota {doEstado(uf)} no mesmo período: {reais(c.valorBaseCentavos)}.
+              </p>
+              {!c.entraNaReferencia && (
+                <Aviso>
+                  Período curto: {plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício, menos que os {c.minMesesReferencia} usados na comparação
+                  com o estado.
+                </Aviso>
+              )}
+            </>
+          }
+        >
+          <Indicador rotulo="Do valor-base da cota" valor={percentual(c.percentual)} />
+          <Indicador rotulo="Fornecedores diferentes" valor={inteiro(c.totalFornecedores)} />
+          <Indicador rotulo="Nos 3 maiores fornecedores" valor={percentual(c.concentracaoTop3)} />
+        </FaixaIndicadores>
           {c.referenciaUf && (
-            <div id="posicao-cota" className="scroll-mt-28 p-1">
+            <div id="posicao-cota" className="-mx-1 mt-10 scroll-mt-28 p-1">
               <Subtitulo>
                 Onde está entre os {inteiro(c.referenciaUf.n)} deputados {doEstado(uf)}?
               </Subtitulo>
@@ -302,6 +323,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
                       {frasePosicao(c.posicaoUf, {
                         maiorQue: 'Usou uma parte maior do valor-base que a de',
                         nenhumAcima: `Nenhum deputado ${doEstado(uf)} usou uma parte maior`,
+                        nenhumAbaixo: `Nenhum deputado ${doEstado(uf)} usou uma parte menor`,
                         valor: percentual(c.percentual),
                       })}
                     </strong>{' '}
@@ -325,12 +347,11 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
                 nomeMetrica="do valor-base"
                 grupo={{ metrica: 'cota', uf }}
                 ancora="posicao-cota"
-                largura={680}
+                largura={1050}
                 altura={180}
               />
             </div>
           )}
-        </div>
         <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div>
             <Subtitulo>Quanto gastou por mês?</Subtitulo>
@@ -381,28 +402,25 @@ function SecaoProjetos({ j, linkDados, idDeputado }: { j: ProjetosPublicados | n
     <Card aria-labelledby="t-projetos">
       <Cabecalho id="t-projetos" icone={<Documento />} titulo={titulo} periodo={periodo} />
       <CardContent>
-        <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <div>
-            <Numero valor={inteiro(j.porEstagio.apresentada)} complemento={`apresentados · ${inteiro(j.porEstagio.lei)} viraram lei`} />
-            <p className="text-sm">
-              Na Câmara, {inteiro(j.referencia.deputadosComLei)} dos {inteiro(j.referencia.totalDeputados)} deputados em exercício tiveram ao menos
-              um projeto próprio transformado em lei nesta legislatura.
-            </p>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg bg-muted p-3">
-                <dt className="text-muted-foreground">Apensados a outro projeto</dt>
-                <dd className="text-lg font-semibold">{inteiro(j.apensados)}</dd>
-              </div>
-              <div className="rounded-lg bg-muted p-3">
-                <dt className="text-muted-foreground">Arquivados, retirados ou devolvidos</dt>
-                <dd className="text-lg font-semibold">{inteiro(j.arquivados + j.retirados + j.devolvidos)}</dd>
-              </div>
-            </dl>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Projetos apensados tramitam junto com outro projeto, e o conteúdo pode seguir no projeto principal.
-            </p>
-          </div>
-          <div>
+        <FaixaIndicadores
+          principal={<Numero valor={inteiro(j.porEstagio.apresentada)} complemento="projetos apresentados" />}
+          notas={
+            <>
+              <p>
+                Na Câmara, {inteiro(j.referencia.deputadosComLei)} dos {inteiro(j.referencia.totalDeputados)} deputados em exercício tiveram ao menos
+                um projeto próprio transformado em lei nesta legislatura.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Projetos apensados tramitam junto com outro projeto, e o conteúdo pode seguir no projeto principal.
+              </p>
+            </>
+          }
+        >
+          <Indicador rotulo="Viraram lei" valor={inteiro(j.porEstagio.lei)} />
+          <Indicador rotulo="Apensados a outro projeto" valor={inteiro(j.apensados)} />
+          <Indicador rotulo="Arquivados, retirados ou devolvidos" valor={inteiro(j.arquivados + j.retirados + j.devolvidos)} />
+        </FaixaIndicadores>
+        <div className="mt-10">
             <Subtitulo>Até onde os projetos chegaram?</Subtitulo>
             <BarrasHorizontais
               titulo="Projetos por estágio alcançado: deputado e mediana da Câmara"
@@ -420,7 +438,6 @@ function SecaoProjetos({ j, linkDados, idDeputado }: { j: ProjetosPublicados | n
                 ],
               }))}
             />
-          </div>
         </div>
         {j.temas.length > 0 && (
           <div className="mt-10">

@@ -113,10 +113,14 @@ Pesquisa de referências registrada em `08-referencias.md` (REF-30 a REF-33). Ap
   cartograma em grade).
 
 ## Gráficos interativos (2026-11-13)
-Os gráficos são o destaque da página do deputado. Cada métrica abre com o número-chave ao
-lado do gráfico de **posição** ("onde está entre os demais"), precedido da frase de valor
-("Presença maior que a de 53 dos 512 deputados"); o gráfico confirma, não precisa ser
-decifrado. Abaixo, a série mês a mês.
+Os gráficos são o destaque da página do deputado. As três seções seguem o mesmo formato:
+**faixa de indicadores no topo** (número-chave à esquerda e indicadores de apoio ao lado, na
+mesma linha; no celular, número em cima e indicadores em duas colunas), depois o gráfico de
+**posição** em largura inteira ("onde está entre os demais"), precedido da frase de valor
+("Presença maior que a de 53 dos 512 deputados"; na ponta de baixo, "Nenhum deputado … usou
+uma parte menor", nunca "maior que a de 0"); o gráfico confirma, não precisa ser decifrado.
+Abaixo, a série mês a mês e os demais gráficos. A dica dos gráficos flutua logo acima do
+gráfico, sem reservar espaço vazio.
 - **Posição** (`componentes/graficos/Posicao.tsx`): um traço por deputado (pontos em grupos
   pequenos), o deputado como ponto grande e rotulado, mediana em traço escuro, metade do
   meio em faixa suave; escala começando em zero (DSG-02). Substituiu o histograma: diz o
@@ -124,8 +128,8 @@ decifrado. Abaixo, a série mês a mês.
 - **Série mensal** (presença: presente / ausência justificada / sem justificativa; cota:
   gasto × valor-base em linha tracejada) e **barras horizontais** (categorias; funil com a
   mediana da Câmara como marcador na mesma escala).
-- **Interação** (padrão OWID/NYT/FT): mouse mostra a dica; toque seleciona e a dica fica no
-  alto do gráfico, nunca sob o dedo; teclado percorre com setas/Home/End; leitura anunciada
+- **Interação** (padrão OWID/NYT/FT): mouse mostra a dica; toque seleciona e a dica fica
+  acima do gráfico, nunca sob o dedo; teclado percorre com setas/Home/End; leitura anunciada
   e tabela equivalente para leitor de tela. Nada depende só do hover (1.4.13, 2.1.1). Ao
   percorrer os deputados, a dica mostra o valor e quantos ficam abaixo, **sem nomes** (DEC-01).
 - **Responsivo de verdade:** o SVG é desenhado na largura medida do contêiner

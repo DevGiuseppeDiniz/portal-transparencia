@@ -17,6 +17,12 @@ test('frasePosicao: caso geral, com e sem empate', () => {
   assert.equal(frasePosicao({ menores: 53, iguais: 1, total: 512 }, t), 'Presença maior que a de 53 dos 512 deputados.');
 });
 
+test('frasePosicao: na ponta de baixo não diz "maior que a de 0"', () => {
+  const c = { ...t, nenhumAbaixo: 'Nenhum deputado do Amazonas usou uma parte menor', valor: '0,0003%' };
+  assert.equal(frasePosicao({ menores: 0, iguais: 1, total: 8 }, c), 'Nenhum deputado do Amazonas usou uma parte menor entre os outros 7.');
+  assert.equal(frasePosicao({ menores: 0, iguais: 3, total: 8 }, c), 'Nenhum deputado do Amazonas usou uma parte menor: outros 2 também têm 0,0003%.');
+});
+
 test('percentual: nunca "-0%" e dado faltante explícito', () => {
   assert.equal(percentual(-0), '0%');
   assert.equal(percentual(null), 'sem dado');
