@@ -23,7 +23,7 @@
    (`docs/14-barreiras-ci.md`).
 
 ## Comandos
-- Local: `pnpm db:up` · `pnpm db:migrar` · `pnpm coletar` · `pnpm test`
+- Local: `pnpm db:up` · `pnpm db:migrar` · `pnpm coletar` (inclui `publicar`) · `pnpm test`
 - `pnpm barreiras`: barreiras locais (dependências, lockfile, NEXT_PUBLIC_, CVE do
   framework, superfície de servidor)
 - `pnpm typecheck` · `pnpm --filter ./apps/web build` · `pnpm --filter @portal/ingest start`

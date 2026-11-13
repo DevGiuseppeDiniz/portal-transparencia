@@ -40,6 +40,15 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
 - [ ] Staging cresce a cada arquivo novo (proposições/CEAP mudam todo dia): política de
       retenção ou de deduplicação por registro.
 
+- [ ] Site: entrada por CEP (DEC-02) exige uma base CEP → UF; hoje a entrada é por nome
+      ou estado. Sem chamar serviço externo no navegador (privacidade).
+- [ ] Site: cards compartilháveis (DEC-08, DSG-09) — validar REF-01 antes.
+- [ ] Site: URL com nome (`/deputado/nome-uf`) para buscadores (parecer REF-08) e busca
+      tolerante a erro de digitação.
+- [ ] Site: CSP sem `'unsafe-inline'` (já listado) e deploy com `needs: portao-producao`.
+- [ ] Leitura integral pendente: REF-09, REF-10 (texto fechado), REF-17 (original),
+      REF-18 (WCAG/NBR 17225 inteira), REF-28 (tese).
+
 ## Decisões em aberto
 - [ ] DEC-05: quem faz a curadoria dos temas de votação? (conselho plural? academia?
       só o usuário?)
@@ -57,7 +66,8 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
 3. ~~**Primeiro coletor (SRC-01, deputados):** valida o fluxo raw → staging → core com
    proveniência de ponta a ponta.~~ Feito em 2026-11-13 (`pnpm coletar`).
 4. ~~Coletores de presença e de CEAP, e cálculo de MET-01/MET-02.~~ Feito em 2026-11-13.
-5. Tela do deputado (busca por UF/nome) + página de auditoria. (MET-03 feita em 2026-11-13.)
+5. ~~Tela do deputado (busca por UF/nome) + página de auditoria.~~ Feito em 2026-11-13: MVP
+   completo (MET-01, MET-02, MET-03 e site estático).
 6. Teste de compreensão com 5–10 pessoas fora da bolha técnica (checklist de
    `06-auditoria.md`). Antes de aplicar DSG/PRI, validar as REF usadas (regra do
    `plan.md`).

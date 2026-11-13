@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@portal/metrics": "workspace:*",
     "@portal/sources": "workspace:*",
     "next": "16.4.5",
     "react": "19.3.1",

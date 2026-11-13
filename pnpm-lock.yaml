@@ -194,6 +194,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@portal/metrics':
+        specifier: workspace:*
+        version: link:../../packages/metrics
       '@portal/sources':
         specifier: workspace:*
         version: link:../../packages/sources

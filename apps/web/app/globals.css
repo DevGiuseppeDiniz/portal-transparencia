@@ -1,0 +1,349 @@
+/* Portal Parlamentar — estilos base.
+   DSG-04: cor neutra, nunca semáforo de valor. O deputado em azul (Okabe-Ito "blue"),
+   a referência em cinza. DSG-08: mobile primeiro, WCAG 2.2 AA (contraste ≥ 4,5:1 no texto,
+   ≥ 3:1 em elementos gráficos, foco visível, alvo de toque ≥ 24 px). */
+
+:root {
+  --texto: #1b1b1b;
+  --texto-suave: #4a4a4a;
+  --fundo: #ffffff;
+  --fundo-suave: #f4f4f2;
+  --borda: #c9c9c4;
+  --deputado: #0072b2;
+  --referencia: #595959;
+  --faixa: #85857f;
+  --link: #005ea2;
+  --foco: #f2a900;
+  --largura: 46rem;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 100%;
+  line-height: 1.5;
+  color: var(--texto);
+  background: var(--fundo);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.pular {
+  position: absolute;
+  left: -999px;
+}
+
+.pular:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--fundo);
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.topo {
+  border-bottom: 1px solid var(--borda);
+  background: var(--fundo-suave);
+}
+
+.topo nav,
+main,
+.rodape div {
+  max-width: var(--largura);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.topo nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  min-height: 3.25rem;
+}
+
+.topo .marca {
+  font-weight: 700;
+  color: var(--texto);
+  text-decoration: none;
+  margin-right: auto;
+}
+
+main {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  line-height: 1.25;
+  margin: 2rem 0 0.5rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 1.25rem 0 0.25rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+.suave {
+  color: var(--texto-suave);
+}
+
+.pequeno {
+  font-size: 0.875rem;
+}
+
+.cartao {
+  border: 1px solid var(--borda);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1.25rem 0;
+}
+
+.cartao h2 {
+  margin-top: 0;
+}
+
+.numero {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0.25rem 0;
+}
+
+.numero small {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+  margin: 0.25rem 0 0.75rem;
+}
+
+.legenda span::before {
+  content: '';
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.35rem;
+  vertical-align: -0.05rem;
+  border-radius: 50%;
+}
+
+.legenda .l-deputado::before {
+  background: var(--deputado);
+}
+
+.legenda .l-mediana::before {
+  background: var(--referencia);
+  border-radius: 0;
+  width: 0.2rem;
+}
+
+.legenda .l-faixa::before {
+  background: var(--faixa);
+  border-radius: 0.15rem;
+  width: 1rem;
+}
+
+svg.grafico {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+details {
+  border-top: 1px solid var(--borda);
+  padding-top: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--link);
+  min-height: 2.75rem;
+  padding: 0.6rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  margin: 0.5rem 0 1rem;
+}
+
+caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--borda);
+  vertical-align: top;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela-rolavel {
+  overflow-x: auto;
+}
+
+.barra {
+  display: inline-block;
+  height: 0.75rem;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+  min-width: 2px;
+}
+
+.barra.deputado {
+  background: var(--deputado);
+}
+
+.barra.referencia {
+  background: var(--referencia);
+}
+
+.lista-deputados {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-deputados li {
+  border-bottom: 1px solid var(--borda);
+}
+
+.lista-deputados a {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 0.25rem;
+  min-height: 2.75rem;
+  text-decoration: none;
+  color: var(--texto);
+}
+
+.lista-deputados a:hover strong {
+  text-decoration: underline;
+}
+
+.lista-deputados img,
+.cabecalho-deputado img {
+  border-radius: 0.25rem;
+  object-fit: cover;
+  background: var(--fundo-suave);
+}
+
+.ufs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.25rem 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ufs a {
+  display: block;
+  padding: 0.6rem 0;
+  min-height: 2.75rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+input[type='search'] {
+  width: 100%;
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--texto-suave);
+  border-radius: 0.25rem;
+  min-height: 2.75rem;
+}
+
+.cabecalho-deputado {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.aviso {
+  border-left: 4px solid var(--referencia);
+  background: var(--fundo-suave);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+.rodape {
+  border-top: 1px solid var(--borda);
+  background: var(--fundo-suave);
+  padding: 1.5rem 0;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+@media (min-width: 40rem) {
+  h1 {
+    font-size: 2rem;
+  }
+}

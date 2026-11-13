@@ -47,7 +47,10 @@ Cada princípio: enunciado → evidência → consequência prática.
 
 ## PRI-06 — O design não pode argumentar
 
-- **Enunciado:** gráficos, títulos e agrupamentos não podem empurrar uma conclusão.
+- **Enunciado:** gráficos, títulos e agrupamentos não podem empurrar uma conclusão. Como
+  toda escolha de design tem alguma dimensão retórica (REF-13), a regra prática é
+  **minimizar e declarar** a retórica: comparação padrão justificada em texto, mesmo
+  rodapé de fonte e método em todas as métricas.
 - **Evidência:** o enquadramento visual (agregação, agrupamento, anotação) funciona como
   retórica (REF-13). Títulos com viés mudam o que se lembra e o que se conclui (REF-14).
   Separar os dados por partido aumentou a polarização de quem viu (REF-15).

@@ -26,15 +26,23 @@ Duas camadas, ambas com fundamento:
 - **Ref:** REF-17
 
 ## DSG-03 — Todo gráfico mostra a referência
-- Linha ou faixa da média/mediana (UF ou Câmara) no próprio gráfico, mais uma frase em
-  texto simples ("acima de 7 em cada 10 deputados do RS").
-- Preferir frequências naturais ("7 em cada 10") a percentuais isolados.
-- **Ref:** REF-09, REF-10
+- Valor absoluto primeiro; logo depois a comparação, com a base nomeada (Câmara inteira
+  ou mesmo estado) e o período.
+- O gráfico mostra a **distribuição inteira** (um traço por deputado) mais a mediana, não
+  só um ponto de referência: uma média isolada vira norma implícita.
+- Formato: **percentual** e **contagem real** para a posição ("presença maior que a de 53
+  dos 512 deputados"). ~~Frequências naturais ("7 em cada 10")~~ — retirado em 2026-11-13:
+  "7 em cada 10" não é frequência natural, e para proporções simples a evidência favorece
+  o percentual (ver REF-09).
+- Nada de "acima/abaixo da média" como manchete; nada de sigla "P25–P75" na tela ("metade
+  dos deputados ficou entre X e Y").
+- **Ref:** REF-09, REF-10 (indiretas; ver validação em `08-referencias.md`)
 
 ## DSG-04 — Cor neutra, nunca semáforo de valor
-- Sem verde = bom / vermelho = ruim nas métricas (isso seria julgar, PRI-01).
-- Usar um tom neutro para o deputado e cinza para a referência. Paleta segura para
-  daltônicos.
+- Sem verde = bom / vermelho = ruim nas métricas (isso seria julgar, PRI-01). Sem cor de
+  partido.
+- Deputado: ponto cheio azul `#0072B2` (5,19:1). Referência: traço cinza `#595959`;
+  distribuição em cinza `#85857F` (≥ 3:1, WCAG 1.4.11). Forma diferente além da cor.
 - **Ref:** REF-13, REF-19
 
 ## DSG-05 — Títulos e rótulos descritivos
@@ -48,7 +56,7 @@ Duas camadas, ambas com fundamento:
 ## DSG-07 — Linguagem simples
 - Frases curtas, voz ativa, sem siglas sem explicação (CEAP → "cota para despesas do
   mandato"). Glossário acessível em cada termo técnico.
-- **Ref:** REF-11, REF-20 `[verificar]`
+- **Ref:** REF-11, REF-20 (Lei 15.263/2025)
 
 ## DSG-08 — Mobile primeiro e acessível
 - WCAG 2.2 nível AA: contraste, navegação por teclado, texto alternativo e tabela
@@ -61,6 +69,18 @@ Duas camadas, ambas com fundamento:
 - **Ref:** REF-01, REF-08
 
 ## DSG-10 — Incerteza e lacunas visíveis
-- Dado faltando aparece como "sem dado na fonte", nunca como zero. Data da última coleta
-  sempre visível.
-- **Ref:** REF-12 `[sem-ref específica para incerteza; buscar Hullman sobre uncertainty vis]`
+- Dado faltando aparece como "sem dado", nunca como zero. Período e data da última coleta
+  sempre visíveis, no mesmo rodapé padrão em toda métrica.
+- **Ref:** REF-12 (indireta), LAI art. 8º §3º (REF-20) `[sem-ref específica para
+  incerteza; buscar Hullman/Padilla sobre uncertainty vis quando houver intervalo]`
+
+## Implementação (2026-11-13)
+Pareceres de validação das REF desta página registrados em `08-referencias.md`. Regras
+práticas aplicadas em `apps/web`:
+- Título = métrica + recorte + período, sem verbo, adjetivo, pergunta ou "você" (REF-14).
+- Rodapé de proveniência idêntico em todas as métricas (REF-13: credibilidade seletiva
+  também é retórica).
+- Funil como barras alinhadas à esquerda numa tabela, não funil centralizado (REF-17).
+- Todo gráfico com tabela equivalente; alvos de toque de 44 px; contraste AA (REF-18).
+- Pendente: teste de compreensão com 5–8 pessoas de baixa escolaridade, no celular,
+  perguntando "qual a mensagem principal?" (REF-14, REF-20 art. 5º XVIII).
