@@ -1,0 +1,27 @@
+packages:
+  - apps/*
+  - packages/*
+
+# --- Cadeia de suprimentos (docs/14-barreiras-ci.md#barreira-1) ---
+# Configurações conferidas em https://pnpm.io/settings em 2026-11-13.
+
+# Versão publicada há menos de 7 dias não é instalada (inclui transitivas).
+# Pacote malicioso costuma ser detectado e removido nos primeiros dias.
+minimumReleaseAge: 10080
+# Se nenhuma versão da faixa tiver 7 dias, falha em vez de instalar uma mais nova.
+minimumReleaseAgeStrict: true
+# Pacote sem data de publicação nos metadados: falha em vez de pular a checagem.
+minimumReleaseAgeIgnoreMissingTime: false
+# Patch de segurança urgente: liberar SÓ a versão exata, com registro em
+# docs/14-barreiras-ci.md#patch-urgente. Ex.: - 'next@16.4.7'
+minimumReleaseAgeExclude: []
+
+# Dependência transitiva não pode vir de git/URL.
+blockExoticSubdeps: true
+# Falha se um pacote perder o nível de confiança da publicação (ex.: tinha publicação
+# confiável/provenance e a nova versão não tem — sinal de conta comprometida).
+trustPolicy: no-downgrade
+
+# Scripts de install das dependências ficam bloqueados; cada liberação é explícita.
+strictDepBuilds: true
+allowBuilds: {}

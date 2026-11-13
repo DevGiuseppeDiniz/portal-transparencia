@@ -1,0 +1,9 @@
+{
+  "_como_usar": "Todo segredo de servidor deve estar listado aqui. O CI gera um valor-canário para cada um, faz o build e bloqueia se o canário (ou o valor real) aparecer no que vai para o navegador. Nenhum nome aqui pode começar com NEXT_PUBLIC_.",
+  "variaveis": [
+    "DATABASE_URL",
+    "DATABASE_URL_SOMENTE_LEITURA",
+    "PORTAL_TRANSPARENCIA_API_KEY",
+    "DATAJUD_API_KEY"
+  ]
+}

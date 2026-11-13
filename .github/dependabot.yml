@@ -1,0 +1,18 @@
+# Atualizações automáticas. Os PRs do Dependabot passam pelas mesmas barreiras.
+version: 2
+updates:
+  - package-ecosystem: npm # cobre pnpm-lock.yaml
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7 # alinhado ao minimumReleaseAge do pnpm
+    groups:
+      framework:
+        patterns: ['next', '@next/*', 'react', 'react-dom']
+  - package-ecosystem: github-actions # atualiza os SHAs fixados das actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14

@@ -1,0 +1,23 @@
+# dependências e builds
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# segredos: nunca versionar (barreira 2 — docs/14-barreiras-ci.md)
+.env
+.env.*
+!.env.example
+
+# dados brutos de coleta ficam no armazenamento de objetos, não no git
+/data/
+
+# IDE e sistema
+.idea/
+.vscode/
+.DS_Store
+*.log

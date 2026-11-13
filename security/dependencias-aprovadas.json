@@ -1,0 +1,12 @@
+{
+  "_como_usar": "Toda dependência externa precisa de uma entrada aqui, revisada por um humano ANTES do install. Conferir: o nome existe e é o pacote certo (não um nome parecido), quem mantém, repositório, downloads, idade. 'excecoes' aceita as chaves idade, repositorio e downloads, cada uma com justificativa em texto. Ver docs/14-barreiras-ci.md#barreira-1.",
+  "_exemplo": {
+    "next": {
+      "motivo": "framework do apps/web (DEC-09)",
+      "aprovadoPor": "nome de quem revisou",
+      "aprovadoEm": "AAAA-MM-DD",
+      "excecoes": {}
+    }
+  },
+  "pacotes": {}
+}

@@ -1,0 +1,6 @@
+{
+  "_como_usar": "Únicas variáveis NEXT_PUBLIC_ permitidas. Elas são embutidas no JavaScript que o visitante baixa: só valores que podem ser públicos (URL do site, por exemplo). Nome com KEY/SECRET/TOKEN/AUTH etc. é bloqueado mesmo se listado.",
+  "variaveis": {
+    "NEXT_PUBLIC_SITE_URL": "URL pública do site, usada em links canônicos e cards compartilháveis"
+  }
+}
