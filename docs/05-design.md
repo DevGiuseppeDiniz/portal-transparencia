@@ -140,4 +140,12 @@ decifrado. Abaixo, a série mês a mês.
 - **Frase de posição considera empates:** "Nenhum deputado tem presença maior: outros 15
   também têm 100%", nunca "maior que a de 490" para quem está empatado no topo (teste em
   `apps/web/lib/formato.test.ts`).
+- **Números nunca contradizem os detalhes:** percentual não arredonda para 100% o que não é
+  100% (392 de 393 dias = "99,7%") nem para 0% o que não é zero; nesses limites usa as casas
+  decimais necessárias (teste em `apps/web/lib/formato.test.ts`). O dado sempre esteve certo;
+  o erro era de exibição.
+- **Introdução de cada gráfico em forma de pergunta** (a pergunta que ele responde): "Onde está
+  entre os 25 deputados do Paraná?", "Como foi a presença mês a mês?", "Quanto gastou por mês?",
+  "Com o que gastou?", "Até onde os projetos chegaram?". Nome de estado sempre com o artigo
+  certo ("do Paraná", "da Bahia", "de São Paulo"; `doEstado` em `apps/web/lib/ufs.ts`).
 

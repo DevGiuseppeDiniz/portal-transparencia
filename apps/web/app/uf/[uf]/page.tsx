@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ListaDeputados } from '../../../componentes/BuscaDeputado';
 import { Badge } from '../../../componentes/ui';
-import { UFS, listarDeputados, nomeUf } from '../../../lib/dados';
+import { UFS, doEstado, listarDeputados, nomeUf } from '../../../lib/dados';
 
 export const dynamicParams = false;
 
@@ -16,7 +16,7 @@ type Params = { params: Promise<{ uf: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { uf } = await params;
-  return { title: `Deputados federais — ${nomeUf(uf.toUpperCase())}` };
+  return { title: `Deputados federais ${doEstado(uf.toUpperCase())}` };
 }
 
 // Ordem alfabética: nunca ordenar por métrica (DEC-01, sem ranking).
@@ -41,7 +41,7 @@ export default async function DeputadosDaUf({ params }: Params) {
         <span className="text-foreground">{nomeUf(sigla)}</span>
       </nav>
       <p className="text-sm font-medium text-primary">Bancada federal</p>
-      <h1 className="font-bold tracking-tight">Deputados federais de {nomeUf(sigla)}</h1>
+      <h1 className="font-bold tracking-tight">Deputados federais {doEstado(sigla)}</h1>
       <div className="mt-3 mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Badge>{deputados.length} em exercício</Badge>
         <span>em ordem alfabética</span>

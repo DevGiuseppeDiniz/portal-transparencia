@@ -2,10 +2,22 @@
 
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
+/**
+ * Percentual em pt-BR. Nunca arredonda para 100% o que não é 100%, nem para 0% o que não é
+ * zero: nesses limites usa as casas decimais necessárias (392 de 393 dias = "99,7%", não
+ * "100%"). Arredondar para a borda faria o número contradizer os detalhes ao lado dele.
+ */
 export function percentual(valor: number | null, casas = 0): string {
   if (valor === null) return 'sem dado';
   if (Math.abs(valor) < 1e-9) valor = 0; // nunca "-0%"
-  return `${(valor * 100).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })}%`;
+  const fmt = (c: number) => (valor! * 100).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  let c = casas;
+  const naBorda = (texto: string) => {
+    const n = Number(texto.replace(/\./g, '').replace(',', '.'));
+    return (n === 100 && valor! < 1) || (n === 0 && valor! > 0) || (n === -0 && valor! < 0);
+  };
+  while (c < 4 && naBorda(fmt(c))) c++;
+  return `${fmt(c)}%`;
 }
 
 export function reais(centavos: number): string {

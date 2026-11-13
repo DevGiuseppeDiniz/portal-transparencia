@@ -47,7 +47,7 @@ export function lerArquivoPublicado(relativo: 'indice.json' | 'referencias.json'
   return existsSync(arquivo) ? readFileSync(arquivo, 'utf8') : null;
 }
 
-export { UFS } from './ufs';
+export { UFS, doEstado } from './ufs';
 
 export function nomeUf(sigla: string): string {
   return UFS.find((u) => u.sigla === sigla)?.nome ?? sigla;

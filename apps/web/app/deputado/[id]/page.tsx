@@ -20,7 +20,7 @@ import { DestaqueAncora } from '../../../componentes/DestaqueAncora';
 import { Proveniencia } from '../../../componentes/Proveniencia';
 import { Voltar } from '../../../componentes/Voltar';
 import { Badge, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, botao, cn } from '../../../componentes/ui';
-import { lerDeputado, listarDeputados, nomeUf } from '../../../lib/dados';
+import { doEstado, lerDeputado, listarDeputados, nomeUf } from '../../../lib/dados';
 import { frasePosicao, inteiro, mesAno, percentual, plural, reais } from '../../../lib/formato';
 import { cotaPorMes, presencaPorMes } from '../../../lib/graficos';
 import type { EstagioFunil } from '@portal/metrics';
@@ -97,9 +97,9 @@ export default async function PaginaDeputado({ params }: Params) {
 function Cabecalho({ id, icone, titulo, periodo }: { id: string; icone: ReactNode; titulo: string; periodo: string }) {
   return (
     <CardHeader className="flex-row items-start gap-3">
-      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">{icone}</span>
+      <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">{icone}</span>
       <div>
-        <CardTitle id={id}>{titulo}</CardTitle>
+        <CardTitle id={id} className="text-xl sm:text-2xl">{titulo}</CardTitle>
         <CardDescription>{periodo}</CardDescription>
       </div>
     </CardHeader>
@@ -127,6 +127,7 @@ function Indicador({ rotulo, valor, marcador }: { rotulo: string; valor: string;
   );
 }
 
+/** Introdução de cada gráfico em forma de pergunta (a pergunta que o gráfico responde). */
 function Subtitulo({ children }: { children: ReactNode }) {
   return <h3 className="mb-1 text-lg font-semibold tracking-tight sm:text-xl">{children}</h3>;
 }
@@ -188,7 +189,7 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
           </div>
           {p.referencia && (
             <div id="posicao-presenca" className="scroll-mt-28 p-1">
-              <Subtitulo>Onde está entre os {inteiro(p.referencia.n)} deputados da Câmara</Subtitulo>
+              <Subtitulo>Onde está entre os {inteiro(p.referencia.n)} deputados da Câmara?</Subtitulo>
               <p className="mb-1 text-base">
                 {p.posicao && p.entraNaReferencia ? (
                   <>
@@ -222,7 +223,7 @@ function SecaoPresenca({ p, linkDados }: { p: PresencaPublicada | null; linkDado
           )}
         </div>
         <div className="mt-10">
-          <Subtitulo>Dias de sessão por mês</Subtitulo>
+          <Subtitulo>Como foi a presença mês a mês?</Subtitulo>
           <SerieMensal
             titulo={`Dias de sessão por mês, ${periodo}`}
             series={[
@@ -271,7 +272,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
           <div>
             <Numero valor={reais(c.gastoCentavos)} complemento={`em ${plural(c.mesesEmExercicio, 'mês', 'meses')} em exercício`} />
             <p className="text-sm">
-              Equivale a <strong>{percentual(c.percentual)}</strong> do valor-base da cota de {nomeUf(uf)} no período ({reais(c.valorBaseCentavos)}).
+              Equivale a <strong>{percentual(c.percentual)}</strong> do valor-base da cota {doEstado(uf)} no período ({reais(c.valorBaseCentavos)}).
             </p>
             <dl className="mt-4 grid grid-cols-2 gap-3">
               <Indicador rotulo="Fornecedores diferentes" valor={inteiro(c.totalFornecedores)} />
@@ -287,7 +288,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
           {c.referenciaUf && (
             <div id="posicao-cota" className="scroll-mt-28 p-1">
               <Subtitulo>
-                Onde está entre os {inteiro(c.referenciaUf.n)} deputados de {nomeUf(uf)}
+                Onde está entre os {inteiro(c.referenciaUf.n)} deputados {doEstado(uf)}?
               </Subtitulo>
               <p className="mb-1 text-base">
                 {c.posicaoUf && c.entraNaReferencia ? (
@@ -295,7 +296,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
                     <strong className="font-semibold">
                       {frasePosicao(c.posicaoUf, {
                         maiorQue: 'Usou uma parte maior do valor-base que a de',
-                        nenhumAcima: `Nenhum deputado de ${nomeUf(uf)} usou uma parte maior`,
+                        nenhumAcima: `Nenhum deputado ${doEstado(uf)} usou uma parte maior`,
                         valor: percentual(c.percentual),
                       })}
                     </strong>{' '}
@@ -307,7 +308,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
                 </span>
               </p>
               <Posicao
-                titulo={`Uso do valor-base da cota por este deputado entre os ${inteiro(c.referenciaUf.n)} deputados de ${nomeUf(uf)}, ${periodo}`}
+                titulo={`Uso do valor-base da cota por este deputado entre os ${inteiro(c.referenciaUf.n)} deputados ${doEstado(uf)}, ${periodo}`}
                 valores={c.valoresReferenciaUf}
                 valor={c.percentual}
                 mediana={c.referenciaUf.mediana}
@@ -315,7 +316,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
                 p75={c.referenciaUf.p75}
                 maximo={maxEscala}
                 formato="percentual"
-                nomeGrupo={`deputados de ${nomeUf(uf)}`}
+                nomeGrupo={`deputados ${doEstado(uf)}`}
                 nomeMetrica="do valor-base"
                 grupo={{ metrica: 'cota', uf }}
                 ancora="posicao-cota"
@@ -327,7 +328,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
         </div>
         <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div>
-            <Subtitulo>Gasto por mês e valor-base da cota</Subtitulo>
+            <Subtitulo>Quanto gastou por mês?</Subtitulo>
             <SerieMensal
               titulo={`Gasto da cota por mês, ${periodo}`}
               series={[{ chave: 'gasto', nome: 'Gasto no mês', cor: CORES.deputado }]}
@@ -338,7 +339,7 @@ function SecaoCota({ c, uf, linkDados }: { c: CotaPublicada | null; uf: string; 
             />
           </div>
           <div>
-            <Subtitulo>Gasto por categoria</Subtitulo>
+            <Subtitulo>Com o que gastou?</Subtitulo>
             <BarrasHorizontais
               titulo="Gasto da cota por categoria"
               nomeValor="Gasto no período"
@@ -397,7 +398,7 @@ function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDad
             </p>
           </div>
           <div>
-            <Subtitulo>Até onde os projetos chegaram</Subtitulo>
+            <Subtitulo>Até onde os projetos chegaram?</Subtitulo>
             <BarrasHorizontais
               titulo="Projetos por estágio alcançado: deputado e mediana da Câmara"
               nomeValor="Projetos do deputado"
