@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useMemo, useState } from 'react';
 import { Lupa } from './Icones';
+import { CampoComIcone, classeInput, cn } from './ui';
 import { MapaBrasil } from './MapaBrasil';
 
 interface Estado {
@@ -35,13 +36,12 @@ export function SeletorEstado({ estados }: { estados: readonly Estado[] }) {
   const atual = estados.find((e) => e.sigla === ativo);
 
   return (
-    <div className="estados">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
       <div>
-        <div className="campo-busca">
-          <label htmlFor={`${id}-uf`} className="so-leitor">
-            Buscar estado
-          </label>
-          <Lupa className="lupa" tamanho={18} />
+        <label htmlFor={`${id}-uf`} className="sr-only">
+          Buscar estado
+        </label>
+        <CampoComIcone icone={<Lupa tamanho={18} />}>
           <input
             id={`${id}-uf`}
             type="text"
@@ -50,6 +50,7 @@ export function SeletorEstado({ estados }: { estados: readonly Estado[] }) {
             spellCheck={false}
             value={termo}
             aria-describedby={`${id}-status`}
+            className={classeInput}
             onChange={(e) => setTermo(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && daBusca) {
@@ -58,36 +59,41 @@ export function SeletorEstado({ estados }: { estados: readonly Estado[] }) {
               }
             }}
           />
-        </div>
-        <p id={`${id}-status`} className="mapa-rotulo" role="status" aria-live="polite">
+        </CampoComIcone>
+        <p id={`${id}-status`} role="status" aria-live="polite" className="mt-3 mb-1 min-h-6 text-sm font-medium">
           {atual ? (
             <>
               {atual.nome} · {atual.deputados} deputado{atual.deputados === 1 ? '' : 's'}
-              {daBusca && !hover && <span className="suave pequeno"> — Enter para abrir</span>}
+              {daBusca && !hover && <span className="font-normal text-muted-foreground"> — Enter para abrir</span>}
             </>
           ) : t ? (
-            <span className="suave">Nenhum estado com “{termo.trim()}”.</span>
+            <span className="font-normal text-muted-foreground">Nenhum estado com “{termo.trim()}”.</span>
           ) : (
-            <span className="suave">Passe o cursor, toque ou digite um estado</span>
+            <span className="font-normal text-muted-foreground">Passe o cursor, toque ou digite um estado</span>
           )}
         </p>
         <MapaBrasil estados={estados} ativo={ativo} aoAtivar={setHover} />
-        <p className="legenda-mapa">Malha estadual: IBGE. O mapa só serve para escolher o estado; as cores não representam nenhum dado.</p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Malha estadual: IBGE. O mapa só serve para escolher o estado; as cores não representam nenhum dado.
+        </p>
       </div>
       <nav aria-label="Lista de estados">
-        <ul className="ufs">
+        <ul className="grid grid-cols-2 gap-1">
           {filtrados.map((e) => (
             <li key={e.sigla}>
               <Link
                 href={`/uf/${e.sigla.toLowerCase()}`}
-                className={ativo === e.sigla ? 'ativo' : undefined}
+                className={cn(
+                  'flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent hover:text-accent-foreground hover:no-underline',
+                  ativo === e.sigla && 'bg-accent text-accent-foreground',
+                )}
                 onMouseEnter={() => setHover(e.sigla)}
                 onMouseLeave={() => setHover(null)}
                 onFocus={() => setHover(e.sigla)}
                 onBlur={() => setHover(null)}
               >
                 <span>{e.nome}</span>
-                <span className="contagem">{e.deputados}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{e.deputados}</span>
               </Link>
             </li>
           ))}

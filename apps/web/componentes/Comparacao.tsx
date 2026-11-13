@@ -30,14 +30,14 @@ export function Comparacao({ titulo, valor, referencia, valores, maximo, formata
   const marcas = [...[0, 0.5, 1].filter((m) => m <= maximo), ...(maximo > 1 ? [maximo] : [])];
 
   return (
-    <figure style={{ margin: '0.5rem 0' }}>
-      <svg className="grafico" viewBox={`0 0 ${LARGURA} 78`} role="img" aria-label={titulo}>
+    <figure className="my-4">
+      <svg className="block h-auto w-full overflow-visible" viewBox={`0 0 ${LARGURA} 80`} role="img" aria-label={titulo}>
         {/* eixo */}
         <line x1={MARGEM} x2={LARGURA - MARGEM} y1={44} y2={44} stroke="#8a8a85" strokeWidth={1} />
         {marcas.map((m) => (
           <g key={m}>
             <line x1={x(m)} x2={x(m)} y1={44} y2={58} stroke="#8a8a85" />
-            <text x={x(m)} y={68} fontSize={10} textAnchor={m === 0 ? 'start' : m === maximo ? 'end' : 'middle'} fill="#4a4a4a">
+            <text x={x(m)} y={72} fontSize={12} textAnchor={m === 0 ? 'start' : m === maximo ? 'end' : 'middle'} fill="#4a4a4a">
               {formatar(m)}
             </text>
           </g>
@@ -53,18 +53,31 @@ export function Comparacao({ titulo, valor, referencia, valores, maximo, formata
         {valor !== null && (
           <>
             <circle cx={x(valor)} cy={44} r={7} fill="#0072b2" stroke="#ffffff" strokeWidth={2} />
-            <text x={x(valor)} y={20} fontSize={11} fontWeight={600} textAnchor={valor / maximo > 0.8 ? 'end' : valor / maximo < 0.2 ? 'start' : 'middle'} fill="#0b4f7c">
+            <text x={x(valor)} y={20} fontSize={13} fontWeight={600} textAnchor={valor / maximo > 0.8 ? 'end' : valor / maximo < 0.2 ? 'start' : 'middle'} fill="#0b4f7c">
               {rotuloDeputado}: {formatar(valor)}
             </text>
           </>
         )}
       </svg>
-      <figcaption className="legenda">
-        <span className="l-deputado">{rotuloDeputado}</span>
-        {referencia && <span className="l-mediana">Mediana ({rotuloReferencia})</span>}
-        {valores.length > 0 && <span className="l-faixa">Cada traço claro: um deputado ({rotuloReferencia})</span>}
+      <figcaption className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-deputado" aria-hidden="true" />
+          {rotuloDeputado}
+        </span>
+        {referencia && (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-3 w-0.5 bg-referencia" aria-hidden="true" />
+            Mediana ({rotuloReferencia})
+          </span>
+        )}
+        {valores.length > 0 && (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-3 rounded-sm bg-distribuicao" aria-hidden="true" />
+            Cada traço claro: um deputado ({rotuloReferencia})
+          </span>
+        )}
       </figcaption>
-      <table className="so-leitor">
+      <table className="sr-only">
         <caption>{titulo}</caption>
         <tbody>
           <tr>

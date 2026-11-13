@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 function Calculo({ p }: { p: ProvenienciaPublicada }) {
   return (
-    <dl className="pequeno">
+    <dl className="mb-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm [&_dt]:text-muted-foreground">
       <dt>Método</dt>
       <dd>
         <Link href={`/metodo#${p.metrica.toLowerCase()}`}>
@@ -68,18 +68,18 @@ export default async function DadosDoDeputado({ params }: Params) {
   const hash = lerIndice()?.arquivos[`deputados/${deputado.id}.json`];
 
   return (
-    <main id="conteudo">
-      <nav className="migalhas" aria-label="Você está em">
+    <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-semibold">
+      <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
         <Link href="/">Início</Link> › <Link href={`/deputado/${deputado.id}`}>{deputado.nome}</Link> › Dados usados
       </nav>
-      <h1>Dados usados nas contas de {deputado.nome}</h1>
+      <h1 className="font-bold tracking-tight">Dados usados nas contas de {deputado.nome}</h1>
       <p>
         Cada tabela abaixo é exatamente o que entrou na conta mostrada na página do deputado, com a fonte oficial para conferir. Arquivo completo:{' '}
         <a href={`/dados/deputados/${deputado.id}.json`}>{deputado.id}.json</a>
         {hash && (
           <>
             {' '}
-            (SHA-256 <code className="pequeno">{hash}</code>)
+            (SHA-256 <code className="text-xs break-all">{hash}</code>)
           </>
         )}
         .
@@ -89,12 +89,12 @@ export default async function DadosDoDeputado({ params }: Params) {
       {presenca ? (
         <>
           <Calculo p={presenca.proveniencia} />
-          <p className="pequeno">
+          <p className="text-sm text-muted-foreground">
             Para conferir um dia na fonte oficial, abra o endereço da Câmara trocando a data:{' '}
-            <code className="pequeno">{presenca.urlModeloDia}</code>
+            <code className="text-xs break-all">{presenca.urlModeloDia}</code>
           </p>
-          <div className="tabela-rolavel">
-            <table>
+          <div className="overflow-x-auto rounded-xl border bg-card p-3 shadow-xs">
+            <table className="tabela">
               <caption>{inteiro(presenca.diasDeSessao.length)} dias de sessão deliberativa em exercício</caption>
               <thead>
                 <tr>
@@ -123,8 +123,8 @@ export default async function DadosDoDeputado({ params }: Params) {
       {cota ? (
         <>
           <Calculo p={cota.proveniencia} />
-          <div className="tabela-rolavel">
-            <table>
+          <div className="overflow-x-auto rounded-xl border bg-card p-3 shadow-xs">
+            <table className="tabela">
               <caption>Gasto por categoria</caption>
               <thead>
                 <tr>
@@ -141,7 +141,7 @@ export default async function DadosDoDeputado({ params }: Params) {
                 ))}
               </tbody>
             </table>
-            <table>
+            <table className="tabela">
               <caption>
                 Maiores fornecedores ({inteiro(cota.fornecedores.length)} de {inteiro(cota.totalFornecedores)}). Pessoa física aparece sem nome.
               </caption>
@@ -164,7 +164,7 @@ export default async function DadosDoDeputado({ params }: Params) {
                 ))}
               </tbody>
             </table>
-            <table>
+            <table className="tabela">
               <caption>Valor-base mensal da cota no estado, com a norma que o fixou</caption>
               <thead>
                 <tr>
@@ -188,7 +188,7 @@ export default async function DadosDoDeputado({ params }: Params) {
               </tbody>
             </table>
           </div>
-          <p className="pequeno">
+          <p className="text-sm text-muted-foreground">
             As notas fiscais de cada despesa estão no{' '}
             <a href="https://www.camara.leg.br/transparencia/gastos-parlamentares" rel="noopener noreferrer">
               portal de gastos da Câmara
@@ -204,8 +204,8 @@ export default async function DadosDoDeputado({ params }: Params) {
       {projetos ? (
         <>
           <Calculo p={projetos.proveniencia} />
-          <div className="tabela-rolavel">
-            <table>
+          <div className="overflow-x-auto rounded-xl border bg-card p-3 shadow-xs">
+            <table className="tabela">
               <caption>{inteiro(projetos.lista.length)} projetos, do mais recente ao mais antigo</caption>
               <thead>
                 <tr>

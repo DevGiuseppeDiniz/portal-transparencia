@@ -98,11 +98,10 @@ Pesquisa de referências registrada em `08-referencias.md` (REF-30 a REF-33). Ap
   2.1.1; exceção "equivalente" do 2.5.8). Cor única neutra, sem codificar dado (DSG-04);
   realce no hover **e** no foco; estados pequenos com rótulo externo tocável; DF com área de
   toque ampliada. Malha: IBGE.
-- **Sistema visual:** tokens semânticos; espaço em escala de 8 px; raios 8/12/16; duas
-  elevações; cor de marca (índigo) só na interface, nunca nos dados; ícones SVG próprios
-  (traço 2 px); cartões com cabeçalho (ícone + título + período); perfil com foto redonda e
-  etiquetas. Contêiner de 64rem (REF-32), texto com 42rem, métricas em 2 colunas a partir de
-  64rem. Corpo em 1rem fixo; só títulos com `clamp()` somando rem (1.4.4). Cabeçalho fixo com
+- **Sistema visual: DEC-14** (Tailwind CSS v4 + padrões e tokens do shadcn/ui). Cor da
+  marca (índigo) só na interface, nunca nos dados; cartões com cabeçalho (ícone + título +
+  período); perfil com foto redonda e badges; contêiner `max-w-6xl`, métricas em 2 colunas a
+  partir de `lg`. Só títulos com `clamp()` somando rem (1.4.4). Cabeçalho fixo com
   `scroll-padding-top` (2.4.11).
 - Exemplos de busca não citam parlamentares reais (escolher quem aparece não é neutro).
 - Pendente: modo escuro, busca sem JavaScript, e teste com usuários de celular (mapa real ×

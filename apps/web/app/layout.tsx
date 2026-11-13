@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { BuscaTopo } from '../componentes/BuscaTopo';
 import { Marca } from '../componentes/Icones';
+import { botao } from '../componentes/ui';
 import { lerIndice } from '../lib/dados';
 import { dataDeIso } from '../lib/formato';
 import './globals.css';
@@ -16,38 +17,55 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const indice = lerIndice();
   return (
     <html lang="pt-BR">
-      <body>
-        <a className="pular" href="#conteudo">
+      <body className="min-h-screen bg-background">
+        <a
+          href="#conteudo"
+          className="sr-only rounded-md bg-background px-4 py-2 focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50"
+        >
           Pular para o conteúdo
         </a>
-        <header className="topo">
-          <div className="contido barra-topo">
-            <Link className="marca" href="/">
+        <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6 md:h-16 md:flex-nowrap md:py-0">
+            <Link href="/" className="flex items-center gap-2 font-semibold text-foreground hover:no-underline">
               <Marca />
-              Portal Parlamentar
+              <span>Portal Parlamentar</span>
             </Link>
-            <nav className="nav-principal" aria-label="Principal">
-              <Link href="/#estados">Estados</Link>
-              <Link href="/metodo">Como calculamos</Link>
+            <nav aria-label="Principal" className="ml-2 hidden items-center gap-1 md:flex">
+              <Link href="/#estados" className={botao('ghost', 'sm')}>
+                Estados
+              </Link>
+              <Link href="/metodo" className={botao('ghost', 'sm')}>
+                Como calculamos
+              </Link>
             </nav>
             <BuscaTopo />
           </div>
         </header>
         {children}
-        <footer className="rodape">
-          <div className="contido">
-            <p className="marca">
-              <Marca tamanho={24} />
-              Portal Parlamentar
-            </p>
-            <p>
-              Projeto independente, sem ligação com a Câmara dos Deputados ou com qualquer partido. Os dados vêm das fontes oficiais da Câmara;
-              cada número tem o link para conferir.
-            </p>
-            <p>
-              {indice ? <>Dados publicados em {dataDeIso(indice.geradoEm)}. </> : <>Ainda não há dados publicados. </>}
-              <Link href="/metodo">Como calculamos</Link> · <Link href="/metodo#fontes">Fontes</Link> · <Link href="/metodo#erros">Encontrou um erro?</Link>
-            </p>
+        <footer className="border-t bg-zinc-950 text-zinc-300">
+          <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 text-sm sm:px-6 md:grid-cols-[2fr_1fr]">
+            <div className="space-y-3">
+              <p className="flex items-center gap-2 font-semibold text-white">
+                <Marca tamanho={24} />
+                Portal Parlamentar
+              </p>
+              <p className="max-w-prose">
+                Projeto independente, sem ligação com a Câmara dos Deputados ou com qualquer partido. Os dados vêm das fontes oficiais da Câmara; cada
+                número tem o link para conferir.
+              </p>
+              <p className="text-zinc-400">{indice ? `Dados publicados em ${dataDeIso(indice.geradoEm)}.` : 'Ainda não há dados publicados.'}</p>
+            </div>
+            <nav aria-label="Rodapé" className="flex flex-col gap-2 md:items-end">
+              <Link href="/metodo" className="text-white">
+                Como calculamos
+              </Link>
+              <Link href="/metodo#fontes" className="text-white">
+                Fontes oficiais
+              </Link>
+              <Link href="/metodo#erros" className="text-white">
+                Encontrou um erro?
+              </Link>
+            </nav>
           </div>
         </footer>
       </body>

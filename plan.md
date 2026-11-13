@@ -18,6 +18,7 @@ facilitada tem link para o dado bruto e para a fonte oficial, para que qualquer 
 | O que é o projeto, para quem, o que **não** é | `docs/01-visao.md` → `## Escopo` / `## Fora do escopo` | — |
 | Por que apresentamos assim (fundamento científico) | `docs/02-principios.md` | PRI-01..PRI-08 |
 | Decisões tomadas e a referência de cada uma | `docs/03-decisoes.md` | DEC-01.. |
+| Convenções de interface (Tailwind + shadcn/ui) | `docs/03-decisoes.md` → `## DEC-14` | DEC-14 |
 | Quais métricas mostrar e como calcular | `docs/04-metricas.md` | MET-01.. |
 | Regras de design e visualização | `docs/05-design.md` | DSG-01.. |
 | Transparência, dado bruto, auditoria | `docs/06-auditoria.md` | — |

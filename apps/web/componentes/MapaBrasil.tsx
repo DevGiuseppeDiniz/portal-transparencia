@@ -42,8 +42,8 @@ export function MapaBrasil({ estados, ativo, aoAtivar }: Props) {
   const ordem = [...estados].sort((a, b) => Number(pequeno(a.sigla)) - Number(pequeno(b.sigla)));
 
   return (
-    <figure className="mapa">
-      <svg viewBox={`-4 -4 ${LARGURA_MAPA + 130} ${ALTURA_MAPA + 8}`} className="mapa-svg" aria-label="Mapa do Brasil: escolha um estado">
+    <figure className="m-0">
+      <svg viewBox={`-4 -4 ${LARGURA_MAPA + 130} ${ALTURA_MAPA + 8}`} className="mapa-svg block h-auto max-h-[32rem] w-full" aria-label="Mapa do Brasil: escolha um estado">
         {ordem.map((e) => {
           const g = GEOMETRIA_UF[e.sigla];
           if (!g) return null;

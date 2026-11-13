@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Avatar } from '../../../componentes/BuscaDeputado';
+import { ListaDeputados } from '../../../componentes/BuscaDeputado';
+import { Badge } from '../../../componentes/ui';
 import { UFS, listarDeputados, nomeUf } from '../../../lib/dados';
 
 export const dynamicParams = false;
@@ -25,26 +26,25 @@ export default async function DeputadosDaUf({ params }: Params) {
   const deputados = listarDeputados().filter((d) => d.uf === sigla);
 
   return (
-    <main id="conteudo">
-      <nav className="migalhas" aria-label="Você está em">
-        <Link href="/">Início</Link> › <Link href="/#estados">Estados</Link> › {nomeUf(sigla)}
+    <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <nav aria-label="Você está em" className="mb-6 text-sm text-muted-foreground">
+        <Link href="/" className="text-muted-foreground">
+          Início
+        </Link>
+        <span className="mx-1.5">/</span>
+        <Link href="/#estados" className="text-muted-foreground">
+          Estados
+        </Link>
+        <span className="mx-1.5">/</span>
+        <span className="text-foreground">{nomeUf(sigla)}</span>
       </nav>
-      <span className="sobretitulo">Bancada federal</span>
-      <h1>Deputados federais de {nomeUf(sigla)}</h1>
-      <p className="lead">{deputados.length} deputados em exercício, em ordem alfabética.</p>
-      <ul className="lista-deputados">
-        {deputados.map((d) => (
-          <li key={d.id}>
-            <Link href={`/deputado/${d.id}`}>
-              <Avatar nome={d.nome} urlFoto={d.urlFoto} />
-              <span>
-                <strong>{d.nome}</strong>
-                <span className="pequeno suave">{d.partido ?? 'sem partido'}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <p className="text-sm font-medium text-primary">Bancada federal</p>
+      <h1 className="font-bold tracking-tight">Deputados federais de {nomeUf(sigla)}</h1>
+      <div className="mt-3 mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <Badge>{deputados.length} em exercício</Badge>
+        <span>em ordem alfabética</span>
+      </div>
+      <ListaDeputados deputados={deputados} mostrarUf={false} />
     </main>
   );
 }

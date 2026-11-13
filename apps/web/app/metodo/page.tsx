@@ -9,8 +9,8 @@ const REPO = 'https://github.com/DevGiuseppeDiniz/portal-transparencia';
 
 export default function Metodo() {
   return (
-    <main id="conteudo">
-      <h1>Como calculamos</h1>
+    <main id="conteudo" className="mx-auto max-w-3xl px-4 py-10 sm:px-6 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:scroll-mt-24 [&_h2]:text-2xl [&_h2]:font-semibold [&_li]:mt-2 [&_p]:mt-3 [&_ul]:list-disc [&_ul]:pl-5">
+      <h1 className="font-bold tracking-tight">Como calculamos</h1>
       <p>
         Este site não dá nota, não faz ranking e não diz se um deputado é bom ou ruim. Mostra três números de cada deputado, sempre ao lado da
         comparação com os demais, e o caminho para conferir cada um na fonte oficial.

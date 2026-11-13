@@ -60,3 +60,26 @@ Status: `aceita`, `proposta`, `revogada (substituída por DEC-xx)`.
   `14-barreiras-ci.md` · **Ref:** REF-23, REF-24, REF-25 · **Status:** aceita
   (2026-11-13) para as barreiras de segurança (cadeia de suprimentos, segredos,
   framework). Os orçamentos de desempenho (OBS-06) ainda são proposta.
+
+## DEC-14 — Convenções de interface: Tailwind CSS v4 + padrões do shadcn/ui
+- **Decisão (2026-11-13, pedido do usuário):** a interface segue convenções prontas e
+  conhecidas em vez de um CSS próprio:
+  - **Estilo:** Tailwind CSS v4 (classes utilitárias, escala de 4 px, escala tipográfica e
+    breakpoints padrão). Só roda no build: nenhum JavaScript vai para o navegador.
+  - **Tokens:** os nomes do shadcn/ui (`background`, `foreground`, `card`, `primary`,
+    `muted`, `accent`, `border`, `input`, `ring`, `radius`) em `apps/web/app/globals.css`.
+    Cores de gráfico em tokens próprios (`deputado`, `referencia`, `distribuicao`), nunca a
+    cor da marca (DSG-04).
+  - **Componentes:** padrões do shadcn/ui (Card, Badge, Button, Input, Table, Command)
+    escritos dentro do projeto em `apps/web/componentes/ui.tsx`, **sem** instalar a
+    biblioteca nem o Radix (menos dependências, regra 2).
+  - **Ícones:** estilo Lucide (traço 2 px, 24×24), em SVG próprio.
+  - **Acessibilidade e conteúdo:** WAI-ARIA APG + WCAG 2.2 AA (REF-18, REF-30); redação
+    no padrão GOV.UK/linguagem simples (REF-20, REF-21).
+- **Por que não Bootstrap:** traz JavaScript de componentes (conflita com a CSP e com o
+  static-first), visual reconhecível que pede sobrescrita, menor adoção no ecossistema Next.
+- **Dependências novas:** `tailwindcss` e `@tailwindcss/postcss` 4.3.4 (dev), aprovadas em
+  `security/dependencias-aprovadas.json`; `pnpm audit` sem vulnerabilidades. Binários nativos
+  do `@tailwindcss/oxide` vêm como pacotes opcionais por plataforma, sem script de instalação.
+- **Princípio:** PRI-06, PRI-07 · **Status:** aceita
+

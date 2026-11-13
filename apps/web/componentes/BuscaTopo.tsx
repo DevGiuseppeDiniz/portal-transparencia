@@ -3,12 +3,13 @@
 // Busca do cabeçalho: navegação da aplicação ("paleta de comandos"), em todas as páginas.
 // Leva a páginas e seções do portal e, como atalho, a um deputado ou estado.
 // Padrão combobox do WAI-ARIA APG (REF-30): setas, Enter, Esc, aria-activedescendant, contagem
-// anunciada. Atalho de teclado: "/" ou Ctrl/Cmd+K. Nomes baixados só quando o campo recebe foco.
+// anunciada. Visual no padrão Command do shadcn/ui (DEC-14). Atalho: "/" ou Ctrl/Cmd+K. Nomes baixados só quando o campo recebe foco.
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { UFS } from '../lib/ufs';
 import { Documento, Lupa, Pagina, Pessoa, Pino } from './Icones';
+import { classeInput } from './ui';
 
 interface Deputado {
   readonly id: number;
@@ -108,16 +109,16 @@ export function BuscaTopo() {
   let grupoAnterior = '';
 
   return (
-    <div className="busca-topo campo-busca" ref={caixa} role="search">
-      <label htmlFor={`${id}-campo`} className="so-leitor">
+    <div className="relative order-last w-full md:order-none md:ml-auto md:w-80" ref={caixa} role="search">
+      <label htmlFor={`${id}-campo`} className="sr-only">
         Buscar no portal
       </label>
-      <Lupa className="lupa" tamanho={18} />
+      <Lupa className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" tamanho={16} />
       <input
         ref={campo}
         id={`${id}-campo`}
         type="text"
-        placeholder="Buscar no portal"
+        placeholder="Buscar no portal…"
         autoComplete="off"
         spellCheck={false}
         role="combobox"
@@ -125,6 +126,7 @@ export function BuscaTopo() {
         aria-controls={listaId}
         aria-autocomplete="list"
         aria-activedescendant={ativo >= 0 ? `${id}-op-${ativo}` : undefined}
+        className={`${classeInput} h-10 bg-muted/60 pr-12 focus-visible:bg-background`}
         value={termo}
         onFocus={() => {
           carregar();
@@ -153,18 +155,27 @@ export function BuscaTopo() {
         }}
       />
       {!aberto && !termo && (
-        <kbd className="atalho" aria-hidden="true">
-          /
+        <kbd
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 items-center rounded border bg-background px-1.5 font-mono text-[11px] font-medium text-muted-foreground md:inline-flex"
+        >
+          Ctrl K
         </kbd>
       )}
-      <ul id={listaId} role="listbox" aria-label="Destinos" className="sugestoes" hidden={!aberto}>
+      <ul
+        id={listaId}
+        role="listbox"
+        aria-label="Destinos"
+        hidden={!aberto}
+        className="absolute inset-x-0 top-full z-50 mt-2 max-h-[min(70vh,28rem)] overflow-y-auto rounded-xl border bg-popover p-1.5 text-popover-foreground shadow-lg"
+      >
         {destinos.map((d, i) => {
           const cabecalho = d.grupo !== grupoAnterior ? d.grupo : null;
           grupoAnterior = d.grupo;
           return (
             <li key={d.href} role="presentation">
               {cabecalho && (
-                <div className="grupo" aria-hidden="true">
+                <div aria-hidden="true" className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">
                   {cabecalho}
                 </div>
               )}
@@ -172,27 +183,27 @@ export function BuscaTopo() {
                 id={`${id}-op-${i}`}
                 role="option"
                 aria-selected={i === ativo}
-                className={i === ativo ? 'ativo' : undefined}
+                className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg px-2 text-sm ${i === ativo ? 'bg-accent text-accent-foreground' : ''}`}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   ir(d);
                 }}
                 onMouseEnter={() => setAtivo(i)}
               >
-                {d.icone}
-                <span className="rotulo">{d.rotulo}</span>
-                {d.detalhe && <span className="detalhe">{d.detalhe}</span>}
+                <span className="text-muted-foreground [&>svg]:size-4">{d.icone}</span>
+                <span className="truncate">{d.rotulo}</span>
+                {d.detalhe && <span className="ml-auto shrink-0 text-xs text-muted-foreground">{d.detalhe}</span>}
               </div>
             </li>
           );
         })}
         {destinos.length === 0 && (
-          <li className="vazio" role="presentation">
+          <li role="presentation" className="px-2 py-6 text-center text-sm text-muted-foreground">
             {deputados === null && termo.trim().length >= 2 ? 'Carregando…' : `Nada encontrado para “${termo.trim()}”.`}
           </li>
         )}
       </ul>
-      <p className="so-leitor" role="status" aria-live="polite">
+      <p className="sr-only" role="status" aria-live="polite">
         {aberto && termo ? `${destinos.length} resultado(s)` : ''}
       </p>
     </div>

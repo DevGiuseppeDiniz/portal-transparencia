@@ -74,7 +74,7 @@ export const Seta = (p: { tamanho?: number }) => (
 /** Marca: colunas de um plenário estilizado, sem nenhum símbolo oficial. */
 export const Marca = ({ tamanho = 28 }: { tamanho?: number }) => (
   <svg width={tamanho} height={tamanho} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-    <rect width="32" height="32" rx="8" fill="#2f3e9e" />
+    <rect width="32" height="32" rx="8" fill="#4338ca" />
     <path d="M8 23h16M9 21V13m4.67 8v-8m4.66 8v-8M23 21V13M7 12l9-5 9 5Z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
   </svg>
 );
