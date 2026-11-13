@@ -32,6 +32,17 @@ facilitada tem link para o dado bruto e para a fonte oficial, para que qualquer 
 | Projetos parecidos no mundo | `docs/09-benchmarks.md` | — |
 | Perguntas em aberto / próximos passos | `docs/10-pendencias.md` | — |
 
+## Código (onde fica o quê)
+
+| Caminho | Conteúdo |
+|---|---|
+| `apps/web` | Next.js: páginas + API de leitura (somente leitura, DEC-12) |
+| `apps/ingest` | coletores agendados; Node 24 roda o TS direto |
+| `packages/db` | tipos + `migrations/` (proveniência, DEC-10) |
+| `packages/sources` | catálogo e clientes das fontes (`SRC-xx`) |
+| `packages/metrics` | cálculo puro das métricas (`MET-xx`) |
+| `scripts/ci`, `security/` | barreiras de CI (`docs/14-barreiras-ci.md`) |
+
 ## Convenções
 
 - Toda regra em `02`–`06` cita pelo menos um `REF-xx`. Regra sem referência é marcada

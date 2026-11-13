@@ -7,6 +7,7 @@ build/
 coverage/
 .turbo/
 *.tsbuildinfo
+next-env.d.ts
 
 # segredos: nunca versionar (barreira 2 — docs/14-barreiras-ci.md)
 .env

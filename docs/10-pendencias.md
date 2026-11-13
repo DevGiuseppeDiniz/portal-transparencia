@@ -9,6 +9,14 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
 - Autores/volume/páginas marcados `[de memória]` em `08-referencias.md` são confirmados
   quando o `REF-xx` correspondente for lido na íntegra.
 
+## Pendências técnicas do esqueleto (2026-11-13)
+- [ ] Driver/query builder do PostgreSQL (`packages/db`): escolher e aprovar a dependência.
+      A migration `0001_proveniencia.sql` já existe, mas ainda sem runner.
+- [ ] CSP sem `'unsafe-inline'` em `script-src` (hashes ou nonce). O nonce força
+      renderização dinâmica, o que conflita com o static-first (DEC-12): avaliar hashes.
+- [ ] Migrar para TypeScript 7 (compilador nativo) quando o Next suportar oficialmente.
+- [ ] Testes: escolher o runner (`node:test` nativo evita dependência).
+
 ## Decisões em aberto
 - [ ] DEC-05: quem faz a curadoria dos temas de votação? (conselho plural? academia?
       só o usuário?)
