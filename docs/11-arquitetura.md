@@ -121,7 +121,7 @@ pnpm db:up       # Postgres 18 em 127.0.0.1:54329; cria .env com senha aleatóri
 pnpm db:migrar   # aplica packages/db/migrations em ordem (registro em schema_migrations)
 pnpm coletar     # todas as etapas; ou só algumas: pnpm coletar deputados met01
                  #   deputados → eventos → matriculas → presenca → met01
-                 #   → historico → ceap → met02
+                 #   → historico → ceap → met02 → proposicoes → met03
                  # (a 1ª carga da presença leva ~25 min: o webservice é lento)
 pnpm test        # node:test, sem banco nem rede
 pnpm db:down     # para o container (dados ficam no volume)

@@ -49,3 +49,11 @@ test('salvarArquivo: guarda os bytes exatos, com o hash do próprio arquivo', as
   assert.deepEqual(await raw.lerArquivo(o.caminho), bytes);
   await assert.rejects(raw.ler(o.caminho), /não é um pacote JSON/);
 });
+
+test('salvarArquivo csv: comprime no disco, mas o hash e a leitura são do original', async () => {
+  const bytes = Buffer.from('"id";"x"\n"1";"2"\n');
+  const o = await raw.salvarArquivo('SRC-01b', bytes, 'csv', em);
+  assert.equal(o.hash, sha256(bytes));
+  assert.match(o.caminho, /\.csv\.gz$/);
+  assert.deepEqual(await raw.lerArquivo(o.caminho), bytes);
+});

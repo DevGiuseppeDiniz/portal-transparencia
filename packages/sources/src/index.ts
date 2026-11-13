@@ -83,3 +83,16 @@ export {
   type DespesaCeap,
   type TabelaTeto,
 } from './ceap.ts';
+export {
+  TIPOS_FUNIL,
+  lerAutoresCsv,
+  lerProposicoesCsv,
+  lerTramitacoesCsv,
+  urlArquivoProposicoes,
+  type AutorProposicao,
+  type ConjuntoProposicoes,
+  type LeituraCsv,
+  type ProposicaoCamara,
+  type TipoFunil,
+  type TramitacaoCamara,
+} from './proposicoes.ts';

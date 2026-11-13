@@ -88,8 +88,36 @@ Classe: **objetiva** (fato verificável) ou **curada** (depende de seleção hum
     aprovado. REF-05 dá crédito a texto incorporado; registrar como limitação no MVP.
   - **Mandato novo × veterano:** ainda não há ajuste por senioridade (PRI-03). Avisar na
     tela.
-- **Fonte:** SRC-01 (`proposicoes`, `/{id}/autores`, `/{id}/tramitacoes`), SRC-01b
-  (`proposicoes-{ano}`, `proposicoesAutores-{ano}`) · **Refs:** REF-05, REF-03
+- **Fonte:** SRC-01b (`proposicoes-{ano}`, `proposicoesAutores-{ano}`,
+  `proposicoesTramitacoes-{ano}`) · **Refs:** REF-05 (verificado-integral), REF-28,
+  REF-29, REF-03
+- **Implementação (`met03-v1`, 2026-11-13):**
+  - **Projetos:** PL, PLP e PEC com o deputado como autor principal (ordem de assinatura
+    1), apresentados desde 01/02/2023. Coautoria não entra (pendência).
+  - **Estágios ("chegou pelo menos até"):** 1 apresentado; 2 parecer de relator em
+    comissão; 3 passou das comissões (ação em Plenário: votação, discussão, urgência,
+    parecer de Plenário); 4 aprovado na Câmara (remessa ao Senado/sanção/promulgação,
+    redação final aprovada, ou situação atual de quem já foi aprovado); 5 virou lei.
+    Estágio mais avançado implica os anteriores: aprovação **conclusiva** nas comissões
+    (sem Plenário) conta como "passou das comissões", como os autores da REF-05 adaptam
+    os estágios ao rito de cada casa. Aprovação de PEC em Plenário só conta como aprovada
+    com a remessa (1º turno não basta). Vocabulário das tramitações em
+    `packages/metrics/src/index.ts`.
+  - **À parte, nunca como "parados":** apensados (tramitando em conjunto; o conteúdo pode
+    seguir no projeto principal, REF-29), arquivados, retirados pelo autor e devolvidos.
+    Não dá para saber de forma estruturada se o principal de um apensado virou lei (o
+    vínculo some com a desapensação): fica como pendência, sem número na tela.
+  - **Sem índice nem pesos** (PRI-01): o LES da REF-05 pondera e normaliza; aqui só o
+    funil descritivo.
+  - **Referência:** mediana e P25–P75 da Câmara em cada estágio (todos os deputados em
+    exercício) e da taxa "virou lei ÷ apresentados" (quem apresentou ≥ 5). Em nov/2026 a
+    mediana da taxa é 0%: a maioria não teve projeto próprio transformado em lei na
+    legislatura (97 de 513 tiveram ao menos um). A tela mostra essa distribuição em vez
+    de só a mediana.
+  - **Conferência independente (2026-11-13):** as 17 leis do deputado com mais leis
+    conferem uma a uma com a situação na API v2.
+  - Limitação a declarar na tela (REF-05): o funil só vê o avanço dos próprios projetos;
+    relatoria (REF-28), emendas, fiscalização e obstrução ficam de fora.
 
 ## MET-04 — Votações nominais
 - **Classe:** objetiva (o voto) / curada (o agrupamento por tema)

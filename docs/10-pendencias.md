@@ -32,6 +32,14 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
 - [ ] Agendamento (cron) das coletas: frequência diária; CEAP diária (o arquivo do ano muda
       todo dia); histórico semanal.
 
+- [ ] MET-03: destino das apensadas (o principal virou lei?). O vínculo `uriPropPrincipal`
+      some com a desapensação; caminho provável: o texto do despacho de apensação.
+- [ ] MET-03: relatoria (REF-28; ler a tese antes) e coautoria.
+- [ ] MET-03: ajuste por "valor esperado" (cargo, senioridade; PRI-03) e janelas de tempo
+      iguais (projeto recente ainda não teve tempo de avançar).
+- [ ] Staging cresce a cada arquivo novo (proposições/CEAP mudam todo dia): política de
+      retenção ou de deduplicação por registro.
+
 ## Decisões em aberto
 - [ ] DEC-05: quem faz a curadoria dos temas de votação? (conselho plural? academia?
       só o usuário?)
@@ -49,7 +57,7 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
 3. ~~**Primeiro coletor (SRC-01, deputados):** valida o fluxo raw → staging → core com
    proveniência de ponta a ponta.~~ Feito em 2026-11-13 (`pnpm coletar`).
 4. ~~Coletores de presença e de CEAP, e cálculo de MET-01/MET-02.~~ Feito em 2026-11-13.
-5. Tela do deputado (busca por UF/nome) + página de auditoria.
+5. Tela do deputado (busca por UF/nome) + página de auditoria. (MET-03 feita em 2026-11-13.)
 6. Teste de compreensão com 5–10 pessoas fora da bolha técnica (checklist de
    `06-auditoria.md`). Antes de aplicar DSG/PRI, validar as REF usadas (regra do
    `plan.md`).

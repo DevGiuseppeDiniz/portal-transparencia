@@ -248,3 +248,149 @@ export function referenciaCotaPorUf(
   }
   return new Map([...porUf].map(([uf, valores]) => [uf, distribuicao(valores)!]));
 }
+
+// --- MET-03: funil legislativo ---------------------------------------------------------
+// Estágios adaptados de REF-05 (Volden & Wiseman) ao rito da Câmara. Funil descritivo:
+// sem pesos e sem índice (PRI-01, DEC-01). Vocabulário conferido nos arquivos de
+// tramitação 2023–2026 (docs/04-metricas.md#met-03).
+
+export const MET03_VERSAO = 'met03-v1';
+/** Mínimo de projetos apresentados para a taxa "virou lei ÷ apresentados" entrar na referência. */
+export const MET03_MIN_APRESENTADAS_TAXA = 5;
+
+export const ESTAGIOS_FUNIL = ['apresentada', 'comissao', 'alem_comissao', 'aprovada_camara', 'lei'] as const;
+export type EstagioFunil = (typeof ESTAGIOS_FUNIL)[number];
+
+/** Parecer de relator: em comissão é o estágio 2; no Plenário, o 3. */
+const PARECER = new Set([
+  'Parecer do(a) Relator(a)',
+  'Saída de Relator(a) da Comissão - Com Parecer Apresentado',
+  'Aprovação do Parecer',
+  'Leitura e publicação do Parecer',
+  'Rejeição do Parecer do(a) Relator(a)',
+  'Ratificação de Parecer',
+  'Análise Parecer',
+  'Aprovação do Relatório Prévio ou Parcial',
+]);
+const ACAO_PLENARIO = new Set([
+  'Votação',
+  'Votação (Plenário)',
+  'Discussão (Plenário)',
+  'Discussão da Materia pelos(as) Deputados(as)',
+  'Encaminhamento da Votação',
+  'Encaminhamento (Plenário)',
+  'Aprovação de Urgência (154, 155 ou 64 CF)',
+  'Aprovação de Proposição (Plenário)',
+  'Rejeição de Proposição (Plenário)',
+  'Destaques (Plenário)',
+  'Obstrução Discussão (Plenário)',
+  'Obstruçao Votação (Plenário)',
+  'Verificação de Votação',
+  'Verificação de Votação (Plenário)',
+  'Manutenção do texto (Plenário)',
+  'Prejudicialidade (Plenário)',
+]);
+const APROVADA_TRAMITACAO = new Set(['Remessa ao Senado Federal', 'Remessa à Sanção', 'Remessa à Promulgação', 'Aprovação da Redação Final']);
+const APROVADA_SITUACAO = new Set([
+  'Aguardando Apreciação pelo Senado Federal',
+  'Aguardando Sanção',
+  'Aguardando Autógrafos na Mesa',
+  'Aguardando Promulgação',
+  'Aguardando Apreciação do Veto',
+  'Aguardando Envio à Redação Final',
+  'Aguardando Redação Final',
+]);
+const LEI_TRAMITACAO: ReadonlySet<string> = new Set(['Transformação em Norma Jurídica', 'Transformado em Norma Jurídica com Veto Parcial']);
+
+export interface TramitacaoFunil {
+  readonly siglaOrgao: string;
+  readonly descricao: string;
+}
+
+export interface ProposicaoFunil {
+  readonly siglaTipo: 'PL' | 'PLP' | 'PEC';
+  /** Situação atual (ultimoStatus). */
+  readonly situacao: string | null;
+  readonly apensadaA: number | null;
+  readonly tramitacoes: readonly TramitacaoFunil[];
+}
+
+export interface ClassificacaoProposicao {
+  /** Estágio mais avançado alcançado (os anteriores contam como alcançados). */
+  readonly estagio: EstagioFunil;
+  /** Está tramitando em conjunto com outra (apensada): o conteúdo pode seguir no principal. */
+  readonly apensada: boolean;
+  readonly encerrada: 'arquivada' | 'retirada' | 'devolvida' | null;
+}
+
+export function classificarProposicao(p: ProposicaoFunil): ClassificacaoProposicao {
+  const situacao = p.situacao ?? '';
+  let n = 1;
+  for (const t of p.tramitacoes) {
+    const plenario = t.siglaOrgao === 'PLEN';
+    if (LEI_TRAMITACAO.has(t.descricao)) n = Math.max(n, 5);
+    else if (APROVADA_TRAMITACAO.has(t.descricao) || (t.descricao === 'Aprovação de Proposição (Plenário)' && p.siglaTipo !== 'PEC')) n = Math.max(n, 4);
+    else if (plenario && (ACAO_PLENARIO.has(t.descricao) || PARECER.has(t.descricao))) n = Math.max(n, 3);
+    else if (!plenario && PARECER.has(t.descricao)) n = Math.max(n, 2);
+  }
+  if (situacao.startsWith('Transformado em Norma Jurídica')) n = 5;
+  else if (APROVADA_SITUACAO.has(situacao)) n = Math.max(n, 4);
+
+  return {
+    estagio: ESTAGIOS_FUNIL[n - 1]!,
+    apensada: situacao === 'Tramitando em Conjunto' || p.apensadaA !== null,
+    encerrada:
+      situacao === 'Arquivada' ? 'arquivada'
+      : situacao.startsWith('Retirado pelo') ? 'retirada'
+      : situacao.startsWith('Devolvida ao') ? 'devolvida'
+      : null,
+  };
+}
+
+export interface FunilCalculado {
+  /** Quantos chegaram PELO MENOS a cada estágio. */
+  readonly porEstagio: Readonly<Record<EstagioFunil, number>>;
+  /**
+   * Tramitando em conjunto com outro projeto: o conteúdo pode seguir no principal (REF-29).
+   * Mostradas à parte, nunca como "paradas".
+   */
+  readonly apensadas: number;
+  readonly arquivadas: number;
+  readonly retiradas: number;
+  readonly devolvidas: number;
+  /** leis ÷ apresentadas; null sem projetos. */
+  readonly taxaLei: number | null;
+}
+
+export function calcularFunil(itens: readonly ClassificacaoProposicao[]): FunilCalculado {
+  const porEstagio = Object.fromEntries(ESTAGIOS_FUNIL.map((e) => [e, 0])) as Record<EstagioFunil, number>;
+  let apensadas = 0;
+  const encerradas = { arquivada: 0, retirada: 0, devolvida: 0 };
+  for (const c of itens) {
+    const ate = ESTAGIOS_FUNIL.indexOf(c.estagio);
+    for (let i = 0; i <= ate; i++) porEstagio[ESTAGIOS_FUNIL[i]!]++;
+    if (c.apensada) apensadas++;
+    if (c.encerrada) encerradas[c.encerrada]++;
+  }
+  return {
+    porEstagio,
+    apensadas,
+    arquivadas: encerradas.arquivada,
+    retiradas: encerradas.retirada,
+    devolvidas: encerradas.devolvida,
+    taxaLei: itens.length ? porEstagio.lei / itens.length : null,
+  };
+}
+
+/** Referência da Câmara: distribuição de cada estágio e da taxa de lei (PRI-02). */
+export function referenciaFunil(funis: readonly FunilCalculado[]): {
+  readonly porEstagio: Readonly<Record<EstagioFunil, Distribuicao | null>>;
+  readonly taxaLei: Distribuicao | null;
+} {
+  return {
+    porEstagio: Object.fromEntries(ESTAGIOS_FUNIL.map((e) => [e, distribuicao(funis.map((f) => f.porEstagio[e]))])) as Record<EstagioFunil, Distribuicao | null>,
+    taxaLei: distribuicao(
+      funis.filter((f) => f.porEstagio.apresentada >= MET03_MIN_APRESENTADAS_TAXA && f.taxaLei !== null).map((f) => f.taxaLei!),
+    ),
+  };
+}
