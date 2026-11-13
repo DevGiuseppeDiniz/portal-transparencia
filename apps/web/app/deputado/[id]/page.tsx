@@ -55,9 +55,11 @@ export default async function PaginaDeputado({ params }: Params) {
         </div>
       </div>
 
-      <SecaoPresenca p={presenca} linkDados={`${linkDados}#presenca`} />
-      <SecaoCota c={cota} uf={deputado.uf} linkDados={`${linkDados}#cota`} />
-      <SecaoProjetos j={projetos} linkDados={`${linkDados}#projetos`} />
+      <div className="grade-metricas">
+        <SecaoPresenca p={presenca} linkDados={`${linkDados}#presenca`} />
+        <SecaoCota c={cota} uf={deputado.uf} linkDados={`${linkDados}#cota`} />
+        <SecaoProjetos j={projetos} linkDados={`${linkDados}#projetos`} />
+      </div>
     </>
   );
 }
@@ -195,7 +197,7 @@ function SecaoProjetos({ j, linkDados }: { j: ProjetosPublicados | null; linkDad
   if (!j) return <SemDado titulo={titulo} id="t-projetos" />;
   const periodo = `desde ${mesAno(j.proveniencia.periodo.inicio)}`;
   return (
-    <section className="cartao" aria-labelledby="t-projetos">
+    <section className="cartao largo" aria-labelledby="t-projetos">
       <h2 id="t-projetos">
         {titulo}, {periodo}
       </h2>

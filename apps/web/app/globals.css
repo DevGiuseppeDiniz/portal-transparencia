@@ -14,7 +14,8 @@
   --faixa: #85857f;
   --link: #005ea2;
   --foco: #f2a900;
-  --largura: 46rem;
+  --largura: 64rem;
+  --leitura: 42rem;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 100%;
   line-height: 1.5;
@@ -77,7 +78,7 @@ a:hover {
   background: var(--fundo-suave);
 }
 
-.topo nav,
+.topo .barra-topo,
 main,
 .rodape div {
   max-width: var(--largura);
@@ -85,19 +86,109 @@ main,
   padding: 0 1rem;
 }
 
-.topo nav {
+.topo .barra-topo {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.25rem;
   align-items: center;
-  min-height: 3.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.topo nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
+.topo nav a {
+  display: inline-block;
+  padding: 0.6rem 0;
+  min-height: 2.75rem;
 }
 
 .topo .marca {
   font-weight: 700;
+  font-size: 1.125rem;
   color: var(--texto);
   text-decoration: none;
+  padding: 0.6rem 0;
   margin-right: auto;
+}
+
+/* Busca do topo: linha inteira no celular, ao lado da navegação no desktop. */
+.busca-topo {
+  position: relative;
+  flex: 1 1 100%;
+}
+
+.busca-topo input {
+  width: 100%;
+}
+
+.busca-sugestoes {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.25rem);
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.busca-sugestoes li {
+  /* Uma linha por sugestão: quebrada em duas parece dois itens (testes do GOV.UK). */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.65rem 0.9rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.busca-sugestoes li.ativo {
+  background: var(--fundo-suave);
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+
+.busca-sugestoes .vazio {
+  cursor: default;
+  color: var(--texto-suave);
+}
+
+.etiqueta {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--texto-suave);
+  border: 1px solid var(--borda);
+  border-radius: 0.25rem;
+  padding: 0 0.3rem;
+  margin-right: 0.35rem;
+}
+
+@media (min-width: 48rem) {
+  .busca-topo {
+    flex: 0 1 22rem;
+  }
+}
+
+/* Texto corrido com largura de leitura confortável. */
+main > p,
+main > ul:not(.lista-deputados),
+main > h1,
+.prosa {
+  max-width: var(--leitura);
 }
 
 main {
@@ -105,14 +196,15 @@ main {
   padding-bottom: 3rem;
 }
 
+/* Só os títulos são fluidos, sempre com rem somado (zoom de 200% continua funcionando, WCAG 1.4.4). */
 h1 {
-  font-size: 1.75rem;
+  font-size: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
   line-height: 1.2;
   margin: 0 0 0.75rem;
 }
 
 h2 {
-  font-size: 1.3rem;
+  font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.45rem);
   line-height: 1.25;
   margin: 2rem 0 0.5rem;
 }
@@ -342,8 +434,127 @@ input[type='search'] {
   color: var(--texto-suave);
 }
 
-@media (min-width: 40rem) {
-  h1 {
-    font-size: 2rem;
+
+/* --- Home: mapa + lista lado a lado no desktop --------------------------------------- */
+.home-estados {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 56rem) {
+  .home-estados {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
+}
+
+.mapa {
+  margin: 0;
+}
+
+.mapa-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 34rem;
+}
+
+.mapa-svg .uf path {
+  fill: #efefeb;
+  stroke: #8a8a85;
+  stroke-width: 1.2;
+  transition: fill 0.12s ease;
+}
+
+.mapa-svg .uf:hover path,
+.mapa-svg .uf.ativo path,
+.mapa-svg .uf:focus-visible path {
+  fill: var(--link);
+}
+
+.mapa-svg .uf:focus-visible {
+  outline: none;
+}
+
+.mapa-svg .uf:focus-visible path {
+  stroke: var(--foco);
+  stroke-width: 5;
+}
+
+.mapa-svg .sigla {
+  font-size: 26px;
+  font-weight: 700;
+  fill: #2f2f2f;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.mapa-svg .uf.ativo .sigla:not(.externa),
+.mapa-svg .uf:hover .sigla:not(.externa),
+.mapa-svg .uf:focus-visible .sigla:not(.externa) {
+  fill: #ffffff;
+}
+
+.mapa-svg .uf.ativo .sigla.externa,
+.mapa-svg .uf:hover .sigla.externa {
+  fill: var(--link);
+}
+
+.mapa-svg .guia {
+  stroke: #85857f;
+  stroke-width: 1.5;
+}
+
+/* Área de toque invisível (mas clicável) dos estados pequenos. */
+.mapa-svg .toque {
+  fill: transparent;
+}
+
+.mapa-svg .uf.ativo circle.toque,
+.mapa-svg .uf:hover circle.toque,
+.mapa-svg .uf:focus-visible circle.toque {
+  fill: var(--link);
+}
+
+.mapa-svg .uf.ativo rect.toque,
+.mapa-svg .uf:hover rect.toque,
+.mapa-svg .uf:focus-visible rect.toque {
+  fill: var(--fundo-suave);
+  stroke: var(--link);
+  stroke-width: 2;
+}
+
+.mapa-rotulo {
+  min-height: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-svg .uf path {
+    transition: none;
+  }
+}
+
+/* --- Página do deputado: métricas em grade no desktop -------------------------------- */
+.grade-metricas {
+  display: grid;
+  gap: 0 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .grade-metricas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grade-metricas > .largo {
+    grid-column: 1 / -1;
+  }
+}
+
+.lista-deputados.em-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  column-gap: 1.5rem;
 }

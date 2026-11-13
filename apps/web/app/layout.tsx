@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { BuscaTopo } from '../componentes/BuscaTopo';
 import { lerIndice } from '../lib/dados';
 import { dataDeIso } from '../lib/formato';
 import './globals.css';
@@ -19,13 +20,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Pular para o conteúdo
         </a>
         <header className="topo">
-          <nav aria-label="Principal">
+          <div className="barra-topo">
             <Link className="marca" href="/">
               Portal Parlamentar
             </Link>
-            <Link href="/">Encontrar deputado</Link>
-            <Link href="/metodo">Como calculamos</Link>
-          </nav>
+            <nav aria-label="Principal">
+              <Link href="/">Encontrar deputado</Link>
+              <Link href="/metodo">Como calculamos</Link>
+            </nav>
+            <BuscaTopo />
+          </div>
         </header>
         <main id="conteudo">{children}</main>
         <footer className="rodape">

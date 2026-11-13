@@ -84,3 +84,20 @@ práticas aplicadas em `apps/web`:
 - Todo gráfico com tabela equivalente; alvos de toque de 44 px; contraste AA (REF-18).
 - Pendente: teste de compreensão com 5–8 pessoas de baixa escolaridade, no celular,
   perguntando "qual a mensagem principal?" (REF-14, REF-20 art. 5º XVIII).
+
+## Navegação, mapa e layout responsivo (2026-11-13)
+Pesquisa de referências registrada em `08-referencias.md` (REF-30 a REF-33). Aplicado:
+- **Busca no topo de todas as páginas** (estado ou nome), padrão *combobox* do WAI-ARIA APG
+  (REF-30): setas, Enter, Esc, `aria-activedescendant`, contagem anunciada; sugestões em
+  uma linha (testes do GOV.UK accessible-autocomplete: quebra parece dois itens). Índice
+  leve (`/dados/busca.json`) baixado só no foco.
+- **Mapa do Brasil como atalho, nunca como única via** (REF-31): a lista de estados fica ao
+  lado e cobre teclado (2.1.1) e alvo de toque (exceção "equivalente" do 2.5.8). Cor única
+  neutra, sem codificar dado (DSG-04); realce no hover **e** no foco; nome e nº de
+  deputados num painel fixo, não em tooltip. Estados pequenos (RN, PB, PE, AL, SE, ES, RJ)
+  com rótulo externo tocável; DF com área de toque ampliada. Malha: IBGE.
+- **Layout** (REF-32): contêiner de 64rem (≈ GOV.UK/USWDS), texto corrido com largura de
+  leitura (42rem), métricas em 2 colunas a partir de 64rem, listas em grade `auto-fill`.
+  Corpo em 1rem fixo; só títulos com `clamp()` somando rem (zoom de 200%, 1.4.4).
+- Pendente: modo escuro (dobra o trabalho de contraste), busca sem JavaScript (`/busca`),
+  e teste com usuários de celular para decidir entre mapa real e cartograma em grade.

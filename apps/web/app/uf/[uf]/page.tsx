@@ -30,7 +30,7 @@ export default async function DeputadosDaUf({ params }: Params) {
       </p>
       <h1>Deputados federais em exercício — {nomeUf(sigla)}</h1>
       <p className="suave">{deputados.length} deputado(s), em ordem alfabética.</p>
-      <ul className="lista-deputados">
+      <ul className="lista-deputados em-grade">
         {deputados.map((d) => (
           <li key={d.id}>
             <Link href={`/deputado/${d.id}`}>
