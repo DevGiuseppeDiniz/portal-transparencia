@@ -15,6 +15,7 @@ import { inteiro } from '../../lib/formato';
 import { doQueTrata } from '../../lib/projetos';
 import { Lupa } from '../Icones';
 import { CampoComIcone, botao, classeInput } from '../ui';
+import { EtiquetasRolaveis } from './EtiquetasRolaveis';
 import { MiniEtapas, NOME_ETAPA, ORDEM_ETAPA } from './EtapasProjeto';
 import { FiltroOpcoes } from './FiltroOpcoes';
 
@@ -249,34 +250,36 @@ export function ListaProjetos({
         </div>
         <ul className="divide-y">
           {filtrados.slice(0, limite).map((p) => (
-            <li key={p.id}>
-              <Link
-                href={`/deputado/${idDeputado}/projeto/${p.id}`}
-                prefetch={false}
-                className="grid gap-x-4 gap-y-2 px-4 py-3 text-foreground transition-colors hover:bg-accent/60 hover:no-underline focus-visible:bg-accent/60 md:grid-cols-[minmax(0,1fr)_11rem] md:items-center"
-              >
-                <span className="min-w-0">
-                  {/* Área: todos os temas, rolando para o lado quando não cabem. */}
-                  <span className="rolagem-lateral -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-                    {p.temas.length > 0 ? (
-                      p.temas.map((t) => (
-                        <span key={t} className="shrink-0 rounded-md bg-accent px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-accent-foreground">
-                          {t}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="shrink-0 rounded-md border border-dashed px-2 py-0.5 text-xs text-muted-foreground">Sem tema na Câmara</span>
-                    )}
+            <li
+              key={p.id}
+              className="relative grid gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-accent/60 has-[a:focus-visible]:bg-accent/60 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:-outline-offset-2 has-[a:focus-visible]:outline-ring md:grid-cols-[minmax(0,1fr)_11rem] md:items-center"
+            >
+              <div className="min-w-0">
+                {/* Área: todos os temas; rolam para o lado quando não cabem. */}
+                <EtiquetasRolaveis href={`/deputado/${idDeputado}/projeto/${p.id}`}>
+                  {p.temas.length > 0 ? (
+                    p.temas.map((t) => (
+                      <span key={t} className="shrink-0 rounded-md bg-accent px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-accent-foreground">
+                        {t}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="shrink-0 rounded-md border border-dashed px-2 py-0.5 text-xs text-muted-foreground">Sem tema na Câmara</span>
+                  )}
+                </EtiquetasRolaveis>
+                {/* O link cobre a linha inteira (::after); as etiquetas ficam por cima para rolar. */}
+                <Link
+                  href={`/deputado/${idDeputado}/projeto/${p.id}`}
+                  prefetch={false}
+                  className="mt-1.5 flex min-w-0 items-baseline gap-2 text-sm text-foreground outline-none after:absolute after:inset-0 hover:no-underline"
+                >
+                  <span className="shrink-0 text-xs font-semibold text-muted-foreground tabular-nums">
+                    {p.sigla} {p.numero}/{p.ano}
                   </span>
-                  <span className="mt-0.5 flex min-w-0 items-baseline gap-2 text-sm">
-                    <span className="shrink-0 text-xs font-semibold text-muted-foreground tabular-nums">
-                      {p.sigla} {p.numero}/{p.ano}
-                    </span>
-                    <span className="truncate">{doQueTrata(p).texto}</span>
-                  </span>
-                </span>
-                <MiniEtapas estagio={p.estagio} />
-              </Link>
+                  <span className="truncate">{doQueTrata(p).texto}</span>
+                </Link>
+              </div>
+              <MiniEtapas estagio={p.estagio} />
             </li>
           ))}
           {filtrados.length === 0 && !carregando && <li className="px-4 py-10 text-center text-sm text-muted-foreground">Nenhum projeto com esses filtros.</li>}
