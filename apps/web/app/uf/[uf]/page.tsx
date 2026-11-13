@@ -1,7 +1,10 @@
+import { Voltar } from '../../../componentes/Voltar';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { UFS, listarDeputados, nomeUf } from '../../../lib/dados';
+import { ListaDeputados } from '../../../componentes/BuscaDeputado';
+import { Badge } from '../../../componentes/ui';
+import { UFS, doEstado, listarDeputados, nomeUf } from '../../../lib/dados';
 
 export const dynamicParams = false;
 
@@ -13,7 +16,7 @@ type Params = { params: Promise<{ uf: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { uf } = await params;
-  return { title: `Deputados federais — ${nomeUf(uf.toUpperCase())}` };
+  return { title: `Deputados federais ${doEstado(uf.toUpperCase())}` };
 }
 
 // Ordem alfabética: nunca ordenar por métrica (DEC-01, sem ranking).
@@ -24,26 +27,28 @@ export default async function DeputadosDaUf({ params }: Params) {
   const deputados = listarDeputados().filter((d) => d.uf === sigla);
 
   return (
-    <>
-      <p className="pequeno">
-        <Link href="/">Início</Link>
-      </p>
-      <h1>Deputados federais em exercício — {nomeUf(sigla)}</h1>
-      <p className="suave">{deputados.length} deputado(s), em ordem alfabética.</p>
-      <ul className="lista-deputados">
-        {deputados.map((d) => (
-          <li key={d.id}>
-            <Link href={`/deputado/${d.id}`}>
-              {d.urlFoto && <img src={d.urlFoto} alt="" width={44} height={58} loading="lazy" />}
-              <span>
-                <strong>{d.nome}</strong>
-                <br />
-                <span className="pequeno suave">{d.partido ?? 'sem partido'}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </>
+    <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="mb-6 flex items-center justify-between gap-4">
+      <nav aria-label="Você está em" className="min-w-0 truncate text-sm text-muted-foreground">
+        <Link href="/" className="text-muted-foreground">
+          Início
+        </Link>
+        <span className="mx-1.5">/</span>
+        <Link href="/#estados" className="text-muted-foreground">
+          Estados
+        </Link>
+        <span className="mx-1.5">/</span>
+        <span className="text-foreground">{nomeUf(sigla)}</span>
+      </nav>
+        <Voltar destino="/#estados" />
+      </div>
+      <p className="text-sm font-medium text-primary">Bancada federal</p>
+      <h1 className="font-bold tracking-tight">Deputados federais {doEstado(sigla)}</h1>
+      <div className="mt-3 mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <Badge>{deputados.length} em exercício</Badge>
+        <span>em ordem alfabética</span>
+      </div>
+      <ListaDeputados deputados={deputados} mostrarUf={false} />
+    </main>
   );
 }

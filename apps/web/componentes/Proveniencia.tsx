@@ -7,7 +7,7 @@ import { data, dataDeIso } from '../lib/formato';
 
 export function Proveniencia({ p, linkDados }: { p: ProvenienciaPublicada; linkDados: string }) {
   return (
-    <p className="pequeno suave">
+    <p className="leading-relaxed">
       Fonte: {p.fontes.map((f, i) => (
         <span key={f.id}>
           {i > 0 && ', '}

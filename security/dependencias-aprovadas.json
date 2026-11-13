@@ -56,6 +56,18 @@
       "aprovadoPor": "Giuseppe Souza",
       "aprovadoEm": "2026-11-13",
       "excecoes": {}
+    },
+    "tailwindcss": {
+      "motivo": "CSS utilitário do apps/web (DEC-14: convenções Tailwind + shadcn/ui). Só no build, zero JS no navegador. Tailwind Labs; github.com/tailwindlabs/tailwindcss. Sem dependências. Fixado na 4.3.4 (02/11/2026; a 4.3.5 estava no limite dos 7 dias).",
+      "aprovadoPor": "Giuseppe Souza",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
+    },
+    "@tailwindcss/postcss": {
+      "motivo": "integração do Tailwind v4 com o build do Next (PostCSS). Tailwind Labs. Puxa postcss, @tailwindcss/node e @tailwindcss/oxide (binário nativo por plataforma, via optionalDependencies). Fixado na 4.3.4.",
+      "aprovadoPor": "Giuseppe Souza",
+      "aprovadoEm": "2026-11-13",
+      "excecoes": {}
     }
   }
 }

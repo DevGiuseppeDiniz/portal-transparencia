@@ -43,6 +43,11 @@ Duas camadas, ambas com fundamento:
   partido.
 - Deputado: ponto cheio azul `#0072B2` (5,19:1). Referência: traço cinza `#595959`;
   distribuição em cinza `#85857F` (≥ 3:1, WCAG 1.4.11). Forma diferente além da cor.
+- **Exceção (2026-11-13, decisão do usuário):** "ausência sem justificativa" no gráfico mensal
+  de presença usa vermelho sóbrio `#C2410C` (contraste 5:1). Só essa categoria; presença
+  continua azul e ausência justificada, cinza. Registrado porque contraria a regra geral
+  (vermelho = "ruim"); reavaliar no teste com usuários (o que a pessoa entende ao ver o
+  vermelho).
 - **Ref:** REF-13, REF-19
 
 ## DSG-05 — Títulos e rótulos descritivos
@@ -84,3 +89,67 @@ práticas aplicadas em `apps/web`:
 - Todo gráfico com tabela equivalente; alvos de toque de 44 px; contraste AA (REF-18).
 - Pendente: teste de compreensão com 5–8 pessoas de baixa escolaridade, no celular,
   perguntando "qual a mensagem principal?" (REF-14, REF-20 art. 5º XVIII).
+
+## Navegação, mapa e layout responsivo (2026-11-13)
+Pesquisa de referências registrada em `08-referencias.md` (REF-30 a REF-33). Aplicado:
+- **Home, nesta ordem:** 1º busca pelo nome, em destaque no topo da página (o que a maioria
+  procura; REF-08, REF-33); 2º "Ou escolha pelo estado": campo de busca de estado **acima do
+  mapa**, mapa e lista sincronizados (digitar realça no mapa e na lista; Enter abre).
+- **Busca do cabeçalho = navegação da aplicação** (paleta de comandos, atalho `/` ou
+  Ctrl+K): leva a páginas e seções (método de cada métrica, fontes, reportar erro) e, como
+  atalho, a deputados e estados. Padrão combobox do WAI-ARIA APG (REF-30), sugestões
+  agrupadas e em uma linha.
+- **Mapa do Brasil como atalho, nunca como única via** (REF-31): lista ao lado (teclado,
+  2.1.1; exceção "equivalente" do 2.5.8). Cor única neutra, sem codificar dado (DSG-04);
+  realce no hover **e** no foco; estados pequenos com rótulo externo tocável; DF com área de
+  toque ampliada. Malha: IBGE.
+- **Sistema visual: DEC-14** (Tailwind CSS v4 + padrões e tokens do shadcn/ui). Cor da
+  marca (índigo) só na interface, nunca nos dados; cartões com cabeçalho (ícone + título +
+  período); perfil com foto redonda e badges; contêiner `max-w-6xl`, métricas em 2 colunas a
+  partir de `lg`. Só títulos com `clamp()` somando rem (1.4.4). Cabeçalho fixo com
+  `scroll-padding-top` (2.4.11).
+- Exemplos de busca não citam parlamentares reais (escolher quem aparece não é neutro).
+- Pendente: modo escuro, busca sem JavaScript, e teste com usuários de celular (mapa real ×
+  cartograma em grade).
+
+## Gráficos interativos (2026-11-13)
+Os gráficos são o destaque da página do deputado. As três seções seguem o mesmo formato:
+**faixa de indicadores no topo** (número-chave à esquerda e indicadores de apoio ao lado, na
+mesma linha; no celular, número em cima e indicadores em duas colunas), depois o gráfico de
+**posição** em largura inteira ("onde está entre os demais"), precedido da frase de valor
+("Presença maior que a de 53 dos 512 deputados"; na ponta de baixo, "Nenhum deputado … usou
+uma parte menor", nunca "maior que a de 0"); o gráfico confirma, não precisa ser decifrado.
+Abaixo, a série mês a mês e os demais gráficos. A dica dos gráficos flutua logo acima do
+gráfico, sem reservar espaço vazio.
+- **Posição** (`componentes/graficos/Posicao.tsx`): um traço por deputado (pontos em grupos
+  pequenos), o deputado como ponto grande e rotulado, mediana em traço escuro, metade do
+  meio em faixa suave; escala começando em zero (DSG-02). Substituiu o histograma: diz o
+  mesmo de forma mais direta.
+- **Série mensal** (presença: presente / ausência justificada / sem justificativa; cota:
+  gasto × valor-base em linha tracejada) e **barras horizontais** (categorias; funil com a
+  mediana da Câmara como marcador na mesma escala).
+- **Interação** (padrão OWID/NYT/FT): mouse mostra a dica; toque seleciona e a dica fica
+  acima do gráfico, nunca sob o dedo; teclado percorre com setas/Home/End; leitura anunciada
+  e tabela equivalente para leitor de tela. Nada depende só do hover (1.4.13, 2.1.1). Ao
+  percorrer os deputados, a dica mostra o valor e quantos ficam abaixo, **sem nomes** (DEC-01).
+- **Responsivo de verdade:** o SVG é desenhado na largura medida do contêiner
+  (ResizeObserver), então o texto tem o mesmo tamanho em qualquer tela; a dica mede a
+  própria largura e nunca é cortada. Verificado em 360 px sem rolagem horizontal.
+- **Cores:** gráficos neutros (deputado `#0072B2`, cinzas); as cores da bandeira ficam só na
+  interface (DEC-14), nunca nos dados.
+- **Navegação entre deputados pelo gráfico:** clicar (ou Enter) num deputado do gráfico de
+  posição abre a página dele já no **mesmo gráfico** (`#posicao-presenca`/`#posicao-cota`),
+  com destaque temporário (sem animação se "reduzir movimento"). Botão **Voltar** no topo das
+  páginas internas: volta no histórico se a pessoa navegou no portal; senão vai ao destino.
+- **Frase de posição considera empates:** "Nenhum deputado tem presença maior: outros 15
+  também têm 100%", nunca "maior que a de 490" para quem está empatado no topo (teste em
+  `apps/web/lib/formato.test.ts`).
+- **Números nunca contradizem os detalhes:** percentual não arredonda para 100% o que não é
+  100% (392 de 393 dias = "99,7%") nem para 0% o que não é zero; nesses limites usa as casas
+  decimais necessárias (teste em `apps/web/lib/formato.test.ts`). O dado sempre esteve certo;
+  o erro era de exibição.
+- **Introdução de cada gráfico em forma de pergunta** (a pergunta que ele responde): "Onde está
+  entre os 25 deputados do Paraná?", "Como foi a presença mês a mês?", "Quanto gastou por mês?",
+  "Com o que gastou?", "Até onde os projetos chegaram?". Nome de estado sempre com o artigo
+  certo ("do Paraná", "da Bahia", "de São Paulo"; `doEstado` em `apps/web/lib/ufs.ts`).
+

@@ -15,7 +15,7 @@ import { CAMARA_ARQUIVOS, ErroFormato } from './camara.ts';
 export const TIPOS_FUNIL = ['PL', 'PLP', 'PEC'] as const;
 export type TipoFunil = (typeof TIPOS_FUNIL)[number];
 
-export type ConjuntoProposicoes = 'proposicoes' | 'proposicoesAutores' | 'proposicoesTramitacoes';
+export type ConjuntoProposicoes = 'proposicoes' | 'proposicoesAutores' | 'proposicoesTramitacoes' | 'proposicoesTemas';
 
 export function urlArquivoProposicoes(conjunto: ConjuntoProposicoes, ano: number): string {
   if (!Number.isSafeInteger(ano) || ano < 2000 || ano > 2100) throw new ErroFormato(`ano inválido: ${ano}`);
@@ -36,6 +36,14 @@ export interface ProposicaoCamara {
   readonly numero: number;
   readonly ano: number;
   readonly ementa: string;
+  /** Resumo em linguagem mais simples, quando a Câmara publica (~7% dos projetos). */
+  readonly ementaDetalhada: string | null;
+  /** Palavras-chave da indexação da Câmara (sempre presentes). */
+  readonly palavrasChave: readonly string[];
+  /** Regime de tramitação (ex.: "Urgência (Art. 155, RICD)"). */
+  readonly regime: string | null;
+  /** Quem decide: só as comissões (conclusiva) ou o Plenário. */
+  readonly apreciacao: string | null;
   /** Horário de Brasília, sem fuso. */
   readonly dataApresentacao: string;
   /** Proposição à qual esta foi apensada (id), se houver. */
@@ -113,7 +121,7 @@ function lerLinhas<T>(texto: string, colunas: readonly string[], ler: (l: Record
 
 /** Só PL, PLP e PEC (TIPOS_FUNIL); as demais linhas são ignoradas, não inválidas. */
 export function lerProposicoesCsv(texto: string): LeituraCsv<ProposicaoCamara> {
-  const colunas = ['id', 'siglaTipo', 'numero', 'ano', 'ementa', 'dataApresentacao', 'uriPropPrincipal', 'ultimoStatus_descricaoSituacao', 'ultimoStatus_dataHora', 'urlInteiroTeor'];
+  const colunas = ['id', 'siglaTipo', 'numero', 'ano', 'ementa', 'ementaDetalhada', 'keywords', 'dataApresentacao', 'uriPropPrincipal', 'ultimoStatus_descricaoSituacao', 'ultimoStatus_dataHora', 'ultimoStatus_regime', 'ultimoStatus_apreciacao', 'urlInteiroTeor'];
   return lerLinhas(texto, colunas, (l, onde) => {
     const tipo = (l['siglaTipo'] ?? '').trim();
     if (!(TIPOS_FUNIL as readonly string[]).includes(tipo)) return null;
@@ -133,6 +141,10 @@ export function lerProposicoesCsv(texto: string): LeituraCsv<ProposicaoCamara> {
       numero: inteiro(l['numero'], `${onde}.numero`),
       ano: inteiro(l['ano'], `${onde}.ano`),
       ementa: (l['ementa'] ?? '').trim().slice(0, 2000),
+      ementaDetalhada: (l['ementaDetalhada'] ?? '').trim().slice(0, 2000) || null,
+      palavrasChave: separarPalavrasChave(l['keywords'] ?? ''),
+      regime: (l['ultimoStatus_regime'] ?? '').trim().slice(0, 200) || null,
+      apreciacao: (l['ultimoStatus_apreciacao'] ?? '').trim().slice(0, 200) || null,
       dataApresentacao: dataHora(l['dataApresentacao'], `${onde}.dataApresentacao`),
       idPrincipal: principal ? idDaUri(principal, `${onde}.uriPropPrincipal`) : null,
       situacao: situacao || null,
@@ -140,6 +152,43 @@ export function lerProposicoesCsv(texto: string): LeituraCsv<ProposicaoCamara> {
       urlInteiroTeor,
     };
   });
+}
+
+/**
+ * Palavras-chave da Câmara: separadas por vírgula ou ponto final, às vezes com a primeira
+ * maiúscula ("Alteração, Estatuto do Desarmamento, ... uso restrito."). Mantém siglas e nomes
+ * próprios; descarta repetidas e termos genéricos de técnica legislativa.
+ */
+const GENERICAS = new Set(['alteração', 'critério', 'normas', 'exigência', 'definição', 'criação', 'inclusão', 'acréscimo', 'regulamentação']);
+export function separarPalavrasChave(bruto: string): string[] {
+  const vistos = new Set<string>();
+  const saida: string[] = [];
+  for (const parte of bruto.split(/[,.;](?=\s|$)/)) {
+    const t = parte.replace(/\s+/g, ' ').trim();
+    if (t.length < 3 || t.length > 80) continue;
+    const chave = t.toLocaleLowerCase('pt-BR');
+    if (GENERICAS.has(chave) || vistos.has(chave)) continue;
+    vistos.add(chave);
+    saida.push(t);
+    if (saida.length >= 12) break;
+  }
+  return saida;
+}
+
+export interface TemaProposicao {
+  readonly idProposicao: number;
+  readonly codTema: number;
+  readonly tema: string;
+}
+
+/** Temas oficiais da Câmara (31 áreas), uma linha por proposição × tema. */
+export function lerTemasCsv(texto: string): LeituraCsv<TemaProposicao> {
+  const colunas = ['uriProposicao', 'codTema', 'tema'];
+  return lerLinhas(texto, colunas, (l, onde) => ({
+    idProposicao: idDaUri(l['uriProposicao'] ?? '', `${onde}.uriProposicao`),
+    codTema: inteiro(l['codTema'], `${onde}.codTema`),
+    tema: (l['tema'] ?? '').trim().slice(0, 120),
+  }));
 }
 
 /** Só quem assina como proponente (autores e coautores). */

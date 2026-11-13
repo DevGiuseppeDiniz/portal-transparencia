@@ -20,8 +20,8 @@ export function Funil({ projetos }: { projetos: ProjetosPublicados }) {
   const maximo = Math.max(1, ...ORDEM.map((e) => Math.max(projetos.porEstagio[e], projetos.referencia.porEstagio[e]?.mediana ?? 0)));
   const largura = (v: number) => `${Math.max(0, (v / maximo) * 100) * 0.55}%`;
   return (
-    <div className="tabela-rolavel">
-      <table>
+    <div className="overflow-x-auto">
+      <table className="tabela">
         <caption>Projetos por estágio alcançado</caption>
         <thead>
           <tr>
@@ -36,17 +36,17 @@ export function Funil({ projetos }: { projetos: ProjetosPublicados }) {
             const mediana = projetos.referencia.porEstagio[e]?.mediana ?? null;
             return (
               <tr key={e}>
-                <th scope="row">{NOMES_ESTAGIO[e]}</th>
-                <td style={{ minWidth: '5.5rem' }}>
-                  <span className="barra deputado" style={{ width: largura(valor) }} aria-hidden="true" />
+                <th scope="row" className="!text-sm !font-medium !normal-case !tracking-normal text-foreground">{NOMES_ESTAGIO[e]}</th>
+                <td className="min-w-24 tabular-nums">
+                  <span className="mr-2 inline-block h-2.5 min-w-0.5 rounded-sm bg-deputado align-middle" style={{ width: largura(valor) }} aria-hidden="true" />
                   {inteiro(valor)}
                 </td>
-                <td style={{ minWidth: '5.5rem' }}>
+                <td className="min-w-24 tabular-nums">
                   {mediana === null ? (
                     'sem dado'
                   ) : (
                     <>
-                      <span className="barra referencia" style={{ width: largura(mediana) }} aria-hidden="true" />
+                      <span className="mr-2 inline-block h-2.5 min-w-0.5 rounded-sm bg-referencia align-middle" style={{ width: largura(mediana) }} aria-hidden="true" />
                       {mediana.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}
                     </>
                   )}
@@ -56,7 +56,7 @@ export function Funil({ projetos }: { projetos: ProjetosPublicados }) {
           })}
         </tbody>
       </table>
-      <p className="pequeno suave">Cada estágio inclui os projetos que foram além dele.</p>
+      <p className="text-xs text-muted-foreground">Cada estágio inclui os projetos que foram além dele.</p>
     </div>
   );
 }

@@ -59,13 +59,16 @@ fontes secundárias) · `a-verificar`.
 - **Base:** `https://dadosabertos.camara.leg.br/arquivos/{conjunto}/{formato}/...`
   (formatos: csv, xlsx, ods, json, xml). Atualização quase sempre diária.
 - **Conjuntos relevantes:** `deputados`, `deputadosOcupacoes`, `deputadosProfissoes`,
-  `eventos-{ano}`, `eventosPresencaDeputados-{ano}`, `votacoes-{ano}`,
+  `eventos-{ano}`, `eventosPresencaDeputados-{ano}`, `votacoes-{ano}`, `proposicoesTemas-{ano}`
+  (tema oficial de cada proposição; usado na lista de projetos),
   `votacoesVotos-{ano}`, `votacoesOrientacoes-{ano}`, `votacoesObjetos-{ano}`,
   `votacoesProposicoes-{ano}`, `proposicoes-{ano}`, `proposicoesAutores-{ano}`,
   `proposicoesTemas-{ano}`, `orgaos`, `orgaosDeputados-L{legislatura}`, `frentes`,
   `frentesDeputados`, `legislaturas`, `legislaturasMesas`, `funcionarios`.
 - **Uso:** carga histórica e reconciliação com a API. MET-01 (`eventos`), MET-03
   (`proposicoes`, `proposicoesAutores`, `proposicoesTramitacoes`).
+- **Campos usados para o cidadão (2026-11-13):** `ementa` (100%), `ementaDetalhada` (~7%),
+  `keywords` (100%, indexação da Câmara), `ultimoStatus_regime`, `ultimoStatus_apreciacao`.
 - **Proposições (verificado em 2026-11-13):** CSV UTF-8 com BOM, separador `;`, todos os
   campos entre aspas, textos com quebra de linha dentro das aspas. `proposicoes-{ano}`
   traz as apresentadas no ano com a situação **atual**; `proposicoesTramitacoes-{ano}`

@@ -7,6 +7,7 @@ import {
   LEGISLATURA_ATUAL,
   lerAutoresCsv,
   lerProposicoesCsv,
+  lerTemasCsv,
   lerTramitacoesCsv,
   obterBytes,
   urlArquivoProposicoes,
@@ -104,6 +105,10 @@ export function coletarProposicoes(deps: Dependencias, ano: number): Promise<Res
           numero: p.numero,
           ano: p.ano,
           ementa: p.ementa,
+          ementa_detalhada: p.ementaDetalhada,
+          palavras_chave: p.palavrasChave as string[],
+          regime: p.regime,
+          apreciacao: p.apreciacao,
           data_apresentacao: p.dataApresentacao,
           id_principal: p.idPrincipal,
           situacao: p.situacao,
@@ -170,6 +175,31 @@ export function coletarTramitacoes(deps: Dependencias, ano: number): Promise<Res
           sigla_orgao: t.siglaOrgao,
           descricao: t.descricao,
           cod_situacao: t.codSituacao,
+        })),
+      )}`;
+    }
+    return { registros: itens.length, aviso };
+  });
+}
+
+/** Temas oficiais (Saúde, Educação…) das proposições do funil. */
+export function coletarTemas(deps: Dependencias, ano: number): Promise<ResultadoColeta> {
+  return coletarArquivo(deps, 'proposicoesTemas', ano, async (tx, bytes, { coletaId, obtidoEm }) => {
+    const leitura = lerTemasCsv(bytes.toString('utf8'));
+    const aviso = avaliarInvalidas(leitura);
+    const ids = await idsDoFunil(tx);
+    const itens = leitura.itens.filter((t) => ids.has(t.idProposicao));
+    let linha = 0;
+    for (const lote of fatiar(itens, 3000)) {
+      await tx`insert into staging.camara_proposicao_tema ${tx(
+        lote.map((t) => ({
+          coleta_id: coletaId,
+          fonte_id: FONTE,
+          obtido_em: obtidoEm,
+          linha: ++linha,
+          id_proposicao: t.idProposicao,
+          cod_tema: t.codTema,
+          tema: t.tema,
         })),
       )}`;
     }

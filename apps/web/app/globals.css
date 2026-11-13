@@ -1,349 +1,249 @@
-/* Portal Parlamentar — estilos base.
-   DSG-04: cor neutra, nunca semáforo de valor. O deputado em azul (Okabe-Ito "blue"),
-   a referência em cinza. DSG-08: mobile primeiro, WCAG 2.2 AA (contraste ≥ 4,5:1 no texto,
-   ≥ 3:1 em elementos gráficos, foco visível, alvo de toque ≥ 24 px). */
+/* Portal Parlamentar — DEC-14: convenções Tailwind CSS v4 + tokens do shadcn/ui.
+   Tokens semânticos com os nomes do shadcn/ui (background, foreground, card, primary, muted,
+   accent, border, input, ring, radius). Cores dos GRÁFICOS ficam em tokens próprios e nunca
+   usam a cor da marca (DSG-04): deputado #0072B2 (Okabe-Ito), referência em cinza.
+   WCAG 2.2 AA: texto ≥ 4,5:1, elementos gráficos ≥ 3:1, foco visível (ring), alvos ≥ 44 px. */
+
+@import 'tailwindcss';
 
 :root {
-  --texto: #1b1b1b;
-  --texto-suave: #4a4a4a;
-  --fundo: #ffffff;
-  --fundo-suave: #f4f4f2;
-  --borda: #c9c9c4;
-  --deputado: #0072b2;
-  --referencia: #595959;
-  --faixa: #85857f;
-  --link: #005ea2;
-  --foco: #f2a900;
-  --largura: 46rem;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 100%;
-  line-height: 1.5;
-  color: var(--texto);
-  background: var(--fundo);
+  /* Tema: cores do Brasil (DEC-14). Azul da bandeira como cor principal da INTERFACE; verde e
+     amarelo só como detalhes (faixa, destaques). Nunca nos dados: nos gráficos, verde/amarelo
+     virariam "bom/ruim" (DSG-04), e o verde-amarelo dominante tem leitura política (PRI-01). */
+  --brasil-azul: #002776;
+  --brasil-verde: #009c3b;
+  --brasil-amarelo: #ffdf00;
+
+  --background: #ffffff;
+  --foreground: #0b1220;
+  --card: #ffffff;
+  --card-foreground: #0b1220;
+  --popover: #ffffff;
+  --popover-foreground: #0b1220;
+  --primary: #002776;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f4f9;
+  --secondary-foreground: #0b1f4d;
+  --muted: #f3f5f8;
+  --muted-foreground: #4f5a6b;
+  --accent: #e7eefb;
+  --accent-foreground: #002776;
+  --border: #e2e7ef;
+  --input: #cdd5e1;
+  --ring: #007a30;
+  --radius: 0.75rem;
+
+  --grafico-deputado: #0072b2;
+  --grafico-referencia: #52525b;
+  --grafico-distribuicao: #8a8f99;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-deputado: var(--grafico-deputado);
+  --color-referencia: var(--grafico-referencia);
+  --color-distribuicao: var(--grafico-distribuicao);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-brasil-azul: var(--brasil-azul);
+  --color-brasil-verde: var(--brasil-verde);
+  --color-brasil-amarelo: var(--brasil-amarelo);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-body {
-  margin: 0;
-  background: var(--fundo);
-}
-
-a {
-  color: var(--link);
-  text-underline-offset: 0.15em;
-}
-
-a:hover {
-  text-decoration-thickness: 2px;
-}
-
-:focus-visible {
-  outline: 3px solid var(--foco);
-  outline-offset: 2px;
-}
-
-.pular {
-  position: absolute;
-  left: -999px;
-}
-
-.pular:focus {
-  left: 1rem;
-  top: 1rem;
-  background: var(--fundo);
-  padding: 0.5rem 1rem;
-  z-index: 10;
-}
-
-.so-leitor {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.topo {
-  border-bottom: 1px solid var(--borda);
-  background: var(--fundo-suave);
-}
-
-.topo nav,
-main,
-.rodape div {
-  max-width: var(--largura);
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.topo nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  align-items: center;
-  min-height: 3.25rem;
-}
-
-.topo .marca {
-  font-weight: 700;
-  color: var(--texto);
-  text-decoration: none;
-  margin-right: auto;
-}
-
-main {
-  padding-top: 1.5rem;
-  padding-bottom: 3rem;
-}
-
-h1 {
-  font-size: 1.75rem;
-  line-height: 1.2;
-  margin: 0 0 0.75rem;
-}
-
-h2 {
-  font-size: 1.3rem;
-  line-height: 1.25;
-  margin: 2rem 0 0.5rem;
-}
-
-h3 {
-  font-size: 1.05rem;
-  margin: 1.25rem 0 0.25rem;
-}
-
-p {
-  margin: 0 0 0.75rem;
-}
-
-.suave {
-  color: var(--texto-suave);
-}
-
-.pequeno {
-  font-size: 0.875rem;
-}
-
-.cartao {
-  border: 1px solid var(--borda);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1.25rem 0;
-}
-
-.cartao h2 {
-  margin-top: 0;
-}
-
-.numero {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.1;
-  margin: 0.25rem 0;
-}
-
-.numero small {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--texto-suave);
-}
-
-.legenda {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  font-size: 0.875rem;
-  color: var(--texto-suave);
-  margin: 0.25rem 0 0.75rem;
-}
-
-.legenda span::before {
-  content: '';
-  display: inline-block;
-  width: 0.75rem;
-  height: 0.75rem;
-  margin-right: 0.35rem;
-  vertical-align: -0.05rem;
-  border-radius: 50%;
-}
-
-.legenda .l-deputado::before {
-  background: var(--deputado);
-}
-
-.legenda .l-mediana::before {
-  background: var(--referencia);
-  border-radius: 0;
-  width: 0.2rem;
-}
-
-.legenda .l-faixa::before {
-  background: var(--faixa);
-  border-radius: 0.15rem;
-  width: 1rem;
-}
-
-svg.grafico {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-details {
-  border-top: 1px solid var(--borda);
-  padding-top: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-summary {
-  cursor: pointer;
-  color: var(--link);
-  min-height: 2.75rem;
-  padding: 0.6rem 0;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9375rem;
-  margin: 0.5rem 0 1rem;
-}
-
-caption {
-  text-align: left;
-  font-weight: 600;
-  padding-bottom: 0.25rem;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.4rem 0.5rem;
-  border-bottom: 1px solid var(--borda);
-  vertical-align: top;
-}
-
-td.num,
-th.num {
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.tabela-rolavel {
-  overflow-x: auto;
-}
-
-.barra {
-  display: inline-block;
-  height: 0.75rem;
-  vertical-align: middle;
-  margin-right: 0.4rem;
-  min-width: 2px;
-}
-
-.barra.deputado {
-  background: var(--deputado);
-}
-
-.barra.referencia {
-  background: var(--referencia);
-}
-
-.lista-deputados {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.lista-deputados li {
-  border-bottom: 1px solid var(--borda);
-}
-
-.lista-deputados a {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.6rem 0.25rem;
-  min-height: 2.75rem;
-  text-decoration: none;
-  color: var(--texto);
-}
-
-.lista-deputados a:hover strong {
-  text-decoration: underline;
-}
-
-.lista-deputados img,
-.cabecalho-deputado img {
-  border-radius: 0.25rem;
-  object-fit: cover;
-  background: var(--fundo-suave);
-}
-
-.ufs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-  gap: 0.25rem 1rem;
-  padding: 0;
-  list-style: none;
-}
-
-.ufs a {
-  display: block;
-  padding: 0.6rem 0;
-  min-height: 2.75rem;
-}
-
-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-input[type='search'] {
-  width: 100%;
-  font: inherit;
-  padding: 0.6rem 0.75rem;
-  border: 2px solid var(--texto-suave);
-  border-radius: 0.25rem;
-  min-height: 2.75rem;
-}
-
-.cabecalho-deputado {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.aviso {
-  border-left: 4px solid var(--referencia);
-  background: var(--fundo-suave);
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
-}
-
-.rodape {
-  border-top: 1px solid var(--borda);
-  background: var(--fundo-suave);
-  padding: 1.5rem 0;
-  font-size: 0.875rem;
-  color: var(--texto-suave);
-}
-
-@media (min-width: 40rem) {
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    /* O cabeçalho fixo nunca cobre o elemento em foco (WCAG 2.4.11). */
+    scroll-padding-top: 6rem;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  /* Itens de grid podem encolher abaixo do conteúdo (senão um gráfico largo estoura a tela). */
+  .grid > * {
+    min-width: 0;
+  }
+  a {
+    @apply text-primary underline-offset-4 hover:underline;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  summary {
+    @apply cursor-pointer font-medium text-primary;
+  }
+  /* Só títulos fluidos, sempre somando rem (zoom de 200%, WCAG 1.4.4). */
   h1 {
-    font-size: 2rem;
+    font-size: clamp(1.875rem, 1.45rem + 1.6vw, 3rem);
+  }
+}
+
+@layer components {
+  /* Destaque do gráfico ao chegar por âncora (clique em outro deputado no gráfico). */
+  .destaque-ancora {
+    border-radius: var(--radius);
+    animation: destaque-ancora 2.6s ease-out;
+  }
+  @keyframes destaque-ancora {
+    0%,
+    35% {
+      box-shadow: 0 0 0 4px var(--brasil-amarelo), 0 0 0 9px color-mix(in srgb, var(--brasil-amarelo) 35%, transparent);
+      background: color-mix(in srgb, var(--brasil-amarelo) 12%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+      background: transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .destaque-ancora {
+      animation: none;
+      outline: 4px solid var(--brasil-amarelo);
+      outline-offset: 4px;
+    }
+  }
+
+  /* Linha de etiquetas que rola para o lado: barra fina e esmaecido na borda só quando há
+     mais etiquetas escondidas (scroll-driven animation; sem suporte, fica sem o esmaecido). */
+  .rolagem-lateral {
+    scrollbar-width: thin;
+    scrollbar-color: var(--input) transparent;
+    overscroll-behavior-x: contain;
+  }
+  /* No toque, rolar com o dedo basta; a barra só atrapalharia a leitura. */
+  @media (hover: none), (pointer: coarse) {
+    .rolagem-lateral {
+      scrollbar-width: none;
+    }
+  }
+  @supports (animation-timeline: scroll()) {
+    .rolagem-lateral {
+      animation: rolagem-lateral-mascara linear both;
+      animation-timeline: scroll(self inline);
+    }
+  }
+  @keyframes rolagem-lateral-mascara {
+    0% {
+      mask-image: linear-gradient(90deg, #000 85%, transparent);
+    }
+    5%,
+    95% {
+      mask-image: linear-gradient(90deg, transparent, #000 1.5rem, #000 calc(100% - 2.5rem), transparent);
+    }
+    100% {
+      mask-image: linear-gradient(90deg, transparent, #000 15%);
+    }
+  }
+
+  /* Faixa decorativa verde-amarelo-azul (só ornamento, aria-hidden no HTML). */
+  .faixa-brasil {
+    height: 4px;
+    background: linear-gradient(90deg, var(--brasil-verde) 0 40%, var(--brasil-amarelo) 40% 70%, var(--brasil-azul) 70% 100%);
+  }
+
+  /* Tabelas de dados (padrão Table do shadcn/ui). */
+  .tabela {
+    @apply w-full caption-bottom text-sm;
+  }
+  .tabela caption {
+    @apply mt-0 mb-2 text-left font-semibold text-foreground;
+    caption-side: top;
+  }
+  .tabela thead tr {
+    @apply border-b;
+  }
+  .tabela th {
+    @apply h-10 px-2 text-left align-middle text-xs font-medium tracking-wide text-muted-foreground uppercase;
+  }
+  .tabela td {
+    @apply border-b p-2 align-top;
+  }
+  .tabela .num {
+    @apply text-right whitespace-nowrap tabular-nums;
+  }
+
+  /* Mapa do Brasil (SVG): só navegação, cor única neutra. */
+  .mapa-svg .uf path {
+    fill: #f4f4f5;
+    stroke: #8a8a94;
+    stroke-width: 1.2;
+    transition: fill 0.12s ease;
+  }
+  .mapa-svg .uf:hover path,
+  .mapa-svg .uf.ativo path,
+  .mapa-svg .uf:focus-visible path {
+    fill: var(--primary);
+  }
+  .mapa-svg .uf:focus-visible {
+    outline: none;
+  }
+  .mapa-svg .uf:focus-visible path {
+    stroke: var(--ring);
+    stroke-width: 6;
+  }
+  .mapa-svg .sigla {
+    font-size: 26px;
+    font-weight: 600;
+    fill: #27272a;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+  }
+  .mapa-svg .uf.ativo .sigla:not(.externa),
+  .mapa-svg .uf:hover .sigla:not(.externa),
+  .mapa-svg .uf:focus-visible .sigla:not(.externa) {
+    fill: #ffffff;
+  }
+  .mapa-svg .uf.ativo .sigla.externa,
+  .mapa-svg .uf:hover .sigla.externa {
+    fill: var(--primary);
+  }
+  .mapa-svg .guia {
+    stroke: #8a8a94;
+    stroke-width: 1.5;
+  }
+  .mapa-svg .toque {
+    fill: transparent;
+  }
+  .mapa-svg .uf.ativo circle.toque,
+  .mapa-svg .uf:hover circle.toque,
+  .mapa-svg .uf:focus-visible circle.toque {
+    fill: var(--primary);
+  }
+  .mapa-svg .uf.ativo rect.toque,
+  .mapa-svg .uf:hover rect.toque,
+  .mapa-svg .uf:focus-visible rect.toque {
+    fill: var(--accent);
+    stroke: var(--primary);
+    stroke-width: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
   }
 }

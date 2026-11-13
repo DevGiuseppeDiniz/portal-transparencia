@@ -24,7 +24,8 @@ export interface ResultadoMet03 {
 export async function calcularMet03(sql: Sql, versaoCalculo: string): Promise<ResultadoMet03 | null> {
   const vigentes = await sql<{ chave: string; coleta_id: string }[]>`
     select chave, coleta_id from core.coleta_vigente
-     where chave like 'proposicoes:%' or chave like 'proposicoesAutores:%' or chave like 'proposicoesTramitacoes:%'`;
+     where chave like 'proposicoes:%' or chave like 'proposicoesAutores:%' or chave like 'proposicoesTramitacoes:%'
+        or chave like 'proposicoesTemas:%'`;
   const de = (prefixo: string) => vigentes.filter((v) => v.chave.startsWith(`${prefixo}:`)).map((v) => v.coleta_id);
   const [cProp, cAut, cTram] = [de('proposicoes'), de('proposicoesAutores'), de('proposicoesTramitacoes')];
   if (!cProp.length || !cAut.length || !cTram.length) {
@@ -32,6 +33,7 @@ export async function calcularMet03(sql: Sql, versaoCalculo: string): Promise<Re
   }
 
   const deputados = await sql<{ id_camara: number; coleta_id: string }[]>`select id_camara, coleta_id from core.deputado where em_exercicio`;
+  const cTemas = de('proposicoesTemas');
   if (!deputados.length) return null;
   const emExercicio = new Set(deputados.map((d) => d.id_camara));
 
@@ -39,9 +41,11 @@ export async function calcularMet03(sql: Sql, versaoCalculo: string): Promise<Re
   const proposicoes = await sql<{
     id_proposicao: number; id_deputado: number; sigla_tipo: 'PL' | 'PLP' | 'PEC'; numero: number; ano: number;
     ementa: string; data_apresentacao: string; id_principal: number | null; situacao: string | null;
+    ementa_detalhada: string | null; palavras_chave: string[]; regime: string | null; apreciacao: string | null;
   }[]>`
     select distinct on (p.id_proposicao)
            p.id_proposicao, a.id_deputado, p.sigla_tipo, p.numero, p.ano, p.ementa,
+           p.ementa_detalhada, p.palavras_chave, p.regime, p.apreciacao,
            to_char(p.data_apresentacao, 'YYYY-MM-DD"T"HH24:MI:SS') as data_apresentacao, p.id_principal, p.situacao
       from staging.camara_proposicao p
       join staging.camara_proposicao_autor a
@@ -49,6 +53,14 @@ export async function calcularMet03(sql: Sql, versaoCalculo: string): Promise<Re
      where p.coleta_id in ${sql(cProp)}
        and p.data_apresentacao >= ${LEGISLATURA_ATUAL.inicio}::date
      order by p.id_proposicao, p.obtido_em desc`;
+
+  const temas = new Map<number, string[]>();
+  if (cTemas.length) {
+    for (const t of await sql<{ id_proposicao: number; tema: string }[]>`
+        select distinct id_proposicao, tema from staging.camara_proposicao_tema where coleta_id in ${sql(cTemas)} order by tema`) {
+      temas.set(t.id_proposicao, [...(temas.get(t.id_proposicao) ?? []), t.tema]);
+    }
+  }
 
   const tramitacoes = new Map<number, TramitacaoFunil[]>();
   for (const t of await sql<{ id_proposicao: number; sigla_orgao: string; descricao: string }[]>`
@@ -70,7 +82,7 @@ export async function calcularMet03(sql: Sql, versaoCalculo: string): Promise<Re
 
   const funis = [...porDeputado].map(([id, itens]) => ({ id, funil: calcularFunil(itens), itens }));
   const referencia = referenciaFunil(funis.map((f) => f.funil));
-  const coletas = [...new Set([...cProp, ...cAut, ...cTram, ...deputados.map((d) => d.coleta_id)])];
+  const coletas = [...new Set([...cProp, ...cAut, ...cTram, ...cTemas, ...deputados.map((d) => d.coleta_id)])];
   const fim = new Date().toISOString().slice(0, 10);
 
   return sql.begin(async (tx) => {
@@ -121,6 +133,11 @@ export async function calcularMet03(sql: Sql, versaoCalculo: string): Promise<Re
         apensada: i.apensada,
         encerrada: i.encerrada,
         situacao: i.p.situacao,
+        temas: temas.get(i.p.id_proposicao) ?? [],
+        palavras_chave: i.p.palavras_chave,
+        ementa_detalhada: i.p.ementa_detalhada,
+        regime: i.p.regime,
+        apreciacao: i.p.apreciacao,
       })),
     );
     for (const lote of fatiar(linhas, 2000)) await tx`insert into metrics.met03_proposicao ${tx(lote)}`;

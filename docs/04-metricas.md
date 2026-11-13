@@ -119,6 +119,32 @@ Classe: **objetiva** (fato verificável) ou **curada** (depende de seleção hum
   - Limitação a declarar na tela (REF-05): o funil só vê o avanço dos próprios projetos;
     relatoria (REF-28), emendas, fiscalização e obstrução ficam de fora.
 
+### Lista de projetos para o cidadão (2026-11-13)
+Sem IA e sem texto mantido à mão: só regras sobre o que a Câmara publica (SRC-01b).
+- **Do que trata** (nesta ordem): ementa detalhada da Câmara (6,3% dos projetos) → o objetivo,
+  quando a ementa começa por "Altera/Acrescenta/Dá nova redação…": o trecho depois de "para"
+  ou "a fim de" **seguido de verbo no infinitivo** (40,1%, exibido como "Objetivo: …"; o
+  infinitivo evita pegar o "para" do nome da lei citada) → a ementa, quando já começa por
+  verbo direto ("Institui", "Proíbe"…; 45,6%) → palavras-chave da Câmara (8%). O cartão sempre diz a
+  origem do texto e mostra a ementa oficial a um clique (`apps/web/lib/projetos.ts`).
+- **Tema:** classificação oficial da Câmara (`proposicoesTemas-{ano}`, 31 temas; 99,8% dos
+  projetos). Gráfico "Sobre quais temas apresenta projetos?": parte de cada tema nos projetos
+  do deputado, com a parte do tema em todos os projetos da Câmara como referência (PRI-02).
+- **Situação em linguagem simples:** mapa fixo das ~35 situações da Câmara; situação nova
+  aparece como a Câmara escreve. Mais a régua de etapas do funil e "quem decide"
+  (comissões, de forma conclusiva, ou Plenário).
+- **Lista** (não cartões): a linha mostra primeiro a **área** (todos os temas, rolando para o
+  lado quando não cabem), depois número + "do que trata" em **uma linha** (reticências) e, na
+  última coluna, só a etapa (mini-régua + nome). Barra no padrão da tabela de dados do
+  shadcn/ui: busca, filtros em botão com contagem por faceta (tema com busca interna, etapa,
+  situação), "Limpar" e ordenação (mais recentes, mais antigos, mais avançados, número).
+  Rolagem infinita de 20 em 20, com carregador quando a pessoa desce mais rápido que a lista.
+- **Página do projeto** (`/deputado/{id}/projeto/{idProjeto}`): área, "do que trata" e
+  origem, "Em que pé está?" com a régua, ementa oficial, palavras-chave e ficha (autor, data,
+  quem decide, regime, situação como a Câmara escreve, link para a Câmara em nova aba). São
+  ~20 mil projetos: a página é gerada na primeira visita e fica em cache até o próximo build
+  (ver `11-arquitetura`).
+
 ## MET-04 — Votações nominais
 - **Classe:** objetiva (o voto) / curada (o agrupamento por tema)
 - **Exibição:** lista das votações com o voto do deputado e o resultado. Agrupamento por

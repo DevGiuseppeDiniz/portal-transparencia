@@ -380,3 +380,43 @@ Indicadas pelo usuário em 2026-11-13. Uso pretendido: `13-seguranca.md`,
 - **Usado em:** MET-03 (crítica à REF-05: apensação mostrada à parte)
 - **Status:** verificado-resumo (resumo e post dos autores no Legislative Branch blog).
 
+## REF-30 — WAI-ARIA APG (Combobox) e GOV.UK accessible-autocomplete
+- **Citação:** W3C, ARIA Authoring Practices Guide, padrão Combobox
+  (https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). GDS, accessible-autocomplete
+  (https://github.com/alphagov/accessible-autocomplete) e post de testes de acessibilidade
+  (https://accessibility.blog.gov.uk/2018/05/15/what-we-learned-from-getting-our-autocomplete-tested-for-accessibility).
+- **Achado:** papéis e teclado do combobox; o APG avisa que o suporte varia entre leitores
+  de tela. Testes do GOV.UK (DAC + usuários com deficiência): sugestão quebrada em duas
+  linhas parece dois itens; ditado por voz falhou; mensagens de status em região viva.
+- **Usado em:** busca do topo (`05-design.md`, 2026-11-13)
+- **Status:** verificado-resumo (2026-11-13; páginas lidas via resumo de ferramenta).
+
+## REF-31 — WCAG 2.2 Understanding 2.5.8 e mapas como seletor
+- **Citação:** W3C, Understanding SC 2.5.8 Target Size (Minimum)
+  (https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html); NN/g, drop-down
+  menus (https://www.nngroup.com/articles/drop-down-menus/); NPR, hex tile maps (2015).
+- **Achado:** alvo ≥ 24×24 px ou exceção "equivalente" (outro controle com a mesma função na
+  página). Não há estudo empírico de mapa × lista para seleção; para listas longas, deixar
+  digitar. Cartogramas em grade resolvem estados pequenos, mas perdem a forma reconhecível.
+- **Usado em:** mapa da home
+- **Status:** verificado-resumo (2026-11-13). Não lidos: cartograma hexagonal do LabVis/UFRJ
+  (Barreto, Esperança & Kosminsky 2018), McNeill & Hale 2017 (só resumo).
+
+## REF-32 — GOV.UK Layout e USWDS Layout grid
+- **Citação:** https://design-system.service.gov.uk/styles/layout/ ·
+  https://designsystem.digital.gov/utilities/layout-grid/
+- **Achado:** largura máxima ≈ 1020–1024 px, conteúdo em ~2/3 (até ~75 caracteres),
+  mobile-first; breakpoints USWDS 480/640/1024 px. Sem pesquisa citada.
+- **Usado em:** layout responsivo
+- **Status:** verificado-resumo (2026-11-13).
+
+## REF-33 — Monitoramento parlamentar: TheyWorkForYou (2023) e abgeordnetenwatch.de
+- **Citação:** mySociety, "Learning from the way people use TheyWorkForYou" (2023,
+  https://www.mysociety.org/2023/07/04/learning-from-the-way-people-use-theyworkforyou/);
+  home de https://www.abgeordnetenwatch.de/
+- **Achado:** a maioria chega pelo Google direto em páginas profundas (cada página precisa
+  de contexto próprio); entrada por localização. abgeordnetenwatch usa busca no menu e cards;
+  o único mapa é temático, não de navegação.
+- **Usado em:** busca no topo em todas as páginas; página do deputado autoexplicativa
+- **Status:** verificado-resumo (2026-11-13). GovTrack e Nos Députés não abriram.
+

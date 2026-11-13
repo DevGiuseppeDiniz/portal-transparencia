@@ -1,6 +1,7 @@
 // Como calculamos (06-auditoria, camada 2): o mais importante primeiro, listas, voz ativa e
 // limitações explícitas (DSG-07, Lei 15.263/2025 como padrão de redação).
 
+import { Voltar } from '../../componentes/Voltar';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Como calculamos' };
@@ -9,8 +10,9 @@ const REPO = 'https://github.com/DevGiuseppeDiniz/portal-transparencia';
 
 export default function Metodo() {
   return (
-    <>
-      <h1>Como calculamos</h1>
+    <main id="conteudo" className="mx-auto max-w-3xl px-4 py-10 sm:px-6 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:scroll-mt-24 [&_h2]:text-2xl [&_h2]:font-semibold [&_li]:mt-2 [&_p]:mt-3 [&_ul]:list-disc [&_ul]:pl-5">
+      <Voltar destino="/" />
+      <h1 className="font-bold tracking-tight">Como calculamos</h1>
       <p>
         Este site não dá nota, não faz ranking e não diz se um deputado é bom ou ruim. Mostra três números de cada deputado, sempre ao lado da
         comparação com os demais, e o caminho para conferir cada um na fonte oficial.
@@ -120,6 +122,6 @@ export default function Metodo() {
         Abra um registro no <a href={`${REPO}/issues`}>repositório do projeto</a>, com o endereço da página e o que está diferente da fonte oficial.
         Correções ficam registradas publicamente, com data.
       </p>
-    </>
+    </main>
   );
 }

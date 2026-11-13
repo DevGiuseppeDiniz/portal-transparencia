@@ -70,12 +70,12 @@ export async function calcularMet02(sql: Sql, versaoCalculo: string, hoje = new 
     despesas.set(d.id_camara, lista);
   }
 
-  const resultados: Array<{ id: number; uf: Uf; cota: CotaCalculada }> = deputados.map((d) => {
+  const resultados: Array<{ id: number; uf: Uf; cota: CotaCalculada; meses: readonly string[] }> = deputados.map((d) => {
     const meses = mesesEmExercicio(historicos.get(d.id_camara) ?? [], periodo.meses);
     const cota = calcularCota(despesas.get(d.id_camara) ?? [], meses, (m) =>
       tetoCeap(d.sigla_uf, Number(m.slice(0, 4)), Number(m.slice(5, 7)))!.centavos,
     );
-    return { id: d.id_camara, uf: d.sigla_uf, cota };
+    return { id: d.id_camara, uf: d.sigla_uf, cota, meses };
   });
   const referencia = referenciaCotaPorUf(resultados);
 
@@ -122,6 +122,22 @@ export async function calcularMet02(sql: Sql, versaoCalculo: string, hoje = new 
       minimo: r.minimo, maximo: r.maximo, min_meses: MET02_MIN_MESES_REFERENCIA,
     }));
     if (refs.length) await tx`insert into metrics.met02_referencia_uf ${tx(refs)}`;
+
+    // Mês a mês (gráfico mensal): todos os meses do período; só os em exercício entram no total.
+    const porMes = resultados.flatMap(({ id, uf, meses }) => {
+      const emExercicio = new Set(meses);
+      const gastoMes = new Map<string, number>();
+      for (const d of despesas.get(id) ?? []) gastoMes.set(d.mes, (gastoMes.get(d.mes) ?? 0) + d.centavos);
+      return periodo.meses.map((m) => ({
+        calculo_id: calculoId,
+        id_camara: id,
+        mes: m,
+        em_exercicio: emExercicio.has(m),
+        gasto_centavos: gastoMes.get(m) ?? 0,
+        valor_base_centavos: tetoCeap(uf, Number(m.slice(0, 4)), Number(m.slice(5, 7)))!.centavos,
+      }));
+    });
+    for (const lote of fatiar(porMes, 3000)) await tx`insert into metrics.met02_mes ${tx(lote)}`;
 
     const ufs = [...new Set(resultados.map((r) => r.uf))];
     const tetos = ufs.flatMap((uf) =>
