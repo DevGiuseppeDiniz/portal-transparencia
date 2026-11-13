@@ -20,6 +20,7 @@
 | SRC-01 | Câmara — API v2 | REST JSON/XML | não | `fontes/deputado-federal.md#src-01` |
 | SRC-01b | Câmara — arquivos em massa | download | não | `fontes/deputado-federal.md#src-01b` |
 | SRC-01c | Câmara — CEAP (cota) | download anual | não | `fontes/deputado-federal.md#src-01c` |
+| SRC-01d | Câmara — webservices legados (frequência) | XML (SitCamaraWS) | não | `fontes/deputado-federal.md#src-01d` |
 | SRC-02 | TSE — Portal de Dados Abertos | CKAN + download | não | `fontes/deputado-federal.md#src-02` |
 | SRC-02b | TSE — DivulgaCandContas | consulta web | não | `fontes/deputado-federal.md#src-02b` |
 | SRC-03 | CGU — Portal da Transparência API | REST | chave (cadastro) | `fontes/deputado-federal.md#src-03` |
@@ -37,7 +38,7 @@ Todas as fontes oficiais são gratuitas. Diferenças:
 
 | Fonte | Custo | Condição |
 |---|---|---|
-| SRC-01, 01b, 01c (Câmara) | grátis | sem cadastro |
+| SRC-01, 01b, 01c, 01d (Câmara) | grátis | sem cadastro |
 | SRC-02 (TSE) | grátis | sem cadastro |
 | SRC-03 (Portal da Transparência) | grátis | cadastro de e-mail para obter a chave; limite de requisições por minuto |
 | SRC-04 (Receita CNPJ) | grátis | sem cadastro; o custo real é armazenamento/processamento |

@@ -40,3 +40,12 @@ test('ler/salvar: recusam caminho e fonte fora do padrão (path traversal)', asy
   await assert.rejects(raw.ler('../../etc/passwd'), /inválido/);
   await assert.rejects(raw.salvar('../fora', 'x', em), /inválida/);
 });
+
+test('salvarArquivo: guarda os bytes exatos, com o hash do próprio arquivo', async () => {
+  const bytes = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0, 1, 2, 255]);
+  const o = await raw.salvarArquivo('SRC-01c', bytes, 'zip', em);
+  assert.equal(o.hash, sha256(bytes));
+  assert.equal(o.caminho, `SRC-01c/2026-11-13/${o.hash}.zip`);
+  assert.deepEqual(await raw.lerArquivo(o.caminho), bytes);
+  await assert.rejects(raw.ler(o.caminho), /não é um pacote JSON/);
+});

@@ -11,6 +11,10 @@ export interface RespostaBruta {
   readonly corpo: string;
 }
 
+export interface RespostaBinaria extends Omit<RespostaBruta, 'corpo'> {
+  readonly bytes: Buffer;
+}
+
 export interface OpcoesHttp {
   readonly fetch?: typeof fetch;
   /** Tentativas no total (1 = sem retry). */
@@ -35,7 +39,7 @@ export class ErroHttp extends Error {
 // Identificação genérica: não leva nome nem contato de pessoa.
 const USER_AGENT = 'portal-parlamentar-coletor/0.1 (+dados abertos; somente leitura)';
 const ESPERA_MAXIMA_MS = 60_000;
-const CABECALHOS_GUARDADOS = ['content-type', 'x-total-count', 'link', 'last-modified', 'etag', 'date'];
+const CABECALHOS_GUARDADOS = ['content-type', 'content-length', 'x-total-count', 'link', 'last-modified', 'etag', 'date'];
 
 const esperarPadrao = (ms: number) => new Promise<void>((resolver) => setTimeout(resolver, ms));
 
@@ -53,6 +57,16 @@ export function lerRetryAfter(valor: string | null, agora = Date.now()): number 
 }
 
 export async function obter(url: string, opcoes: OpcoesHttp = {}): Promise<RespostaBruta> {
+  const { bytes, ...resto } = await requisitar(url, opcoes, 'application/json');
+  return { ...resto, corpo: bytes.toString('utf8') };
+}
+
+/** Para arquivos (ZIP etc.): devolve os bytes exatos, sem decodificar. */
+export async function obterBytes(url: string, opcoes: OpcoesHttp = {}): Promise<RespostaBinaria> {
+  return requisitar(url, { timeoutMs: 300_000, ...opcoes }, '*/*');
+}
+
+async function requisitar(url: string, opcoes: OpcoesHttp, accept: string): Promise<RespostaBinaria> {
   const {
     fetch: buscar = fetch,
     tentativas = 4,
@@ -65,14 +79,14 @@ export async function obter(url: string, opcoes: OpcoesHttp = {}): Promise<Respo
   for (let tentativa = 1; tentativa <= tentativas; tentativa++) {
     let esperaMs = 1000 * 2 ** (tentativa - 1);
     let resposta: Response | null = null;
-    let corpo = '';
+    let bytes = Buffer.alloc(0);
     try {
       resposta = await buscar(url, {
-        headers: { accept: 'application/json', 'user-agent': USER_AGENT },
+        headers: { accept, 'user-agent': USER_AGENT },
         redirect: 'error',
         signal: AbortSignal.timeout(timeoutMs),
       });
-      corpo = await resposta.text();
+      bytes = Buffer.from(await resposta.arrayBuffer());
     } catch (e) {
       const motivo = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
       ultimoErro = new ErroHttp(`falha de rede em ${url} (${motivo})`, url, null);
@@ -85,7 +99,7 @@ export async function obter(url: string, opcoes: OpcoesHttp = {}): Promise<Respo
         const valor = resposta.headers.get(nome);
         if (valor !== null) cabecalhos[nome] = valor;
       }
-      return { url, status: resposta.status, recebidaEm: new Date().toISOString(), cabecalhos, corpo };
+      return { url, status: resposta.status, recebidaEm: new Date().toISOString(), cabecalhos, bytes };
     }
     if (resposta) {
       ultimoErro = new ErroHttp(`HTTP ${resposta.status} em ${url}`, url, resposta.status);

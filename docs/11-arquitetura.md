@@ -98,6 +98,20 @@ registro com a coleta que o gerou.
 - Validação estrita do que vem da fonte (SEG-06): formato inesperado é falha da coleta,
   nunca "melhor esforço". Link de próxima página só é seguido se for da própria API.
 
+### Implementação (MET-01 e MET-02, 2026-11-13)
+- **Uma coleta por dia** de frequência (SRC-01d): cada dia é uma requisição independente e
+  lenta, e a coleta de um dia pode falhar sem invalidar as outras.
+- **Arquivo oficial no `raw` byte a byte** (CEAP, ZIP): o `hash_conteudo` é o SHA-256 do
+  próprio arquivo da Câmara, e qualquer pessoa pode baixá-lo e conferir. Se o arquivo é
+  idêntico ao da coleta vigente, a coleta é registrada sem duplicar as ~200 mil linhas.
+- **`core.coleta_vigente`**: para conjuntos grandes (CEAP, histórico), o core não copia o
+  staging; aponta qual coleta vale, e as leituras filtram o staging por ela.
+- **`metrics.calculo`**: cada execução de cálculo é um registro append-only com a métrica,
+  a versão do método, o período e a lista de `coleta_id` usados. As tabelas de cada
+  métrica referenciam o cálculo; um número publicado nunca muda.
+- Leitores sem dependência (`packages/sources`): XML estrito (sem DOCTYPE/entidades),
+  ZIP (deflate, com limite contra zip bomb) e CSV em fluxo.
+
 ## Ambiente local
 Pré-requisitos: Node 24, pnpm e Docker (sem compose).
 
@@ -105,7 +119,10 @@ Pré-requisitos: Node 24, pnpm e Docker (sem compose).
 pnpm install
 pnpm db:up       # Postgres 18 em 127.0.0.1:54329; cria .env com senha aleatória
 pnpm db:migrar   # aplica packages/db/migrations em ordem (registro em schema_migrations)
-pnpm coletar     # coletor SRC-01: deputados em exercício
+pnpm coletar     # todas as etapas; ou só algumas: pnpm coletar deputados met01
+                 #   deputados → eventos → matriculas → presenca → met01
+                 #   → historico → ceap → met02
+                 # (a 1ª carga da presença leva ~25 min: o webservice é lento)
 pnpm test        # node:test, sem banco nem rede
 pnpm db:down     # para o container (dados ficam no volume)
 ```

@@ -10,7 +10,6 @@
 // Só uma coleta com sucesso atualiza o core. Falha ou coleta parcial ficam registradas,
 // com o bruto guardado, e o core continua no último estado bom.
 
-import type { Sql, TransacaoSql } from '@portal/db';
 import {
   ErroFormato,
   ErroHttp,
@@ -22,27 +21,20 @@ import {
   type OpcoesHttp,
   type RespostaBruta,
 } from '@portal/sources';
-import type { ArmazenamentoRaw, ObjetoRaw } from '../raw.ts';
+import {
+  abrirColeta,
+  descreverErro,
+  fatiar,
+  fecharColeta,
+  salvarPacote,
+  type Dependencias,
+  type ResultadoColeta,
+} from '../coleta.ts';
+import type { ObjetoRaw } from '../raw.ts';
 
 const FONTE = 'SRC-01';
 /** Trava contra loop de paginação (a lista tem ~513 deputados = 6 páginas). */
 const MAX_PAGINAS = 20;
-
-export interface ResultadoColeta {
-  readonly coletaId: string;
-  readonly status: 'sucesso' | 'parcial' | 'falha';
-  readonly registros: number;
-  readonly raw: ObjetoRaw | null;
-  readonly erro: string | null;
-}
-
-export interface DependenciasColetor {
-  readonly sql: Sql;
-  readonly raw: ArmazenamentoRaw;
-  readonly versao: string;
-  readonly http?: OpcoesHttp;
-  readonly agora?: () => Date;
-}
 
 /** Baixa e interpreta todas as páginas. Em erro, devolve o que já tinha baixado. */
 export async function baixarDeputados(http: OpcoesHttp = {}): Promise<{
@@ -78,108 +70,74 @@ export function conferirLote(deputados: readonly DeputadoCamara[], primeira: Res
   return null;
 }
 
-export async function coletarDeputados(deps: DependenciasColetor): Promise<ResultadoColeta> {
+export async function coletarDeputados(deps: Dependencias): Promise<ResultadoColeta> {
   const { sql, raw, versao, http = {}, agora = () => new Date() } = deps;
   const urlRequisitada = urlDeputadosEmExercicio();
-
-  const [coleta] = await sql<{ id: string }[]>`
-    insert into raw.coleta (fonte_id, url_requisitada, metodo, versao_coletor)
-    values (${FONTE}, ${urlRequisitada}, 'api', ${versao})
-    returning id`;
-  const coletaId = coleta!.id;
+  const coletaId = await abrirColeta(sql, FONTE, urlRequisitada, versao);
 
   const { paginas, deputados, erro: erroDownload } = await baixarDeputados(http);
   const ultimoStatus = paginas.at(-1)?.status ?? (erroDownload instanceof ErroHttp ? erroDownload.status : null);
 
   let objeto: ObjetoRaw | null = null;
   try {
-    if (paginas.length > 0) {
-      // O pacote bruto: cada página com a URL exata, o status, os cabeçalhos relevantes e o
-      // corpo original (string). É o que um auditor baixa para refazer a conta.
-      const pacote = JSON.stringify({ fonteId: FONTE, coletaId, urlRequisitada, paginas });
-      objeto = await raw.salvar(FONTE, pacote, agora());
-    }
+    if (paginas.length > 0) objeto = await salvarPacote(raw, FONTE, coletaId, urlRequisitada, paginas, agora());
   } catch (e) {
-    return fechar(sql, coletaId, 'falha', null, ultimoStatus, 0, `falha ao salvar o raw: ${String(e)}`);
+    return fecharColeta(sql, coletaId, 'falha', null, ultimoStatus, 0, `falha ao salvar o raw: ${descreverErro(e)}`);
   }
 
   if (erroDownload) {
-    return fechar(sql, coletaId, 'falha', objeto, ultimoStatus, deputados.length, `${erroDownload.name}: ${erroDownload.message}`);
+    return fecharColeta(sql, coletaId, 'falha', objeto, ultimoStatus, deputados.length, descreverErro(erroDownload));
   }
 
   const motivoParcial = conferirLote(deputados, paginas[0]!);
   const obtidoEm = new Date(paginas.at(-1)!.recebidaEm);
 
-  return sql.begin(async (tx) => {
-    for (const lote of fatiar(deputados, 200)) {
-      await tx`insert into staging.camara_deputado ${tx(
-        lote.map((d) => ({
-          coleta_id: coletaId,
-          fonte_id: FONTE,
-          obtido_em: obtidoEm,
-          url_origem_publica: urlPublicaDeputado(d.id),
-          id_camara: d.id,
-          nome: d.nome,
-          sigla_partido: d.siglaPartido,
-          sigla_uf: d.siglaUf,
-          id_legislatura: d.idLegislatura,
-          url_foto: d.urlFoto,
-          email: d.email,
-        })),
-      )}`;
-    }
+  try {
+    return await sql.begin(async (tx) => {
+      for (const lote of fatiar(deputados, 200)) {
+        await tx`insert into staging.camara_deputado ${tx(
+          lote.map((d) => ({
+            coleta_id: coletaId,
+            fonte_id: FONTE,
+            obtido_em: obtidoEm,
+            url_origem_publica: urlPublicaDeputado(d.id),
+            id_camara: d.id,
+            nome: d.nome,
+            sigla_partido: d.siglaPartido,
+            sigla_uf: d.siglaUf,
+            id_legislatura: d.idLegislatura,
+            url_foto: d.urlFoto,
+            email: d.email,
+          })),
+        )}`;
+      }
 
-    if (motivoParcial === null) {
-      await tx`
-        insert into core.deputado (
-          id_camara, nome, sigla_partido, sigla_uf, id_legislatura, url_foto, email,
-          em_exercicio, coleta_id, fonte_id, obtido_em, url_origem_publica)
-        select id_camara, nome, sigla_partido, sigla_uf, id_legislatura, url_foto, email,
-               true, coleta_id, fonte_id, obtido_em, url_origem_publica
-          from staging.camara_deputado
-         where coleta_id = ${coletaId}
-        on conflict (id_camara) do update set
-          nome = excluded.nome, sigla_partido = excluded.sigla_partido, sigla_uf = excluded.sigla_uf,
-          id_legislatura = excluded.id_legislatura, url_foto = excluded.url_foto, email = excluded.email,
-          em_exercicio = true, coleta_id = excluded.coleta_id, fonte_id = excluded.fonte_id,
-          obtido_em = excluded.obtido_em, url_origem_publica = excluded.url_origem_publica`;
-      // Quem saiu da lista (licença, suplente que deixou o cargo) continua no core, sem
-      // exercício, apontando para a coleta que constatou a saída.
-      await tx`
-        update core.deputado
-           set em_exercicio = false, coleta_id = ${coletaId}, obtido_em = ${obtidoEm}
-         where em_exercicio
-           and id_camara not in (select id_camara from staging.camara_deputado where coleta_id = ${coletaId})`;
-    }
+      if (motivoParcial === null) {
+        await tx`
+          insert into core.deputado (
+            id_camara, nome, sigla_partido, sigla_uf, id_legislatura, url_foto, email,
+            em_exercicio, coleta_id, fonte_id, obtido_em, url_origem_publica)
+          select id_camara, nome, sigla_partido, sigla_uf, id_legislatura, url_foto, email,
+                 true, coleta_id, fonte_id, obtido_em, url_origem_publica
+            from staging.camara_deputado
+           where coleta_id = ${coletaId}
+          on conflict (id_camara) do update set
+            nome = excluded.nome, sigla_partido = excluded.sigla_partido, sigla_uf = excluded.sigla_uf,
+            id_legislatura = excluded.id_legislatura, url_foto = excluded.url_foto, email = excluded.email,
+            em_exercicio = true, coleta_id = excluded.coleta_id, fonte_id = excluded.fonte_id,
+            obtido_em = excluded.obtido_em, url_origem_publica = excluded.url_origem_publica`;
+        // Quem saiu da lista (licença, suplente que deixou o cargo) continua no core, sem
+        // exercício, apontando para a coleta que constatou a saída.
+        await tx`
+          update core.deputado
+             set em_exercicio = false, coleta_id = ${coletaId}, obtido_em = ${obtidoEm}
+           where em_exercicio
+             and id_camara not in (select id_camara from staging.camara_deputado where coleta_id = ${coletaId})`;
+      }
 
-    return fechar(tx, coletaId, motivoParcial ? 'parcial' : 'sucesso', objeto, ultimoStatus, deputados.length, motivoParcial);
-  });
-}
-
-async function fechar(
-  sql: Sql | TransacaoSql,
-  coletaId: string,
-  status: ResultadoColeta['status'],
-  objeto: ObjetoRaw | null,
-  statusHttp: number | null,
-  registros: number,
-  erro: string | null,
-): Promise<ResultadoColeta> {
-  await sql`
-    update raw.coleta set
-      status = ${status},
-      finalizada_em = now(),
-      status_http = ${statusHttp},
-      hash_conteudo = ${objeto?.hash ?? null},
-      caminho_raw = ${objeto?.caminho ?? null},
-      registros = ${registros},
-      erro = ${erro}
-    where id = ${coletaId}`;
-  return { coletaId, status, registros, raw: objeto, erro };
-}
-
-function fatiar<T>(itens: readonly T[], tamanho: number): T[][] {
-  const fatias: T[][] = [];
-  for (let i = 0; i < itens.length; i += tamanho) fatias.push(itens.slice(i, i + tamanho));
-  return fatias;
+      return fecharColeta(tx, coletaId, motivoParcial ? 'parcial' : 'sucesso', objeto, ultimoStatus, deputados.length, motivoParcial);
+    });
+  } catch (e) {
+    return fecharColeta(sql, coletaId, 'falha', objeto, ultimoStatus, 0, `falha ao gravar: ${descreverErro(e)}`);
+  }
 }

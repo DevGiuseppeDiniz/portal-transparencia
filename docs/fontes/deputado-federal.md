@@ -11,7 +11,7 @@ fontes secundárias) · `a-verificar`.
 | Dimensão do deputado | Fonte principal | Complementar |
 |---|---|---|
 | Identidade, partido, UF, situação, histórico | SRC-01 | SRC-02 |
-| Presença em sessões e comissões | SRC-01 (`eventos`), SRC-01b (`eventosPresencaDeputados`) | — |
+| Presença em sessões e comissões | SRC-01d (frequência oficial em Plenário, com justificativa) | SRC-01b (`eventos`, `eventosPresencaDeputados`) |
 | Votações nominais e orientação de bancada | SRC-01 (`votacoes`), SRC-01b | — |
 | Proposições e tramitação (funil MET-03) | SRC-01 (`proposicoes`), SRC-01b | — |
 | Comissões, cargos, liderança, Mesa | SRC-01 (`orgaos`, `legislaturas`) | — |
@@ -72,8 +72,51 @@ fontes secundárias) · `a-verificar`.
 - **URL:** `http://www.camara.leg.br/cotas/Ano-{ano}.{formato}[.zip]` (desde 2008;
   XML/JSON/CSV vêm em ZIP).
 - **Uso:** MET-02. Cruzar o CNPJ do fornecedor com SRC-04.
+- **Formato (verificado em 2026-11-13):** ZIP com uma entrada `Ano-{ano}.csv` (deflate,
+  UTF-8 com BOM, separador `;`, 32 colunas). ~7 MB compactado e ~75 MB descompactado por
+  ano (~210 mil linhas). O JSON equivalente tem ~225 MB: usar o CSV.
+- **Colunas usadas:** `ideCadastro` (= id da API v2; vazio em despesas de liderança),
+  `numAno`, `numMes`, `txtDescricao`, `txtFornecedor`, `txtCNPJCPF`, `vlrDocumento`,
+  `vlrGlosa` (vazio = 0, acontece no auxílio-moradia), `vlrLiquido` (pode ser negativo:
+  compensação de bilhete), `ideDocumento`, `urlDocumento` (PDF da nota).
+- **Dados pessoais no arquivo (não vão para o banco):** `cpf` do deputado,
+  `txtPassageiro`, e nome/CPF de fornecedor pessoa física.
+- **Valor da cota por UF:** Anexo do Ato da Mesa 43/2009, com redação do Ato 270/2023
+  (desde 01/02/2023) e atualização do Ato 244/2026 (desde 20/02/2026, valores publicados
+  pela Câmara no "Guia para jornalistas", não no ato). Tabela em
+  `packages/sources/src/ceap.ts`.
 - **Limitações:** as notas fiscais digitalizadas estão em outro lugar (portal da Câmara).
-- **Status:** verificado-doc
+  O arquivo do ano corrente muda todo dia, e o deputado tem 90 dias para apresentar a nota.
+- **Status:** verificado-uso
+
+## SRC-01d
+### Câmara — webservices legados (SitCamaraWS)
+- **Base:** `https://www.camara.leg.br/SitCamaraWS` · XML · sem auth.
+- **Endpoints usados:**
+  - `Deputados.asmx/ObterDeputados`: deputados em exercício com `matricula` e
+    `ideCadastro` (= id da API v2). É a única ligação entre a frequência e o SRC-01.
+  - `sessoesreunioes.asmx/ListarPresencasDia?data=DD/MM/AAAA&numLegislatura=57&numMatriculaParlamentar=&siglaPartido=&siglaUF=`:
+    frequência oficial do dia em Plenário, por deputado: `descricaoFrequenciaDia`
+    (`Presença`, `Ausência`, `Ausência justificada`), `justificativa` (ex.: "Licença
+    para Tratamento de Saúde", "Missão Autorizada") e a frequência em cada sessão.
+    **Todos os parâmetros são obrigatórios**, mesmo vazios (senão HTTP 400).
+- **Uso:** MET-01. A API v2 e o `eventosPresencaDeputados` (SRC-01b) só registram quem
+  esteve presente: não têm ausência justificada nem o motivo, que a MET-01 exige.
+- **Limitações (medidas em 2026-11-13):**
+  - Lento: 6–10 s por chamada, mesmo em dia sem sessão (`<dia />`). Por isso só se
+    consultam os dias com `Sessão Deliberativa` no `eventos-{ano}` (SRC-01b).
+  - Só lista quem estava em exercício no dia, o que resolve o denominador de suplentes.
+  - `ObterDeputados` só traz quem está em exercício hoje: a matrícula de ex-deputados não
+    é mapeada (em 08/10/2025, 482 de 515 carteiras mapeadas). Não afeta a MET-01, que é
+    calculada para quem está em exercício.
+  - `siglaPartido` vem truncado em 10 caracteres ("Republican"); não usar como partido.
+  - **Não lista sessões conjuntas do Congresso** (devolve `<dia />` mesmo quando o
+    `eventos` marca sessão naquele dia), embora a página "Presença em Plenário" do site
+    as conte. Conferido em 2026-11-13 (13/03, 04/12 e 19/12/2025).
+  - Valor `Presença (~)` em `descricaoFrequenciaDia`, sem legenda oficial (ver MET-01).
+  - Serviço legado, sem documentação mantida: pode ser desligado. A coleta falha de forma
+    explícita (validação estrita) se o formato mudar.
+- **Status:** verificado-uso (respostas reais lidas em 2026-11-13)
 
 ## SRC-02
 ### TSE — Portal de Dados Abertos

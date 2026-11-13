@@ -22,6 +22,16 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
 - [ ] Migrar para TypeScript 7 (compilador nativo) quando o Next suportar oficialmente.
 - [x] Testes: `node:test` nativo (`pnpm test`), rodando no CI. Feito em 2026-11-13.
 
+- [ ] MET-01: confirmar com a Câmara (LAI) o significado de "Presença (~)" na frequência
+      do webservice. Hoje é tratada pelo Ato da Mesa 191/2017 (ata prevalece).
+- [ ] MET-01: deputados com matrícula fora do `ObterDeputados` (ex-deputados) não são
+      mapeados; só importa se um dia a MET-01 cobrir quem saiu.
+- [ ] Endpoint público de dado bruto (DEC-07): o ZIP oficial da CEAP contém CPF do deputado
+      e nome de passageiros. Decidir se o portal redistribui o arquivo ou só aponta o link
+      oficial + hash (recomendado).
+- [ ] Agendamento (cron) das coletas: frequência diária; CEAP diária (o arquivo do ano muda
+      todo dia); histórico semanal.
+
 ## Decisões em aberto
 - [ ] DEC-05: quem faz a curadoria dos temas de votação? (conselho plural? academia?
       só o usuário?)
@@ -38,7 +48,7 @@ Seguir a regra de uso de referências do `plan.md`: nenhuma pesquisa antecipada.
    com o schema de proveniência (`11-arquitetura.md#proveniência`).
 3. ~~**Primeiro coletor (SRC-01, deputados):** valida o fluxo raw → staging → core com
    proveniência de ponta a ponta.~~ Feito em 2026-11-13 (`pnpm coletar`).
-4. Coletores de presença e de CEAP, e cálculo de MET-01/MET-02.
+4. ~~Coletores de presença e de CEAP, e cálculo de MET-01/MET-02.~~ Feito em 2026-11-13.
 5. Tela do deputado (busca por UF/nome) + página de auditoria.
 6. Teste de compreensão com 5–10 pessoas fora da bolha técnica (checklist de
    `06-auditoria.md`). Antes de aplicar DSG/PRI, validar as REF usadas (regra do
